@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --hsj-red: #e60012;
+    --hsj-red-hover: #cc0010;
+    --hsj-bg: #07090e;
+    --hsj-surface: #0f141f;
+    --hsj-surface-2: #161d2c;
+    --hsj-elevated: #1a2234;
+}
+
+body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    background-color: #07090e;
+    color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display {
+    font-family: "Outfit", "Barlow Condensed", sans-serif;
+}
+.font-body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+}
+.font-mono {
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+@layer base {
+    :root {
+        --background: 222 47% 4%;
+        --foreground: 210 40% 98%;
+        --card: 222 30% 9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222 30% 9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 355 100% 45%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 222 25% 15%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 222 25% 15%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 222 25% 18%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 222 20% 18%;
+        --input: 222 20% 18%;
+        --ring: 355 100% 45%;
+        --radius: 0.75rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #0b0f17;
+}
+::-webkit-scrollbar-thumb {
+    background: #26304a;
+    border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #e60012;
+}
+
+::selection {
+    background: rgba(230, 0, 18, 0.35);
+    color: #fff;
+}
+
+/* Leaflet dark tweaks */
+.leaflet-container {
+    background: #0a0d14 !important;
+    font-family: "JetBrains Mono", monospace;
+}
+.leaflet-control-attribution {
+    background: rgba(7, 9, 14, 0.7) !important;
+    color: #64748b !important;
+}
+.leaflet-control-attribution a {
+    color: #94a3b8 !important;
+}
+
+.hsj-vehicle-marker {
+    filter: drop-shadow(0 0 8px rgba(230, 0, 18, 0.9));
+}
+
+@keyframes hsj-pulse-ring {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+.hsj-pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    border: 2px solid var(--hsj-red);
+    animation: hsj-pulse-ring 1.6s ease-out infinite;
+}
+
+@keyframes hsj-radar {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+.hsj-radar-sweep {
+    animation: hsj-radar 2s linear infinite;
+}
+
+@keyframes hsj-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.hsj-fade-up {
+    animation: hsj-fade-up 0.5s ease both;
+}
+
+.hsj-grid-bg {
+    background-image:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(230, 0, 18, 0.1),
+            transparent 40%
+        ),
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size:
+        100% 100%,
+        44px 44px,
+        44px 44px;
+}

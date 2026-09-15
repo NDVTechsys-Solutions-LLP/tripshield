@@ -1,0 +1,210 @@
+{
+  "project_name": "Honda Safe Journey - Connected Mobility & Safety Cockpit",
+  "theme": "Honda Precision Dark Automotive (Honda Signature Red + Dark Obsidian Carbon)",
+  "architype": "THE PERFORMANCE PRO (Elite Automotive Athleticism & Precision Safety)",
+  "instructions_to_main_agent": [
+    "You MUST read and strictly adhere to these design guidelines for constructing the Honda Safe Journey application.",
+    "This app is a hybrid fullstack connected mobility safety platform for Honda vehicle owners (2-wheelers & 4-wheelers) and Honda Service Center Dealers in India.",
+    "Do NOT use generic standard light SaaS styles or default Inter/Roboto fonts for main headings.",
+    "Use a high-contrast dark automotive cockpit theme (#090C14 base, #101622 surface, #E60012 Honda Red brand accents, #1E293B border, glowing status indicators).",
+    "Ensure ALL interactive elements (buttons, inputs, toggles, cards, links, modals, tabs) include explicit `data-testid` attributes in kebab-case format.",
+    "Ensure Leaflet maps render with dark-mode tile layers (CartoDB Dark Matter) or styled tiles, with smooth custom animated vehicle markers and emergency incident radius overlays.",
+    "Every page/screen must feature micro-animations, active status indicators, glowing telemetry chips, and structured visual depth."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Never use generic centered layouts or flat white boxes for high-tech automotive UI. Use layered dark cards with 1px subtle borders (border-white/10) and subtle red glow highlights.",
+    "Never default to Inter or Roboto for titles. Use Outfit or Barlow Condensed for display headers and JetBrains Mono for telemetry data.",
+    "Containers with borders MUST have generous internal padding (p-6 or p-8) to prevent visual overcrowding.",
+    "Always set hover text colors explicitly alongside background hover changes (e.g. hover:bg-red-600 hover:text-white).",
+    "Include responsive mobile navigation alongside desktop topbar floating controls.",
+    "All modals (SOS Alert, Safety Check-in, Claim Filing, Document Settings) must be backdrop-blurred (backdrop-blur-md bg-black/70) with clear action CTAs.",
+    "Avoid emoji characters for functional icons. Always use lucide-react or @phosphor-icons/react icons."
+  ],
+  "typography": {
+    "font_family_display": "'Outfit', 'Barlow Condensed', sans-serif",
+    "font_family_body": "'Plus Jakarta Sans', sans-serif",
+    "font_family_mono": "'JetBrains Mono', 'Fira Code', monospace",
+    "font_imports": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
+    "heading_h1": "font-display font-extrabold tracking-tight text-3xl sm:text-5xl text-white uppercase",
+    "heading_h2": "font-display font-bold tracking-tight text-2xl sm:text-3xl text-white uppercase",
+    "heading_h3": "font-display font-semibold tracking-wide text-lg sm:text-xl text-slate-100",
+    "telemetry_metric": "font-mono font-bold tracking-wider text-xl sm:text-3xl text-red-500",
+    "subheading": "font-body text-slate-400 text-sm sm:text-base leading-relaxed",
+    "label_overline": "font-mono text-xs font-semibold tracking-widest text-red-400/90 uppercase"
+  },
+  "colors": {
+    "brand_primary": "#E60012",
+    "brand_primary_hover": "#CC0010",
+    "brand_primary_glow": "rgba(230, 0, 18, 0.35)",
+    "background_base": "#07090E",
+    "surface_card": "#0F141F",
+    "surface_card_hover": "#161D2C",
+    "surface_elevated": "#1A2234",
+    "border_subtle": "rgba(255, 255, 255, 0.08)",
+    "border_highlight": "rgba(230, 0, 18, 0.4)",
+    "text_primary": "#F8FAFC",
+    "text_secondary": "#94A3B8",
+    "text_muted": "#64748B",
+    "status_safe": "#10B981",
+    "status_warning": "#F59E0B",
+    "status_danger": "#EF4444",
+    "status_info": "#3B82F6",
+    "carbon_overlay": "linear-gradient(135deg, rgba(15, 20, 31, 0.95) 0%, rgba(9, 12, 19, 0.98) 100%)"
+  },
+  "layout_and_spacing": {
+    "container_max_width": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "card_padding": "p-5 sm:p-7",
+    "grid_gap": "gap-5 sm:gap-8",
+    "hero_padding": "py-12 sm:py-20",
+    "border_radius_card": "rounded-xl",
+    "border_radius_button": "rounded-lg"
+  },
+  "key_screens_and_components": {
+    "login_landing": {
+      "title": "Google Login & Role Selection Hub",
+      "description": "Honda Safe Journey landing with dual login options (Rider/Driver vs Honda Dealer Service Center) + Google Auth simulation.",
+      "components": [
+        "Brand Navbar with Honda emblem badge & live safety network counter",
+        "Role selection toggle/cards (Vehicle Owner / Rider vs Authorized Honda Service Center Dealer)",
+        "Google Auth button with mock profile picker & instant login",
+        "Safety Stats Marquee (100% encrypted document vault, 112 VSSR emergency hookup, live telemetry)"
+      ]
+    },
+    "onboarding_wizard": {
+      "title": "Vehicle Onboarding Wizard",
+      "description": "Choice of 2-Wheeler (Activa, Shine, CB350, Transalp, EM1 e:) vs 4-Wheeler (City, Elevate, Amaze, Civic).",
+      "components": [
+        "Vehicle category switcher with rich vector/image cards",
+        "Registration & Model detail form (Reg No, Chassis/VIN, Color, Year, Fuel/EV type)",
+        "Primary Rider/Driver profile verification step"
+      ]
+    },
+    "bluetooth_pairing": {
+      "title": "Simulated Bluetooth Telemetry Sync",
+      "description": "Pairs vehicle ECU via BLE simulation, displaying real-time battery/fuel %, range (km), health status.",
+      "components": [
+        "Radar search animation with scanning beam",
+        "Connected status badge with signal strength indicator (-65 dBm)",
+        "Energy level gauge with animated fuel/battery fill bar & range estimator",
+        "Diagnostic checklist (Tire Pressure, ECU Health, Oil/Battery Temperature)"
+      ]
+    },
+    "document_wallet": {
+      "title": "Encrypted Document Wallet & Privacy Matrix",
+      "description": "Store Aadhaar Card, Driving License, Vehicle RC, Insurance Policy, PUC Certificate, and Medical Emergency ID with granular permission toggles.",
+      "components": [
+        "Document grid with badge indicators (Valid, Expiring Soon, Verified)",
+        "Per-document permission drawer/switches (Share with Police 112 / Share with Emergency Family / Share with Honda Dealer / Share with Insurer)",
+        "Upload/Add Document modal with simulated OCR auto-fill",
+        "Security audit log (Who accessed what document & when)"
+      ]
+    },
+    "emergency_contacts": {
+      "title": "Emergency Family Network Hub",
+      "description": "Manage trusted contacts for instant SMS/WhatsApp alerts during accident detection or ETA delays.",
+      "components": [
+        "Contact cards with priority tags (Primary Kin, Doctor, Secondary Contact)",
+        "Test Alert trigger button to send mock SMS/WhatsApp notification",
+        "SOS broadcast preview panel"
+      ]
+    },
+    "start_journey_precheck": {
+      "title": "Journey Creator & Readiness Pre-Check",
+      "description": "Select Origin (Point A) and Destination (Point B), run optional automated safety pre-check before ignition.",
+      "components": [
+        "Location autocomplete / quick presets (Home, Office, Honda Service Station, Highway Hub)",
+        "Distance & Estimated Travel Time calculator",
+        "Automated Pre-Check modal: checks energy levels (>20%), document validity (RC/Insurance active), BLE connectivity state",
+        "Start Safe Journey CTA button with telemetry launch sequence"
+      ]
+    },
+    "live_journey_cockpit": {
+      "title": "Live Interactive Navigation & Telemetry Cockpit",
+      "description": "Interactive Leaflet dark map with smooth moving vehicle marker, real-time speedometer, ETA ticker, and simulation triggers.",
+      "components": [
+        "CartoDB Dark interactive map with route polyline & live animated marker",
+        "Digital instrument cluster: Speed (km/h), Energy %, Distance Traveled/Remaining, ETA",
+        "Interactive Simulation Control Bar: [Simulate Route Deviation], [Simulate Traffic Delay], [Simulate Sudden Impact / Crash]",
+        "Real-time event feed log"
+      ]
+    },
+    "safety_checkin_modal": {
+      "title": "Interactive Safety Check-in & Countdown Modal",
+      "description": "Triggered on route deviation or sudden ETA delay. Prompts 'Are you safe?' with a 15-second countdown timer before escalating.",
+      "components": [
+        "Pulsing alert dialog with 15-second countdown ring",
+        "'I am Safe - Continue Journey' button (resets system)",
+        "'Need Assistance' / 'Trigger Emergency SOS' instant escalation button",
+        "Audio beep simulation trigger"
+      ]
+    },
+    "sos_emergency_panel": {
+      "title": "112 VSSR & Family SOS Emergency Control Center",
+      "description": "Activated during impact detection or manual SOS press. Transmits Aadhaar + live GPS + vehicle payload to ERSS 112, family members, and nearest Honda dealer.",
+      "components": [
+        "Pulsing red hazard HUD with siren status",
+        "Live dispatch summary: Sent to 112 ERSS Command, WhatsApp to 3 Emergency Contacts, SOS ticket logged to Honda Dealer",
+        "Aadhaar & Medical ID broadcast data card",
+        "Cancel SOS button with PIN / Security override"
+      ]
+    },
+    "destination_reached": {
+      "title": "Safe Arrival Confirmation & Trip Summary",
+      "description": "Generates trip report, automatically fires 'Safely Arrived' notifications to family, and archives safe journey log.",
+      "components": [
+        "Trip summary stats (Total distance, avg speed, eco score, safety score 100%)",
+        "Automated notification confirmation toast / status log",
+        "One-tap trip closing button"
+      ]
+    },
+    "accident_claim_system": {
+      "title": "One-Tap Instant Accident Insurance Claim (FNOL)",
+      "description": "Post-incident or manual trigger to pull documents from Document Wallet (RC, Aadhaar, Policy No, Driver License) and push a prefilled FNOL claim to integrated insurer via API simulation.",
+      "components": [
+        "Auto-assembled Claim Data Package viewer (Telematics speed + Impact G-Force + Location + Wallet Docs)",
+        "Integrated Insurer Selector (ICICI Lombard, Bajaj Allianz, HDFC ERGO, Honda Assure)",
+        "One-Tap Submit Claim button with real-time API response animation & Claim Reference ID generation"
+      ]
+    },
+    "dealer_dashboard": {
+      "title": "Honda Service Center Dealer Command Center",
+      "description": "Dedicated portal for Honda dealers to monitor active connected vehicles, real-time SOS incidents, incoming crash alerts, remote telemetry diagnostics, and claim approvals.",
+      "components": [
+        "Dealer Topbar with Service Center ID (e.g., Honda Authorized Center - Cyber City Gurgaon)",
+        "Active Connected Vehicles Fleet Grid / Table with live telemetry status",
+        "SOS Emergency Alert Center with urgent sound indicator & rapid dispatch controls",
+        "Vehicle incident timeline viewer + Document audit inspector",
+        "Direct vehicle owner call / service dispatch launcher"
+      ]
+    }
+  },
+  "image_urls": {
+    "honda_vehicles": [
+      "https://images.unsplash.com/photo-1741243632891-de9e443f004e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwyfHxob25kYSUyMG1vdG9yY3ljbGUlMjBzY29vdGVyJTIwZWxlY3RyaWMlMjB2ZWhpY2xlJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzg5NDk3MzI2fDA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1741243633170-eab64ccc4956?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwzfHxob25kYSUyMG1vdG9yY3ljbGUlMjBzY29vdGVyJTIwZWxlY3RyaWMlMjB2ZWhpY2xlJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzg5NDk3MzI2fDA&ixlib=rb-4.1.0&q=85",
+      "https://images.unsplash.com/photo-1741243632885-49efead88024?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwxfHxob25kYSUyMG1vdG9yY3ljbGUlMjBzY29vdGVyJTIwZWxlY3RyaWMlMjB2ZWhpY2xlJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzg5NDk3MzI2fDA&ixlib=rb-4.1.0&q=85"
+    ],
+    "dashboard_interiors": [
+      "https://images.unsplash.com/photo-1782595295085-ed974ede7f27?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwxfHxob25kYSUyMGNhciUyMHNlZGFuJTIwU1VWJTIwaW50ZXJpb3IlMjBkYXNoYm9hcmQlMjBtb2Rlcm58ZW58MHx8fHwxNzg5NDk3MzI2fDA&ixlib=rb-4.1.0&q=85"
+    ]
+  },
+  "testing_and_data_attributes": {
+    "rule": "Every button, input, tab, card, and modal action MUST have a data-testid attribute.",
+    "examples": [
+      "data-testid='login-google-user-button'",
+      "data-testid='login-dealer-portal-button'",
+      "data-testid='vehicle-type-2wheeler-card'",
+      "data-testid='vehicle-type-4wheeler-card'",
+      "data-testid='bluetooth-connect-button'",
+      "data-testid='document-wallet-add-button'",
+      "data-testid='document-sharing-toggle-police'",
+      "data-testid='journey-start-button'",
+      "data-testid='simulate-accident-button'",
+      "data-testid='simulate-deviation-button'",
+      "data-testid='safety-checkin-yes-safe-button'",
+      "data-testid='emergency-sos-trigger-button'",
+      "data-testid='one-tap-claim-submit-button'",
+      "data-testid='dealer-incident-view-button'"
+    ]
+  }
+}
