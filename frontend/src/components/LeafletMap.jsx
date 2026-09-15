@@ -22,8 +22,8 @@ export default function LeafletMap({
       attributionControl: true,
     }).setView([20.5937, 78.9629], 5);
     L.tileLayer(
-      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      { maxZoom: 19, attribution: "© OpenStreetMap © CARTO" }
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      { maxZoom: 19, attribution: "© OpenStreetMap contributors" }
     ).addTo(map);
     mapRef.current = map;
     setTimeout(() => map.invalidateSize(), 200);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -97,6 +97,9 @@ export default function Wallet() {
           <DialogContent className="bg-[#0f141f] border-white/10 text-white backdrop-blur-md max-w-lg">
             <DialogHeader>
               <DialogTitle className="font-display uppercase tracking-wide">Add Document</DialogTitle>
+              <DialogDescription className="text-slate-500 text-sm">
+                Stored encrypted in your wallet. You control who it's shared with.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-2">
               <div>

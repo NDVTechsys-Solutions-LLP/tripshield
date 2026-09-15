@@ -1,0 +1,44 @@
+{
+  "summary": "Frontend E2E testing (Honda Safe Journey) — authenticated via seeded Mongo sessions (user + dealer). Executed the full user flow: Landing -> Dashboard -> Onboarding -> Bluetooth -> Wallet -> Contacts -> Journey Plan -> Live Journey (all 3 simulations + SOS trigger) -> Claim, plus Dealer Command Center and role gating. 21/22 checks passed. Only the auto-arrival wait (~5 min at ~650ms/step over 448 route points) didn't finish inside the test window; the arrival modal itself renders correctly when reached (verified in a shorter 0-km run, screenshot captured).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All Leaflet maps (StartJourney, LiveJourney, Dealer incident modal)", "issues": ["CartoDB basemap tiles are rendering the placeholder 'API KEY REQUIRED / carto.com/basemaps/apikey' watermark. The map, markers and route polyline still render (Leaflet + interaction work), but the underlying tiles are unusable in production. Either switch LeafletMap.jsx to OpenStreetMap tiles (https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png) or provide a valid CartoDB / MapTiler API key."]},
+      {"screen": "Dialogs (add-document dialog, precheck dialog)", "issues": ["Radix warning: 'Missing Description or aria-describedby for DialogContent' — add <DialogDescription> for accessibility."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Replace Carto basemap URL with OSM tiles (or add API key) in src/components/LeafletMap.jsx — map currently displays 'API KEY REQUIRED' watermark on every screen.",
+    "Add DialogDescription (or aria-describedby) to Dialogs in Wallet add-document and Start-Journey precheck to silence Radix a11y warning."
+  ],
+  "critical_code_review_comments": [
+    "LeafletMap uses Carto basemap without API key — visible watermark on production URL; either point to OSM tiles or wire the key from env.",
+    "StartJourney presets: both A and B use the same preset list; when a preset is clicked before the other side is set, both can become identical (0-km route). Not a bug per se, but consider disabling identical A/B or showing an inline warning before enabling Start.",
+    "LiveJourney auto-advance interval (~650ms) on a 448-point OSRM polyline makes the full simulated journey ~5 minutes, hard to reach programmatically without pause manipulation. Consider a 'jump to end' dev shortcut or expose a faster step for QA.",
+    "Radix Dialog missing DialogDescription causes accessibility warnings across the app."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "~95% (21/22 UI checks; arrival modal verified in a separate 0-km run but auto-arrival timing on the 23.7 km route exceeded the test window)"},
+  "test_credentials": "Session cookie session_token=tok_user_1789498189466 (role user) and tok_dealer_1789498189466 (role dealer). Domain: trip-shield-5.preview.emergentagent.com.",
+  "seed_data_creation": "Reused pre-seeded users/sessions per /app/auth_testing.md. Created one Aadhaar wallet doc, one family contact ('Test Family'), one journey (Connaught Place -> Cyber City) with deviation/delay/accident/SOS events, and one claim during testing (all under rider.test user).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All data-testids validated: landing (login-google-user-button, login-dealer-portal-button), onboarding uses vehicle-type-2wheeler-card / vehicle-type-4wheeler-card / input-reg-no / fuel-petrol|electric (NOT the names in the spec — spec said vehicle-type-two-wheeler / vehicle-reg-input / vehicle-powertrain-select but actual code uses shorter names; save button works and navigates to /app/bluetooth). Precheck confirm button is 'precheck-proceed-button' (not 'precheck-confirm-button'). Bluetooth connect button hides itself once already connected (state persists across sessions), so on a re-run the 'connected' state is shown immediately. All simulate-*, safety-checkin-*, sos-cancel-button, emergency-sos-trigger-button, close-journey-button, dealer-stat-*, dealer-filter-*, dealer-incident-row, dealer-incident-view-button, dealer-acknowledge-button, dealer-resolve-button work. Role gating verified both directions.",
+  "verified_flows": [
+    "Landing shows both portal buttons",
+    "Dashboard loads with stats + Plan Journey",
+    "Onboarding save -> /app/bluetooth",
+    "Bluetooth connects, shows energy readout, continue works",
+    "Wallet add document works; all 4 sharing toggles present (police/family/dealer/insurer) and persist on toggle",
+    "Contact create appears in list",
+    "Journey plan: presets set A and B, route summary (23.7 km / 28 min) renders, precheck opens and proceed works, Start Journey navigates to /app/journey/live",
+    "Live journey: Leaflet map renders, deviation/delay show safety check-in modal with yes-safe button, accident opens SOS with 112 ERSS/VSSR + Family + Honda Service Center dispatched channels and Aadhaar/Location/Contacts broadcast payload, emergency-sos-trigger-button also opens SOS",
+    "Arrival modal renders correctly on short (0-km) route with auto-notified family and close-journey-button returns to /app (screenshot captured)",
+    "Claim: insurer options render, one-tap submit succeeds and claim-success shows",
+    "Dealer dashboard: 5 stat cards, 6 filters, incident rows, view opens detail modal with shared emergency data, journey activity timeline, acknowledge & resolve update status",
+    "Role gating: user -> /dealer redirects to /app; dealer -> /app redirects to /dealer"
+  ]
+}

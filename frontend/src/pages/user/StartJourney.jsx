@@ -4,7 +4,7 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import LeafletMap from "@/components/LeafletMap";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import {
   MapPin, Navigation, Search, Route as RouteIcon, Clock, Gauge, ShieldCheck,
@@ -152,6 +152,9 @@ export default function StartJourney() {
             <DialogTitle className="font-display uppercase tracking-wide flex items-center gap-2">
               <FileCheck className="text-[#e60012]" size={20} /> Readiness Pre-Check
             </DialogTitle>
+            <DialogDescription className="text-slate-500 text-sm">
+              Optional safety verification before you start the journey.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 mt-2">
             {precheck?.checks.map((c) => (

@@ -90,6 +90,11 @@ body {
     background: #0a0d14 !important;
     font-family: "JetBrains Mono", monospace;
 }
+/* Dark-mode filter for keyless OSM tiles; SVG polylines/markers are overlays and unaffected */
+.leaflet-tile {
+    filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9)
+        grayscale(0.22) saturate(0.8);
+}
 .leaflet-control-attribution {
     background: rgba(7, 9, 14, 0.7) !important;
     color: #64748b !important;
