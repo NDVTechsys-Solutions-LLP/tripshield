@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import LeafletMap from "@/components/LeafletMap";
+import { speak, initSpeech, stopSpeaking } from "@/lib/speech";
 import {
   Dialog, DialogContent,
 } from "@/components/ui/dialog";
@@ -32,8 +33,10 @@ export default function LiveJourney() {
   const [voiceOn, setVoiceOn] = useState(false);
 
   const timerRef = useRef(null);
+  const startSpokenRef = useRef(false);
 
   useEffect(() => {
+    initSpeech();
     api.get("/vehicle").then((r) => setVehicle(r.data));
     if (!journey) {
       api.get("/journeys/active").then((r) => {
@@ -127,6 +130,32 @@ export default function LiveJourney() {
     return () => { r.onend = null; try { r.stop(); } catch {} };
   }, [voiceOn, sos]); // eslint-disable-line
 
+  // Spoken narration (deep/male voice)
+  useEffect(() => {
+    if (journey && !startSpokenRef.current) {
+      startSpokenRef.current = true;
+      speak("Safe journey activated. Live safety monitoring is on. Ride safe.");
+    }
+  }, [journey]);
+
+  useEffect(() => {
+    if (checkin) speak("Safety check in. Are you safe? Please confirm that you are okay.");
+  }, [checkin]);
+
+  useEffect(() => {
+    if (sos) {
+      speak(
+        "S O S activated. Emergency services, your family, and Honda service center have been notified. Help is on the way. Stay calm."
+      );
+    }
+  }, [sos]);
+
+  useEffect(() => {
+    if (arrived) speak("You have safely arrived at your destination. Your family has been notified.");
+  }, [arrived]);
+
+  useEffect(() => () => stopSpeaking(), []);
+
   const frac = total ? idx / (total - 1) : 0;
   const position = total ? route[Math.min(idx, total - 1)] : null;
   const distanceRemaining = journey ? (journey.distance_km * (1 - frac)).toFixed(1) : 0;
@@ -189,6 +218,7 @@ export default function LiveJourney() {
   const confirmSafe = () => {
     setCheckin(null);
     setDeviationPath(null);
+    speak("Thank you. Glad you are safe. Resuming your journey.");
     pushEvent("checkin", "Rider confirmed safe — resuming journey", "success");
     toast.success("Marked safe. Journey resumed.");
     setRunning(true);
@@ -229,7 +259,11 @@ export default function LiveJourney() {
         <div className="flex items-center gap-2">
           <button
             data-testid="voice-sos-toggle"
-            onClick={() => setVoiceOn((v) => !v)}
+            onClick={() => setVoiceOn((v) => {
+              const nv = !v;
+              if (nv) speak("Voice S O S armed. Say, Honda, help me, to trigger an emergency.");
+              return nv;
+            })}
             disabled={!!sos}
             title="Hands-free voice SOS"
             className={`px-4 py-3 rounded-lg font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2 border ${
