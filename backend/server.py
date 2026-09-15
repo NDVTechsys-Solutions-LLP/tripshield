@@ -491,6 +491,16 @@ class ClaimIn(BaseModel):
     impact_g: Optional[float] = None
 
 
+CLAIM_STAGES = [
+    {"key": "submitted", "label": "Claim Submitted", "note": "FNOL received by insurer"},
+    {"key": "under_review", "label": "Under Review", "note": "Documents & telematics validated"},
+    {"key": "surveyor_assigned", "label": "Surveyor Assigned", "note": "Field surveyor scheduled"},
+    {"key": "approved", "label": "Approved", "note": "Claim sanctioned"},
+    {"key": "settled", "label": "Settled", "note": "Amount disbursed / repair authorised"},
+]
+STAGE_KEYS = [s["key"] for s in CLAIM_STAGES]
+
+
 @api_router.post("/claims")
 async def create_claim(payload: ClaimIn, user=Depends(get_current_user)):
     docs = await db.documents.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(200)
@@ -522,10 +532,49 @@ async def create_claim(payload: ClaimIn, user=Depends(get_current_user)):
         "claim_id": cid, "user_id": user["user_id"], "journey_id": payload.journey_id,
         "incident_id": payload.incident_id, "insurer": payload.insurer,
         "claim_ref": claim_ref, "data_package": package,
-        "status": "submitted", "created_at": iso(now_utc()),
+        "status": "submitted", "photos": [],
+        "timeline": [{"key": "submitted", "label": CLAIM_STAGES[0]["label"],
+                      "note": CLAIM_STAGES[0]["note"], "at": iso(now_utc())}],
+        "created_at": iso(now_utc()),
     }
     await db.claims.insert_one(data)
     return await db.claims.find_one({"claim_id": cid}, {"_id": 0})
+
+
+@api_router.get("/claims/{claim_id}")
+async def get_claim(claim_id: str, user=Depends(get_current_user)):
+    c = await db.claims.find_one({"claim_id": claim_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not c:
+        raise HTTPException(status_code=404, detail="Not found")
+    return c
+
+
+class PhotosIn(BaseModel):
+    photos: List[str]  # base64 data urls
+
+
+@api_router.post("/claims/{claim_id}/photos")
+async def add_claim_photos(claim_id: str, payload: PhotosIn, user=Depends(get_current_user)):
+    await db.claims.update_one(
+        {"claim_id": claim_id, "user_id": user["user_id"]},
+        {"$push": {"photos": {"$each": payload.photos}}})
+    return await db.claims.find_one({"claim_id": claim_id, "user_id": user["user_id"]}, {"_id": 0})
+
+
+@api_router.post("/claims/{claim_id}/advance")
+async def advance_claim(claim_id: str, user=Depends(get_current_user)):
+    c = await db.claims.find_one({"claim_id": claim_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not c:
+        raise HTTPException(status_code=404, detail="Not found")
+    idx = STAGE_KEYS.index(c.get("status", "submitted"))
+    if idx >= len(STAGE_KEYS) - 1:
+        return c
+    nxt = CLAIM_STAGES[idx + 1]
+    entry = {"key": nxt["key"], "label": nxt["label"], "note": nxt["note"], "at": iso(now_utc())}
+    await db.claims.update_one(
+        {"claim_id": claim_id, "user_id": user["user_id"]},
+        {"$set": {"status": nxt["key"]}, "$push": {"timeline": entry}})
+    return await db.claims.find_one({"claim_id": claim_id, "user_id": user["user_id"]}, {"_id": 0})
 
 
 @api_router.get("/claims")

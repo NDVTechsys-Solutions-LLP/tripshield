@@ -9,7 +9,7 @@ import {
 import {
   Gauge, Clock, Route as RouteIcon, Zap, Siren, GitBranch, TrafficCone,
   Car, ShieldCheck, ShieldAlert, Phone, MapPin, X, CheckCircle2, Radio,
-  Activity, FileText, Home, Play, Pause,
+  Activity, FileText, Home, Play, Pause, Mic, MicOff,
 } from "lucide-react";
 
 export default function LiveJourney() {
@@ -29,6 +29,7 @@ export default function LiveJourney() {
   const [countdown, setCountdown] = useState(15);
   const [sos, setSos] = useState(null); // incident object
   const [arrived, setArrived] = useState(null); // {notified}
+  const [voiceOn, setVoiceOn] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -85,6 +86,46 @@ export default function LiveJourney() {
     }, 1000);
     return () => clearInterval(iv);
   }, [checkin]); // eslint-disable-line
+
+  // Periodic voluntary safety check-in (records rider response)
+  useEffect(() => {
+    if (!running || sos || arrived || checkin) return;
+    const iv = setInterval(() => {
+      setCheckin({
+        reason: "periodic",
+        title: "Safety Check-In",
+        body: "Routine check-in — please confirm you're okay to continue.",
+      });
+    }, 42000);
+    return () => clearInterval(iv);
+  }, [running, sos, arrived, checkin]);
+
+  // Hands-free voice SOS — listens for "Honda, help me"
+  useEffect(() => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!voiceOn) return;
+    if (!SR) {
+      toast.error("Voice recognition not supported in this browser");
+      setVoiceOn(false);
+      return;
+    }
+    const r = new SR();
+    r.continuous = true;
+    r.interimResults = true;
+    r.lang = "en-IN";
+    r.onresult = (e) => {
+      const t = Array.from(e.results).map((x) => x[0].transcript).join(" ").toLowerCase();
+      if (t.includes("honda") && t.includes("help") && !sos) {
+        pushEvent("sos", "Hands-free voice command detected: 'Honda, help me'", "danger");
+        escalateSOS("sos", "Hands-free voice SOS activated ('Honda, help me')");
+      }
+    };
+    r.onerror = () => {};
+    r.onend = () => { if (voiceOn) { try { r.start(); } catch {} } };
+    try { r.start(); } catch {}
+    toast.success("Voice SOS armed — say 'Honda, help me'");
+    return () => { r.onend = null; try { r.stop(); } catch {} };
+  }, [voiceOn, sos]); // eslint-disable-line
 
   const frac = total ? idx / (total - 1) : 0;
   const position = total ? route[Math.min(idx, total - 1)] : null;
@@ -185,14 +226,30 @@ export default function LiveJourney() {
             {journey.from_name.split(",")[0]} → {journey.to_name.split(",")[0]}
           </h1>
         </div>
-        <button
-          data-testid="emergency-sos-trigger-button"
-          onClick={manualSOS}
-          disabled={!!sos}
-          className="px-5 py-3 rounded-lg bg-[#ef4444] hover:bg-red-600 disabled:opacity-40 text-white font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2 shadow-lg shadow-red-500/25"
-        >
-          <Siren size={18} /> SOS
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            data-testid="voice-sos-toggle"
+            onClick={() => setVoiceOn((v) => !v)}
+            disabled={!!sos}
+            title="Hands-free voice SOS"
+            className={`px-4 py-3 rounded-lg font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2 border ${
+              voiceOn
+                ? "bg-[#e60012]/15 border-[#e60012]/50 text-red-300"
+                : "bg-[#0f141f] border-white/10 text-slate-400 hover:text-white"
+            }`}
+          >
+            {voiceOn ? <Mic size={18} /> : <MicOff size={18} />}
+            <span className="hidden sm:inline">{voiceOn ? "Listening" : "Voice SOS"}</span>
+          </button>
+          <button
+            data-testid="emergency-sos-trigger-button"
+            onClick={manualSOS}
+            disabled={!!sos}
+            className="px-5 py-3 rounded-lg bg-[#ef4444] hover:bg-red-600 disabled:opacity-40 text-white font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2 shadow-lg shadow-red-500/25"
+          >
+            <Siren size={18} /> SOS
+          </button>
+        </div>
       </div>
 
       {/* Telemetry cluster */}
