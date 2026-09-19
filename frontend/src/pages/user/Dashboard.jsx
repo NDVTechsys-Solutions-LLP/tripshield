@@ -43,7 +43,6 @@ export default function Dashboard() {
 
   const steps = [
     { done: !!vehicle, label: "Register your vehicle", icon: Bike, to: "/app/onboarding" },
-    { done: !!vehicle?.bt_connected, label: "Sync telemetry via Bluetooth", icon: Bluetooth, to: "/app/bluetooth" },
     { done: docs.length > 0, label: "Add documents to wallet", icon: Wallet, to: "/app/wallet" },
     { done: contacts.length > 0, label: "Set emergency family contacts", icon: Users, to: "/app/contacts" },
   ];

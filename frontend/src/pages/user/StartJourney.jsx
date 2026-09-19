@@ -93,12 +93,10 @@ export default function StartJourney() {
   };
 
   const runPrecheck = () => {
-    const energyOk = (vehicle?.energy_level || 0) >= 20 && vehicle?.bt_connected;
     const rc = docs.find((d) => d.doc_type === "Vehicle RC");
     const ins = docs.find((d) => d.doc_type === "Vehicle Insurance");
     const checks = [
-      { label: "Bluetooth telemetry connected", ok: !!vehicle?.bt_connected },
-      { label: `Energy level ≥ 20% (${vehicle?.energy_level || 0}%)`, ok: energyOk },
+      { label: "Vehicle registered", ok: !!vehicle },
       { label: "Vehicle RC in wallet", ok: !!rc },
       { label: "Insurance active", ok: !!ins },
       { label: "Route & ETA locked", ok: !!routeData },

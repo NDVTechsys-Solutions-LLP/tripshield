@@ -57,12 +57,6 @@ export default function Settings() {
       status: "Dashboard", ok: true,
     },
     {
-      to: "/app/bluetooth", icon: Bluetooth, testid: "settings-tool-telemetry",
-      title: "Telemetry Sync", desc: "Connect vehicle sensors for live ride analytics",
-      status: vehicle?.bt_connected ? `Connected · ${vehicle.energy_level}%` : "Not connected",
-      ok: !!vehicle?.bt_connected,
-    },
-    {
       to: "/app/onboarding", icon: Bike, testid: "settings-tool-vehicle",
       title: "My Vehicle", desc: "Honda 2W/4W profile, specs & service history",
       status: vehicle ? `${vehicle.model} · ${vehicle.reg_no}` : "Not registered",

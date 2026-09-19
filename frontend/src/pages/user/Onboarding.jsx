@@ -42,7 +42,7 @@ export default function Onboarding() {
     try {
       await api.post("/vehicle", { ...form, type });
       toast.success("Vehicle registered");
-      navigate("/app/bluetooth");
+      navigate("/app/wallet");
     } catch {
       toast.error("Could not save vehicle");
     } finally {
@@ -148,7 +148,7 @@ export default function Onboarding() {
         disabled={saving}
         className="mt-6 w-full sm:w-auto px-8 py-3.5 rounded-lg bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wide transition-colors flex items-center justify-center gap-2"
       >
-        {saving ? "Saving…" : "Save & Sync Telemetry"} <ArrowRight size={18} />
+        {saving ? "Saving…" : "Save & Continue"} <ArrowRight size={18} />
       </button>
     </div>
   );
