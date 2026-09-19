@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import {
   Settings as SettingsIcon, Phone, MessageSquare, Mail, Send, Users, Plus,
-  Trash2, Heart, Save, Radio, Bluetooth, Bike, Wallet, ChevronRight, ShieldCheck,
+  Trash2, Heart, Save, Radio, Bluetooth, Bike, Wallet, ChevronRight, ShieldCheck, LayoutDashboard,
 } from "lucide-react";
 
 const CHANNELS = [
@@ -51,6 +51,11 @@ export default function Settings() {
   const removeContact = async (id) => { await api.delete(`/contacts/${id}`); loadContacts(); };
 
   const tools = [
+    {
+      to: "/app", icon: LayoutDashboard, testid: "settings-tool-hub",
+      title: "Command Hub", desc: "Overview, safety setup & quick actions",
+      status: "Dashboard", ok: true,
+    },
     {
       to: "/app/bluetooth", icon: Bluetooth, testid: "settings-tool-telemetry",
       title: "Telemetry Sync", desc: "Connect vehicle sensors for live ride analytics",
