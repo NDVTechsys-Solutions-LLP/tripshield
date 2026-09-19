@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import api from "@/lib/api";
 import LeafletMap from "@/components/LeafletMap";
-import { HondaMark } from "@/components/HondaMark";
+import { TripShieldMark } from "@/components/BrandMark";
 import {
   ShieldCheck, MapPin, Navigation, Clock, Route as RouteIcon, Activity,
   AlertTriangle, CheckCircle2, Siren, Loader2, WifiOff,
@@ -58,7 +58,7 @@ export default function TrackView() {
       <header className="border-b border-white/10 bg-[#0b0f17]/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-[#e60012]">
-            <HondaMark size={26} />
+            <TripShieldMark size={26} />
             <span className="font-display font-extrabold text-white text-sm">SAFE JOURNEY · LIVE</span>
           </div>
           <span className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest ${
@@ -129,7 +129,7 @@ export default function TrackView() {
         </div>
 
         <p className="flex items-center justify-center gap-2 text-xs text-slate-600 mt-8 font-mono">
-          <ShieldCheck size={13} className="text-emerald-400" /> Secured by Honda Safe Journey · Auto-refreshes every few seconds
+          <ShieldCheck size={13} className="text-emerald-400" /> Secured by TripShield · Auto-refreshes every few seconds
         </p>
       </main>
     </div>

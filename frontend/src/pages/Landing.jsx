@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { HondaMark } from "@/components/HondaMark";
+import { TripShieldMark } from "@/components/BrandMark";
 import {
   ShieldCheck,
   Bike,
@@ -38,7 +38,7 @@ export default function Landing() {
       {/* Nav */}
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <div className="flex items-center gap-3 text-[#e60012]">
-          <HondaMark size={40} />
+          <TripShieldMark size={40} />
           <div>
             <p className="font-display font-extrabold text-white text-lg leading-none tracking-tight">
               SAFE JOURNEY
@@ -73,7 +73,7 @@ export default function Landing() {
           <p className="font-body text-slate-400 text-base sm:text-lg mt-6 max-w-lg leading-relaxed">
             Real-time telemetry, encrypted document vault, automatic accident
             detection, one-tap SOS to 112 ERSS &amp; family, and instant
-            insurance claims — for every Honda two &amp; four-wheeler.
+            insurance claims — for every two &amp; four-wheeler.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 max-w-lg">
@@ -99,7 +99,7 @@ export default function Landing() {
         {/* Right: login cards */}
         <div className="hsj-fade-up" style={{ animationDelay: "0.15s" }}>
           <div className="relative rounded-2xl overflow-hidden border border-white/10 mb-6 h-40 sm:h-52">
-            <img src={HERO} alt="Honda" className="w-full h-full object-cover opacity-70" />
+            <img src={HERO} alt="TripShield" className="w-full h-full object-cover opacity-70" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent" />
           </div>
 
@@ -132,7 +132,7 @@ export default function Landing() {
               <Building2 size={24} />
             </div>
             <div className="flex-1">
-              <p className="font-display font-bold text-white text-lg">Honda Service Center</p>
+              <p className="font-display font-bold text-white text-lg">TripShield Service Center</p>
               <p className="text-sm text-slate-400">Dealer command &amp; incident center</p>
             </div>
             <GoogleGlyph />

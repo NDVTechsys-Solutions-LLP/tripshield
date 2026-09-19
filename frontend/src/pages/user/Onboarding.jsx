@@ -56,7 +56,7 @@ export default function Onboarding() {
         Step 1 · Vehicle Onboarding
       </p>
       <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
-        {existing ? "My Vehicle" : "Register your Honda"}
+        {existing ? "My Vehicle" : "Register your vehicle"}
       </h1>
 
       {/* Type switch */}

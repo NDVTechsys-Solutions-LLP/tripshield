@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { HondaMark } from "@/components/HondaMark";
+import { TripShieldMark } from "@/components/BrandMark";
 import LeafletMap from "@/components/LeafletMap";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -59,13 +59,13 @@ export default function DealerDashboard() {
       <header className="border-b border-white/10 bg-[#0b0f17]/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-[#3b82f6]"><HondaMark size={34} /></span>
+            <span className="text-[#3b82f6]"><TripShieldMark size={34} /></span>
             <div>
               <p className="font-display font-extrabold text-white leading-none tracking-tight">
                 SERVICE CENTER COMMAND
               </p>
               <p className="font-mono text-[10px] tracking-widest text-slate-500 mt-1 flex items-center gap-1">
-                <Building2 size={10} /> Honda Authorized · Cyber City, Gurugram
+                <Building2 size={10} /> TripShield Authorized · Cyber City, Gurugram
               </p>
             </div>
           </div>

@@ -58,7 +58,7 @@ export default function Settings() {
     },
     {
       to: "/app/onboarding", icon: Bike, testid: "settings-tool-vehicle",
-      title: "My Vehicle", desc: "Honda 2W/4W profile, specs & service history",
+      title: "My Vehicle", desc: "2W/4W profile, specs & service history",
       status: vehicle ? `${vehicle.model} · ${vehicle.reg_no}` : "Not registered",
       ok: !!vehicle,
     },

@@ -104,7 +104,7 @@ export default function LiveJourney() {
     return () => clearInterval(iv);
   }, [running, sos, arrived, checkin]);
 
-  // Hands-free voice SOS — listens for "Honda, help me"
+  // Hands-free voice SOS — listens for "TripShield, help me"
   useEffect(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!voiceOn) return;
@@ -119,15 +119,15 @@ export default function LiveJourney() {
     r.lang = "en-IN";
     r.onresult = (e) => {
       const t = Array.from(e.results).map((x) => x[0].transcript).join(" ").toLowerCase();
-      if (t.includes("honda") && t.includes("help") && !sos) {
-        pushEvent("sos", "Hands-free voice command detected: 'Honda, help me'", "danger");
-        escalateSOS("sos", "Hands-free voice SOS activated ('Honda, help me')");
+      if ((t.includes("shield") || t.includes("trip")) && t.includes("help") && !sos) {
+        pushEvent("sos", "Hands-free voice command detected: 'TripShield, help me'", "danger");
+        escalateSOS("sos", "Hands-free voice SOS activated ('TripShield, help me')");
       }
     };
     r.onerror = () => {};
     r.onend = () => { if (voiceOn) { try { r.start(); } catch {} } };
     try { r.start(); } catch {}
-    toast.success("Voice SOS armed — say 'Honda, help me'");
+    toast.success("Voice SOS armed — say 'TripShield, help me'");
     return () => { r.onend = null; try { r.stop(); } catch {} };
   }, [voiceOn, sos]); // eslint-disable-line
 
@@ -146,7 +146,7 @@ export default function LiveJourney() {
   useEffect(() => {
     if (sos) {
       speak(
-        "S O S activated. Emergency services, your family, and Honda service center have been notified. Help is on the way. Stay calm."
+        "S O S activated. Emergency services, your family, and TripShield service center have been notified. Help is on the way. Stay calm."
       );
     }
   }, [sos]);
@@ -182,11 +182,11 @@ export default function LiveJourney() {
     if (journey) {
       await api.post("/incidents", {
         journey_id: journey.journey_id, type: "deviation", severity: "medium",
-        message: "Route deviation — incident raised to Honda Service Center",
+        message: "Route deviation — incident raised to TripShield Service Center",
         location: position,
       }).catch(() => {});
     }
-    toast.warning("Route deviation reported to Honda Service Center");
+    toast.warning("Route deviation reported to TripShield Service Center");
     setCheckin({ reason: "deviation", title: "Route Deviation Detected", body: "Your vehicle has left the planned route. Are you safe?" });
   };
 
@@ -217,7 +217,7 @@ export default function LiveJourney() {
       });
       setSos(r.data);
       setIncidentMark(position);
-      pushEvent("sos", "SOS broadcast: 112 ERSS + Family + Honda dealer notified", "danger");
+      pushEvent("sos", "SOS broadcast: 112 ERSS + Family + TripShield dealer notified", "danger");
     } catch { toast.error("SOS dispatch failed"); }
   };
 
@@ -269,7 +269,7 @@ export default function LiveJourney() {
             data-testid="voice-sos-toggle"
             onClick={() => setVoiceOn((v) => {
               const nv = !v;
-              if (nv) speak("Voice S O S armed. Say, Honda, help me, to trigger an emergency.");
+              if (nv) speak("Voice S O S armed. Say, TripShield, help me, to trigger an emergency.");
               return nv;
             })}
             disabled={!!sos}
@@ -361,11 +361,11 @@ export default function LiveJourney() {
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <ShareBtn testid="share-whatsapp" icon={Send} label="WhatsApp"
-                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Track my Honda Safe Journey live: " + shareUrl)}`, "_blank")} />
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Track my TripShield live: " + shareUrl)}`, "_blank")} />
                 <ShareBtn testid="share-sms" icon={MessageSquare} label="SMS"
-                  onClick={() => { window.location.href = `sms:?body=${encodeURIComponent("Track my Honda Safe Journey live: " + shareUrl)}`; }} />
+                  onClick={() => { window.location.href = `sms:?body=${encodeURIComponent("Track my TripShield live: " + shareUrl)}`; }} />
                 <ShareBtn testid="share-email" icon={Mail} label="Email"
-                  onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent("My Safe Journey - Live location")}&body=${encodeURIComponent("Track my Honda Safe Journey live: " + shareUrl)}`; }} />
+                  onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent("My Safe Journey - Live location")}&body=${encodeURIComponent("Track my TripShield live: " + shareUrl)}`; }} />
               </div>
             </div>
           )}

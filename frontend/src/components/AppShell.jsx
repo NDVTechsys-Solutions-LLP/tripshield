@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
-import { HondaMark } from "@/components/HondaMark";
+import { TripShieldMark } from "@/components/BrandMark";
 import {
   LayoutDashboard,
   Bike,
@@ -93,7 +93,7 @@ export default function AppShell() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-72 flex-col border-r border-white/10 bg-[#0b0f17]/80 backdrop-blur-md fixed h-screen">
         <div className="flex items-center gap-3 px-6 h-20 border-b border-white/10">
-          <span className="text-[#e60012]"><HondaMark size={34} /></span>
+          <span className="text-[#e60012]"><TripShieldMark size={34} /></span>
           <div>
             <p className="font-display font-extrabold text-white leading-none tracking-tight">
               SAFE JOURNEY
@@ -112,7 +112,7 @@ export default function AppShell() {
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 inset-x-0 z-40 h-16 flex items-center justify-between px-4 border-b border-white/10 bg-[#0b0f17]/95 backdrop-blur-md">
         <div className="flex items-center gap-2 text-[#e60012]">
-          <HondaMark size={26} />
+          <TripShieldMark size={26} />
           <span className="font-display font-extrabold text-white text-sm">SAFE JOURNEY</span>
         </div>
         <button data-testid="mobile-menu-toggle" onClick={() => setOpen(true)} className="text-white p-2">

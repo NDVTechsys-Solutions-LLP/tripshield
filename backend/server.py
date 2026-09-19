@@ -289,7 +289,7 @@ async def geocode(payload: GeocodeReq):
         r = requests.get(
             "https://nominatim.openstreetmap.org/search",
             params={"q": payload.query, "format": "json", "limit": 5, "countrycodes": "in"},
-            headers={"User-Agent": "HondaSafeJourney/1.0"}, timeout=12,
+            headers={"User-Agent": "TripShield/1.0"}, timeout=12,
         )
         results = r.json()
         return [{"name": x["display_name"], "lat": float(x["lat"]), "lng": float(x["lon"])}
@@ -477,9 +477,9 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
 
     shared_with = []
     if payload.type in ("sos", "accident"):
-        shared_with = ["112 ERSS / VSSR", "Emergency Family Contacts", "Honda Service Center"]
+        shared_with = ["112 ERSS / VSSR", "Emergency Family Contacts", "TripShield Service Center"]
     elif payload.type == "deviation":
-        shared_with = ["Honda Service Center"]
+        shared_with = ["TripShield Service Center"]
 
     aadhaar = next((d for d in docs if d["doc_type"] == "Aadhaar Card"
                     and (d.get("share_police") or d.get("share_family"))), None)
@@ -714,7 +714,7 @@ async def dealer_incident_detail(incident_id: str, user=Depends(require_dealer))
 
 @api_router.get("/")
 async def root():
-    return {"message": "Honda Safe Journey API"}
+    return {"message": "TripShield API"}
 
 
 app.include_router(api_router)

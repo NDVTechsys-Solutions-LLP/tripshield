@@ -9,7 +9,7 @@ import {
   Camera, Clock, ChevronRight, Circle, Upload, ArrowRight,
 } from "lucide-react";
 
-const INSURERS = ["Honda Assure", "ICICI Lombard", "Bajaj Allianz", "HDFC ERGO"];
+const INSURERS = ["TripShield Assure", "ICICI Lombard", "Bajaj Allianz", "HDFC ERGO"];
 
 const CLAIM_STAGES = [
   { key: "submitted", label: "Submitted" },
@@ -27,7 +27,7 @@ export default function Claim() {
   const [vehicle, setVehicle] = useState(null);
   const [incidents, setIncidents] = useState([]);
   const [journeys, setJourneys] = useState([]);
-  const [insurer, setInsurer] = useState("Honda Assure");
+  const [insurer, setInsurer] = useState("TripShield Assure");
   const [submitting, setSubmitting] = useState(false);
   const [claim, setClaim] = useState(null);
   const [claims, setClaims] = useState([]);

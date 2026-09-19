@@ -17,7 +17,7 @@ const DOC_TYPES = [
 const SHARE_TARGETS = [
   { key: "share_police", label: "Police / 112", icon: Shield, testid: "police" },
   { key: "share_family", label: "Family", icon: Users, testid: "family" },
-  { key: "share_dealer", label: "Honda Dealer", icon: Building2, testid: "dealer" },
+  { key: "share_dealer", label: "TripShield Dealer", icon: Building2, testid: "dealer" },
   { key: "share_insurer", label: "Insurer", icon: Landmark, testid: "insurer" },
 ];
 
