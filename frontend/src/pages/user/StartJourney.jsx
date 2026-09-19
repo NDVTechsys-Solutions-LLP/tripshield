@@ -9,7 +9,14 @@ import {
 import {
   MapPin, Navigation, Search, Route as RouteIcon, Clock, Gauge, ShieldCheck,
   CheckCircle2, XCircle, ArrowRight, Loader2, Rocket, FileCheck,
+  Radio, Crosshair, Share2, MessageSquare, Send, Mail,
 } from "lucide-react";
+
+const CHANNELS = [
+  { key: "sms", label: "SMS", icon: MessageSquare },
+  { key: "whatsapp", label: "WhatsApp", icon: Send },
+  { key: "email", label: "Email", icon: Mail },
+];
 
 const PRESETS = [
   { name: "Connaught Place, New Delhi", lat: 28.6315, lng: 77.2167 },
@@ -33,11 +40,41 @@ export default function StartJourney() {
   const [precheckOpen, setPrecheckOpen] = useState(false);
   const [precheck, setPrecheck] = useState(null);
   const [starting, setStarting] = useState(false);
+  const [mode, setMode] = useState("live");
+  const [simKm, setSimKm] = useState(18);
+  const [channel, setChannel] = useState("sms");
+  const [gpsBusy, setGpsBusy] = useState(false);
 
   useEffect(() => {
     api.get("/vehicle").then((r) => setVehicle(r.data));
     api.get("/documents").then((r) => setDocs(r.data));
+    api.get("/settings").then((r) => setChannel(r.data.channel || "sms")).catch(() => {});
   }, []);
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) { toast.error("Geolocation not supported"); return; }
+    setGpsBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setFrom({ name: "Current location", lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGpsBusy(false);
+        toast.success("Live location captured");
+      },
+      () => {
+        setGpsBusy(false);
+        setFrom({ name: "Current location (approx)", lat: 28.6139, lng: 77.209 });
+        toast.info("Using approximate location (New Delhi)");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
+  const generateSim = () => {
+    if (!from) return;
+    const dLat = (simKm / 111) * 0.72;
+    const dLng = (simKm / (111 * Math.cos((from.lat * Math.PI) / 180))) * 0.72;
+    setTo({ name: `Simulation destination (~${simKm} km)`, lat: from.lat + dLat, lng: from.lng + dLng });
+  };
 
   useEffect(() => {
     if (from && to) computeRoute();
@@ -79,6 +116,7 @@ export default function StartJourney() {
         to_name: to.name, to_coords: [to.lat, to.lng],
         distance_km: routeData.distance_km, eta_min: routeData.duration_min,
         route: routeData.coordinates, precheck: precheck || null,
+        mode, channel,
       });
       toast.success("Safe Journey launched");
       navigate("/app/journey/live", { state: { journey: r.data } });
@@ -96,8 +134,59 @@ export default function StartJourney() {
 
       <div className="grid lg:grid-cols-2 gap-6 mt-8">
         <div className="space-y-5">
-          <LocationPicker label="Point A · Origin" color="#10b981" value={from} onChange={setFrom} testid="point-a" />
-          <LocationPicker label="Point B · Destination" color="#3b82f6" value={to} onChange={setTo} testid="point-b" />
+          {/* Mode selector */}
+          <div className="grid grid-cols-2 gap-2">
+            <button data-testid="journey-mode-live" onClick={() => setMode("live")}
+              className={`rounded-lg border px-3 py-3 text-left transition-colors ${mode === "live" ? "border-[#e60012] bg-[#e60012]/10" : "border-white/10 hover:border-white/25"}`}>
+              <span className="flex items-center gap-2 text-white font-display font-bold text-sm"><Radio size={15} className="text-[#e60012]" /> Live Tracking</span>
+              <span className="text-[11px] text-slate-500 font-mono">Current location + simulation</span>
+            </button>
+            <button data-testid="journey-mode-manual" onClick={() => setMode("manual")}
+              className={`rounded-lg border px-3 py-3 text-left transition-colors ${mode === "manual" ? "border-[#e60012] bg-[#e60012]/10" : "border-white/10 hover:border-white/25"}`}>
+              <span className="flex items-center gap-2 text-white font-display font-bold text-sm"><RouteIcon size={15} className="text-[#3b82f6]" /> Point A → B</span>
+              <span className="text-[11px] text-slate-500 font-mono">Enter start &amp; destination</span>
+            </button>
+          </div>
+
+          {mode === "manual" ? (
+            <>
+              <LocationPicker label="Point A · Origin" color="#10b981" value={from} onChange={setFrom} testid="point-a" />
+              <LocationPicker label="Point B · Destination" color="#3b82f6" value={to} onChange={setTo} testid="point-b" />
+            </>
+          ) : (
+            <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5 space-y-4">
+              <p className="font-mono text-xs tracking-widest uppercase text-[#10b981]">Live Origin</p>
+              {from ? (
+                <div className="flex items-center gap-3 rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-3">
+                  <Crosshair size={16} className="text-[#10b981]" />
+                  <span className="flex-1 text-sm text-white truncate">{from.name}</span>
+                  <button data-testid="live-reset" onClick={() => { setFrom(null); setTo(null); setRouteData(null); }} className="text-slate-500 text-xs hover:text-white">Reset</button>
+                </div>
+              ) : (
+                <button data-testid="detect-location-button" onClick={detectLocation} disabled={gpsBusy}
+                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#10b981]/40 bg-[#10b981]/10 px-4 py-3 text-sm text-emerald-300 hover:bg-[#10b981]/20">
+                  {gpsBusy ? <Loader2 className="animate-spin" size={16} /> : <Crosshair size={16} />} Detect my current location
+                </button>
+              )}
+              <div>
+                <p className="font-mono text-[10px] text-slate-500 uppercase mb-2">Simulation distance</p>
+                <div className="flex gap-2">
+                  {[15, 18, 20].map((km) => (
+                    <button key={km} data-testid={`sim-km-${km}`} onClick={() => setSimKm(km)}
+                      className={`flex-1 rounded-lg border py-2 text-sm transition-colors ${simKm === km ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400"}`}>
+                      {km} km
+                    </button>
+                  ))}
+                </div>
+                {from && (
+                  <button data-testid="generate-sim-route" onClick={generateSim}
+                    className="mt-3 w-full rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 py-2.5 text-sm flex items-center justify-center gap-2">
+                    <Navigation size={15} /> Generate ~{simKm} km simulated route
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {loading && (
             <div className="flex items-center gap-2 text-slate-400 font-mono text-sm">
@@ -111,6 +200,21 @@ export default function StartJourney() {
               <Metric icon={Clock} label="ETA" value={`${routeData.duration_min} min`} />
             </div>
           )}
+
+          {/* Share channel */}
+          <div className="rounded-xl border border-white/10 bg-[#0f141f] p-4">
+            <p className="font-mono text-[10px] text-slate-500 uppercase mb-2 flex items-center gap-2">
+              <Share2 size={12} /> Auto-share live link via
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {CHANNELS.map((c) => (
+                <button key={c.key} data-testid={`share-channel-${c.key}`} onClick={() => setChannel(c.key)}
+                  className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs transition-colors ${channel === c.key ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400"}`}>
+                  <c.icon size={13} /> {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button

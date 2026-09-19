@@ -14,6 +14,9 @@ import Contacts from "@/pages/user/Contacts";
 import StartJourney from "@/pages/user/StartJourney";
 import LiveJourney from "@/pages/user/LiveJourney";
 import Claim from "@/pages/user/Claim";
+import Settings from "@/pages/user/Settings";
+import History from "@/pages/user/History";
+import TrackView from "@/pages/TrackView";
 import DealerDashboard from "@/pages/dealer/DealerDashboard";
 
 function AppRouter() {
@@ -23,6 +26,7 @@ function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/track/:token" element={<TrackView />} />
       <Route
         path="/app"
         element={
@@ -39,6 +43,8 @@ function AppRouter() {
         <Route path="journey/new" element={<StartJourney />} />
         <Route path="journey/live" element={<LiveJourney />} />
         <Route path="claim" element={<Claim />} />
+        <Route path="history" element={<History />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
       <Route
         path="/dealer"

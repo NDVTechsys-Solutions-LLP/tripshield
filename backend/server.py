@@ -349,24 +349,37 @@ class JourneyIn(BaseModel):
     eta_min: int
     route: List[List[float]]
     precheck: Optional[Dict[str, Any]] = None
+    mode: str = "manual"       # 'manual' | 'live'
+    channel: str = "sms"       # 'sms' | 'whatsapp' | 'email'
 
 
 @api_router.post("/journeys")
 async def create_journey(payload: JourneyIn, user=Depends(get_current_user)):
     veh = await db.vehicles.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    contacts = await db.contacts.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
     data = payload.model_dump()
     jid = new_id("jrn")
+    share_token = uuid.uuid4().hex[:16]
     data.update({
         "journey_id": jid, "user_id": user["user_id"], "user_name": user.get("name"),
-        "user_email": user.get("email"),
+        "user_email": user.get("email"), "user_phone": user.get("phone", ""),
         "vehicle_id": veh["vehicle_id"] if veh else None,
         "vehicle_label": f"{veh.get('model')} · {veh.get('reg_no')}" if veh else "Unknown",
         "vehicle_type": veh.get("type") if veh else None,
+        "share_token": share_token,
+        "current_position": payload.from_coords, "progress": 0.0,
+        "last_update": iso(now_utc()),
         "status": "active", "events": [],
         "created_at": iso(now_utc()), "completed_at": None,
     })
     await db.journeys.insert_one(data)
-    await add_event_internal(jid, "start", "Journey started", "info", None)
+    mode_label = "Live tracking" if payload.mode == "live" else "Route"
+    await add_event_internal(jid, "start", f"{mode_label} journey started", "info", None)
+    ch = {"sms": "SMS", "whatsapp": "WhatsApp", "email": "Email"}.get(payload.channel, "SMS")
+    await add_event_internal(
+        jid, "share",
+        f"Live tracking link dispatched via {ch} to {len(contacts)} emergency contact(s)",
+        "info", None)
     return await db.journeys.find_one({"journey_id": jid}, {"_id": 0})
 
 
@@ -411,6 +424,41 @@ async def add_event(journey_id: str, payload: EventIn, user=Depends(get_current_
                                     payload.severity, payload.location)
 
 
+class PositionIn(BaseModel):
+    position: List[float]
+    progress: float = 0.0
+
+
+@api_router.post("/journeys/{journey_id}/position")
+async def update_position(journey_id: str, payload: PositionIn, user=Depends(get_current_user)):
+    await db.journeys.update_one(
+        {"journey_id": journey_id, "user_id": user["user_id"]},
+        {"$set": {"current_position": payload.position, "progress": payload.progress,
+                  "last_update": iso(now_utc())}})
+    return {"ok": True}
+
+
+# ---------------- Public live tracking (no auth) ----------------
+@api_router.get("/track/{share_token}")
+async def public_track(share_token: str):
+    j = await db.journeys.find_one({"share_token": share_token}, {"_id": 0})
+    if not j:
+        raise HTTPException(status_code=404, detail="Tracking link not found")
+    events = [e for e in (j.get("events") or [])
+              if e.get("severity") in ("danger", "warning", "success")][-8:]
+    return {
+        "user_name": j.get("user_name"),
+        "from_name": j.get("from_name"), "to_name": j.get("to_name"),
+        "from_coords": j.get("from_coords"), "to_coords": j.get("to_coords"),
+        "route": j.get("route"),
+        "current_position": j.get("current_position") or j.get("from_coords"),
+        "progress": j.get("progress", 0), "status": j.get("status"),
+        "distance_km": j.get("distance_km"), "eta_min": j.get("eta_min"),
+        "mode": j.get("mode"), "vehicle_label": j.get("vehicle_label"),
+        "last_update": j.get("last_update"), "events": events,
+    }
+
+
 # ---------------- Incidents (SOS / Accident / Deviation) ----------------
 class IncidentIn(BaseModel):
     journey_id: str
@@ -448,6 +496,7 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
         "vehicle_type": veh.get("type") if veh else None,
         "shared_with": shared_with,
         "shared_data": {
+            "phone": user.get("phone") or (j.get("user_phone") if j else None),
             "aadhaar": aadhaar["doc_number"] if aadhaar else None,
             "holder": aadhaar["holder_name"] if aadhaar else user.get("name"),
             "medical_policy": medical["doc_number"] if medical else None,
@@ -474,13 +523,17 @@ async def my_incidents(user=Depends(get_current_user)):
 @api_router.post("/journeys/{journey_id}/complete")
 async def complete_journey(journey_id: str, user=Depends(get_current_user)):
     contacts = await db.contacts.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
+    j0 = await db.journeys.find_one({"journey_id": journey_id}, {"_id": 0})
+    ch = {"sms": "SMS", "whatsapp": "WhatsApp", "email": "Email"}.get(
+        (j0 or {}).get("channel", "sms"), "SMS")
     await db.journeys.update_one(
         {"journey_id": journey_id},
-        {"$set": {"status": "completed", "completed_at": iso(now_utc())}})
-    msg = f"Safely arrived. Notified {len(contacts)} family contact(s)."
+        {"$set": {"status": "completed", "completed_at": iso(now_utc()), "progress": 1.0}})
+    msg = f"Safe arrival alert sent via {ch} to {len(contacts)} family contact(s)."
     await add_event_internal(journey_id, "arrived", msg, "success", None)
     j = await db.journeys.find_one({"journey_id": journey_id}, {"_id": 0})
-    return {"journey": j, "notified": [{"name": c["name"], "phone": c["phone"]} for c in contacts]}
+    return {"journey": j, "channel": ch,
+            "notified": [{"name": c["name"], "phone": c["phone"]} for c in contacts]}
 
 
 # ---------------- One-Tap Insurance Claim ----------------
@@ -581,6 +634,32 @@ async def advance_claim(claim_id: str, user=Depends(get_current_user)):
 async def my_claims(user=Depends(get_current_user)):
     return await db.claims.find({"user_id": user["user_id"]}, {"_id": 0}) \
         .sort("created_at", -1).to_list(100)
+
+
+# ---------------- Settings ----------------
+class SettingsIn(BaseModel):
+    phone: Optional[str] = None
+    channel: Optional[str] = None
+    auto_share: Optional[bool] = None
+
+
+def _settings_view(u):
+    return {"phone": u.get("phone", ""), "channel": u.get("channel", "sms"),
+            "auto_share": u.get("auto_share", True)}
+
+
+@api_router.get("/settings")
+async def get_settings(user=Depends(get_current_user)):
+    return _settings_view(user)
+
+
+@api_router.put("/settings")
+async def put_settings(payload: SettingsIn, user=Depends(get_current_user)):
+    upd = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if upd:
+        await db.users.update_one({"user_id": user["user_id"]}, {"$set": upd})
+    u = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    return _settings_view(u)
 
 
 # ---------------- Dealer ----------------

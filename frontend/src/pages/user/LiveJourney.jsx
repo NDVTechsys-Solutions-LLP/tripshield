@@ -10,7 +10,8 @@ import {
 import {
   Gauge, Clock, Route as RouteIcon, Zap, Siren, GitBranch, TrafficCone,
   Car, ShieldCheck, ShieldAlert, Phone, MapPin, X, CheckCircle2, Radio,
-  Activity, FileText, Home, Play, Pause, Mic, MicOff,
+  Activity, FileText, Home, Play, Pause, Mic, MicOff, Share2, Copy, Square,
+  MessageSquare, Send, Mail,
 } from "lucide-react";
 
 export default function LiveJourney() {
@@ -161,6 +162,13 @@ export default function LiveJourney() {
   const distanceRemaining = journey ? (journey.distance_km * (1 - frac)).toFixed(1) : 0;
   const etaRemaining = journey ? Math.max(0, Math.round(journey.eta_min * (1 - frac)) + delayMin) : 0;
   const energy = vehicle?.energy_level || 72;
+  const shareUrl = journey ? `${window.location.origin}/track/${journey.share_token}` : "";
+
+  // Broadcast live position to public tracking link
+  useEffect(() => {
+    if (!journey || !position) return;
+    api.post(`/journeys/${journey.journey_id}/position`, { position, progress: frac }).catch(() => {});
+  }, [idx]); // eslint-disable-line
 
   // ---- Simulations ----
   const simDeviation = async () => {
@@ -320,15 +328,47 @@ export default function LiveJourney() {
               <div className="h-full bg-[#e60012] transition-all duration-500" style={{ width: `${frac * 100}%` }} />
             </div>
             {!sos && !arrived && (
-              <button
-                data-testid="journey-pause-toggle"
-                onClick={() => setRunning((r) => !r)}
-                className="mt-4 w-full py-2.5 rounded-lg border border-white/10 hover:border-white/25 text-slate-300 text-sm font-body flex items-center justify-center gap-2"
-              >
-                {running ? <><Pause size={15} /> Pause</> : <><Play size={15} /> Resume</>}
-              </button>
+              <div className="flex gap-2 mt-4">
+                <button
+                  data-testid="journey-pause-toggle"
+                  onClick={() => setRunning((r) => !r)}
+                  className="flex-1 py-2.5 rounded-lg border border-white/10 hover:border-white/25 text-slate-300 text-sm font-body flex items-center justify-center gap-2"
+                >
+                  {running ? <><Pause size={15} /> Pause</> : <><Play size={15} /> Resume</>}
+                </button>
+                <button
+                  data-testid="end-journey-button"
+                  onClick={handleArrive}
+                  className="flex-1 py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-sm font-body flex items-center justify-center gap-2"
+                >
+                  <Square size={14} /> End Journey
+                </button>
+              </div>
             )}
           </div>
+
+          {/* Share live tracking link */}
+          {journey?.share_token && (
+            <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5" data-testid="share-panel">
+              <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-3 flex items-center gap-2">
+                <Share2 size={12} /> Live Tracking Link
+              </p>
+              <div className="flex items-center gap-2 rounded-lg bg-[#0b0f17] border border-white/10 px-3 py-2 mb-3">
+                <span className="font-mono text-[11px] text-slate-400 truncate flex-1">{shareUrl}</span>
+                <button data-testid="copy-share-link" onClick={() => { navigator.clipboard?.writeText(shareUrl); toast.success("Link copied"); }} className="text-slate-500 hover:text-white shrink-0">
+                  <Copy size={14} />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <ShareBtn testid="share-whatsapp" icon={Send} label="WhatsApp"
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Track my Honda Safe Journey live: " + shareUrl)}`, "_blank")} />
+                <ShareBtn testid="share-sms" icon={MessageSquare} label="SMS"
+                  onClick={() => { window.location.href = `sms:?body=${encodeURIComponent("Track my Honda Safe Journey live: " + shareUrl)}`; }} />
+                <ShareBtn testid="share-email" icon={Mail} label="Email"
+                  onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent("My Safe Journey - Live location")}&body=${encodeURIComponent("Track my Honda Safe Journey live: " + shareUrl)}`; }} />
+              </div>
+            </div>
+          )}
 
           {/* Simulation controls */}
           {!sos && !arrived && (
@@ -521,6 +561,19 @@ function SimBtn({ icon: Icon, label, color, onClick, testid }) {
     >
       <Icon size={18} style={{ color }} />
       <span className="text-sm text-white flex-1">{label}</span>
+    </button>
+  );
+}
+
+function ShareBtn({ icon: Icon, label, onClick, testid }) {
+  return (
+    <button
+      data-testid={testid}
+      onClick={onClick}
+      className="flex flex-col items-center gap-1 rounded-lg border border-white/10 bg-[#0b0f17] hover:bg-[#161d2c] hover:border-[#e60012]/40 py-2.5 transition-colors"
+    >
+      <Icon size={16} className="text-slate-300" />
+      <span className="font-mono text-[10px] text-slate-400">{label}</span>
     </button>
   );
 }

@@ -15,6 +15,8 @@ import {
   ShieldCheck,
   Menu,
   X,
+  History as HistoryIcon,
+  Settings as SettingsIcon,
 } from "lucide-react";
 
 const NAV = [
@@ -25,6 +27,8 @@ const NAV = [
   { to: "/app/contacts", icon: Users, label: "Family Network", testid: "nav-contacts" },
   { to: "/app/journey/new", icon: Navigation, label: "Start Journey", testid: "nav-journey" },
   { to: "/app/claim", icon: FileText, label: "Insurance Claim", testid: "nav-claim" },
+  { to: "/app/history", icon: HistoryIcon, label: "Journey History", testid: "nav-history" },
+  { to: "/app/settings", icon: SettingsIcon, label: "Settings", testid: "nav-settings" },
 ];
 
 export default function AppShell() {
