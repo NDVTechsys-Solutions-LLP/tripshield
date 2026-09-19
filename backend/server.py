@@ -222,7 +222,7 @@ class DocumentIn(BaseModel):
 
 @api_router.get("/documents")
 async def list_documents(user=Depends(get_current_user)):
-    return await db.documents.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(200)
+    return await db.documents.find({"user_id": user["user_id"]}, {"_id": 0, "file_data": 0}).to_list(200)
 
 
 @api_router.post("/documents")
@@ -693,12 +693,13 @@ async def require_dealer(user=Depends(get_current_user)):
 
 @api_router.get("/dealer/incidents")
 async def dealer_incidents(user=Depends(require_dealer)):
-    return await db.incidents.find({}, {"_id": 0}).sort("created_at", -1).to_list(300)
+    # List view excludes bulky/PII shared_data; full payload served by /dealer/incidents/{id}
+    return await db.incidents.find({}, {"_id": 0, "shared_data": 0}).sort("created_at", -1).to_list(300)
 
 
 @api_router.get("/dealer/journeys")
 async def dealer_journeys(user=Depends(require_dealer)):
-    return await db.journeys.find({}, {"_id": 0}).sort("created_at", -1).to_list(300)
+    return await db.journeys.find({}, {"_id": 0, "route": 0, "events": 0}).sort("created_at", -1).to_list(300)
 
 
 @api_router.get("/dealer/stats")
