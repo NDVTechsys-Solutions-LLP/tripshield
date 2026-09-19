@@ -29,7 +29,6 @@ const NAV_MAIN = [
 const NAV_SETTINGS = [
   { to: "/app/settings", icon: SettingsIcon, label: "Preferences", end: true, testid: "nav-settings" },
   { to: "/app/onboarding", icon: Bike, label: "My Vehicle", testid: "nav-vehicle" },
-  { to: "/app/wallet", icon: Wallet, label: "Document Wallet", testid: "nav-wallet" },
   { to: "/app/contacts", icon: Users, label: "Family Network", testid: "nav-contacts" },
 ];
 

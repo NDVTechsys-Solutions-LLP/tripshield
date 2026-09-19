@@ -1,0 +1,42 @@
+{
+  "summary": "Regression check of the Honda->TripShield rebrand + new demo disclaimers. Executed a single end-to-end frontend suite (30 PASS / 3 FAIL). Source code is fully de-Honda'd (grep of /app/frontend/src, /app/backend/server.py, /app/frontend/public returns 0 hits). ALL new spec pieces work: TripShield wordmark + neutral shield logo on Landing, both portal buttons present, demo-disclaimer visible on Landing, track-demo-disclaimer visible on public /track/<token>, /app Command Hub has 3 stat cards with NO 'Energy' card, sidebar has grouped 'Safe Journey Settings' nav (nav-settings/nav-vehicle/nav-wallet/nav-contacts) with NO 'Telemetry Sync' entry, /app/bluetooth is unrouted (React Router warning 'No routes matched location \"/app/bluetooth\"'), Settings hub renders all 4 tool cards + preferences testids, StartJourney has journey-mode-live/manual + detect-location-button, /dealer 'TripShield Service Center' loads with 23 incident rows and dealer-incident-view-button is clickable, and role gating (user token -> /dealer redirects to /app) still holds. Public /track loads WITHOUT auth cookie. HOWEVER: the word 'Honda' STILL appears in the rendered UI on 3 surfaces (/app dashboard incident feed, /dealer incident feed, and any /track/<token> for a pre-rebrand journey) because HISTORICAL Mongo records (incidents.*, journeys.*.events, claims.*.insurer) still contain literal Honda strings ('Honda Service Center', 'Honda Assure', \"Hands-free voice command detected: 'Honda, help me'\", 'SOS broadcast: 112 ERSS + Family + Honda dealer notified', 'Route deviation — incident raised to Honda Service Center'). New records created by the current code write 'TripShield Service Center' / 'TripShield, help me' correctly (verified in server.py lines 480/482/717 and LiveJourney.jsx lines 107/123/124/130/149/272), so this is purely a stale-data problem, not a code regression.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Command Hub incident feed / Dealer incident list / Public TrackView event log", "issue": "Renders 'Honda Service Center', 'Honda Assure', and \"Hands-free voice ... 'Honda, help me'\" from HISTORICAL Mongo docs written before the rebrand. Rebrand acceptance criterion 'NO Honda text appears anywhere in the UI' fails on these three surfaces until stale data is migrated.", "selector": "[data-testid='dealer-incident-row'], /app Command Hub 'Recent incidents', /track event log", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Run a one-shot Mongo migration in test_database to rebrand historical records. Suggested commands:\n  db.incidents.updateMany({shared_with:'Honda Service Center'},{$set:{'shared_with.$':'TripShield Service Center'}}) — repeat until 0 matches (positional operator only updates first)\n  Simpler: db.incidents.find({}).forEach(d=>{d.shared_with=(d.shared_with||[]).map(x=>x.replace(/Honda/g,'TripShield'));if(d.message)d.message=d.message.replace(/Honda/g,'TripShield');db.incidents.replaceOne({_id:d._id},d)});\n  db.journeys.find({}).forEach(d=>{(d.events||[]).forEach(e=>{if(e.message)e.message=e.message.replace(/Honda/g,'TripShield')});db.journeys.replaceOne({_id:d._id},d)});\n  db.claims.updateMany({insurer:'Honda Assure'},{$set:{insurer:'TripShield Assure'}});",
+    "OR, since this is a demo/seed dataset, drop and reseed: db.incidents.deleteMany({}); db.journeys.deleteMany({}); db.claims.deleteMany({}); (retain users/user_sessions/settings to preserve tokens)."
+  ],
+  "critical_code_review_comments": [
+    "Source-code rebrand is COMPLETE — no Honda strings in frontend/src, backend/server.py, or public/. Wake phrase, wordmark, dealer copy, insurer name, TTS script, and hub-card labels all use TripShield.",
+    "Because the rebrand ships without a data migration, any environment that carries over pre-rebrand documents will visibly leak the old brand in three high-visibility places (rider dashboard, dealer command center, public tracking page). Ship a migration script alongside the release.",
+    "Radix DialogContent still emits 'Missing Description or aria-describedby' console warning (carry-over from iteration_2) — cosmetic a11y regression, non-blocking."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "~90% (30/33 checks — 3 FAIL all traceable to stale DB data, not code)"},
+  "test_credentials": "session_token=tok_user_1789498189466 (rider.test@example.com); dealer tok_dealer_1789498189466. Base: https://trip-shield-5.preview.emergentagent.com",
+  "seed_data_creation": "None created this iteration; reused /track token eedefa4310a54bb6 from iteration_2 and pre-seeded incidents.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "After main agent runs the Mongo Honda->TripShield migration (or reseeds incidents/journeys/claims), rerun the same regression: (1) landing text scan, (2) /app Command Hub incident feed, (3) /dealer incident feed + click a row, (4) open /track/<token> with a fresh (post-migration) journey — assert body inner_text has no /honda/i match. All required data-testids already exist and worked this iteration: demo-disclaimer, track-demo-disclaimer, login-google-user-button, login-dealer-portal-button, nav-settings/vehicle/wallet/contacts, settings-tool-hub/vehicle/wallet/family, journey-mode-live/manual, detect-location-button, dealer-stat-*, dealer-incident-row, dealer-incident-view-button.",
+  "verified_flows": [
+    "Landing: TripShield wordmark + shield logo, 'TripShield Service Center' portal button, demo-disclaimer visible, no Honda text",
+    "/app: 3 stat cards (no Energy), grouped 'Safe Journey Settings' sidebar (nav-settings + nav-vehicle + nav-wallet + nav-contacts) with NO Telemetry Sync",
+    "/app/bluetooth: unrouted (RR warning 'No routes matched location /app/bluetooth')",
+    "/app/settings: settings-tool-hub/vehicle/wallet/family all present, no telemetry card, phone-input/autoshare-toggle/save-button present",
+    "/app/journey/new: journey-mode-live/manual + detect-location-button present",
+    "/dealer: TripShield Service Center header, dealer-stat-* + 23 dealer-incident-row items, dealer-incident-view-button clickable",
+    "Role gating: user token on /dealer -> redirected to /app",
+    "Public /track/<token>: loads without auth cookie, shows Leaflet map + track-demo-disclaimer"
+  ],
+  "rca of the issue": "Rebrand is CODE-COMPLETE but DATA-INCOMPLETE. Grep confirms no 'Honda' string remains in frontend/src, backend/server.py, or frontend/public. However Mongo test_database still holds pre-rebrand seed rows: 17 incidents with shared_with:['Honda Service Center'] and/or messages like \"Route deviation — incident raised to Honda Service Center\" and \"Hands-free voice SOS activated ('Honda, help me')\"; multiple journeys.events[].message strings with 'SOS broadcast: 112 ERSS + Family + Honda dealer notified'; and 3 claims docs with insurer:'Honda Assure'. These are rendered verbatim in the /app Command Hub recent-incidents list, the /dealer incident feed, and the /track event log — so the acceptance criterion 'NO Honda text appears anywhere in the UI' currently fails. Fix path: ship a one-time Mongo migration (regex replace Honda->TripShield across incidents.shared_with, incidents.message, journeys.events[].message, and claims.insurer) or drop+reseed those three collections. No code fix needed."
+}

@@ -43,7 +43,6 @@ export default function Dashboard() {
 
   const steps = [
     { done: !!vehicle, label: "Register your vehicle", icon: Bike, to: "/app/onboarding" },
-    { done: docs.length > 0, label: "Add documents to wallet", icon: Wallet, to: "/app/wallet" },
     { done: contacts.length > 0, label: "Set emergency family contacts", icon: Users, to: "/app/contacts" },
   ];
   const ready = steps.every((s) => s.done);
@@ -61,8 +60,7 @@ export default function Dashboard() {
       </p>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mt-8">
-        <StatCard icon={Wallet} label="Wallet Docs" value={docs.length} tint="#3b82f6" testid="stat-docs" />
+      <div className="grid grid-cols-2 gap-4 mt-8">
         <StatCard icon={Activity} label="Journeys" value={journeys.length} tint="#10b981" testid="stat-journeys" />
         <StatCard icon={ShieldAlert} label="Incidents" value={incidents.length} tint="#f59e0b" testid="stat-incidents" />
       </div>

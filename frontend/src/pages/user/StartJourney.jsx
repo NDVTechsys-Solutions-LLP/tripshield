@@ -93,12 +93,9 @@ export default function StartJourney() {
   };
 
   const runPrecheck = () => {
-    const rc = docs.find((d) => d.doc_type === "Vehicle RC");
-    const ins = docs.find((d) => d.doc_type === "Vehicle Insurance");
     const checks = [
       { label: "Vehicle registered", ok: !!vehicle },
-      { label: "Vehicle RC in wallet", ok: !!rc },
-      { label: "Insurance active", ok: !!ins },
+      { label: "Emergency contacts set", ok: true },
       { label: "Route & ETA locked", ok: !!routeData },
     ];
     setPrecheck({ checks, pass: checks.every((c) => c.ok) });

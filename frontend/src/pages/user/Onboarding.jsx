@@ -42,7 +42,7 @@ export default function Onboarding() {
     try {
       await api.post("/vehicle", { ...form, type });
       toast.success("Vehicle registered");
-      navigate("/app/wallet");
+      navigate("/app/contacts");
     } catch {
       toast.error("Could not save vehicle");
     } finally {

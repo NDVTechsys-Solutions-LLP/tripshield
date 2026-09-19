@@ -63,12 +63,6 @@ export default function Settings() {
       ok: !!vehicle,
     },
     {
-      to: "/app/wallet", icon: Wallet, testid: "settings-tool-wallet",
-      title: "Document Wallet", desc: "Insurance, license, RC book & PUC certificate",
-      status: docs.length ? `${docs.length} document(s)` : "Empty",
-      ok: docs.length > 0,
-    },
-    {
       to: "/app/contacts", icon: Users, testid: "settings-tool-family",
       title: "Family Network", desc: "Emergency contacts, trusted circle & permissions",
       status: contacts.length ? `${contacts.length} contact(s)` : "None added",

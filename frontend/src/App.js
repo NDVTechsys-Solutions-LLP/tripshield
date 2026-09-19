@@ -8,7 +8,6 @@ import AppShell from "@/components/AppShell";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/user/Dashboard";
 import Onboarding from "@/pages/user/Onboarding";
-import Wallet from "@/pages/user/Wallet";
 import Contacts from "@/pages/user/Contacts";
 import StartJourney from "@/pages/user/StartJourney";
 import LiveJourney from "@/pages/user/LiveJourney";
@@ -36,7 +35,6 @@ function AppRouter() {
       >
         <Route index element={<Dashboard />} />
         <Route path="onboarding" element={<Onboarding />} />
-        <Route path="wallet" element={<Wallet />} />
         <Route path="contacts" element={<Contacts />} />
         <Route path="journey/new" element={<StartJourney />} />
         <Route path="journey/live" element={<LiveJourney />} />
