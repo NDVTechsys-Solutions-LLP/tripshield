@@ -91,7 +91,11 @@ async def create_session(payload: SessionRequest, response: Response):
         raise HTTPException(status_code=401, detail="Invalid session_id")
     data = r.json()
     email = data["email"]
-    role = payload.role if payload.role in ("user", "dealer") else "user"
+    requested_role = payload.role if payload.role in ("user", "dealer") else "user"
+    dealer_emails = [e.strip().lower() for e in os.environ.get("DEALER_EMAILS", "").split(",") if e.strip()]
+    # SECURITY: dealer role is granted server-side only to allow-listed emails.
+    # The client-supplied role can never self-escalate a normal user to dealer.
+    role = "dealer" if (requested_role == "dealer" and email.lower() in dealer_emails) else "user"
 
     existing = await db.users.find_one({"email": email}, {"_id": 0})
     if existing:
@@ -398,7 +402,7 @@ async def active_journey(user=Depends(get_current_user)):
 
 @api_router.get("/journeys/{journey_id}")
 async def get_journey(journey_id: str, user=Depends(get_current_user)):
-    j = await db.journeys.find_one({"journey_id": journey_id}, {"_id": 0})
+    j = await db.journeys.find_one({"journey_id": journey_id, "user_id": user["user_id"]}, {"_id": 0})
     if not j:
         raise HTTPException(status_code=404, detail="Not found")
     return j
@@ -420,6 +424,10 @@ class EventIn(BaseModel):
 
 @api_router.post("/journeys/{journey_id}/events")
 async def add_event(journey_id: str, payload: EventIn, user=Depends(get_current_user)):
+    owned = await db.journeys.find_one(
+        {"journey_id": journey_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not owned:
+        raise HTTPException(status_code=404, detail="Not found")
     return await add_event_internal(journey_id, payload.type, payload.message,
                                     payload.severity, payload.location)
 
@@ -446,16 +454,20 @@ async def public_track(share_token: str):
         raise HTTPException(status_code=404, detail="Tracking link not found")
     events = [e for e in (j.get("events") or [])
               if e.get("severity") in ("danger", "warning", "success")][-8:]
+    completed = j.get("status") == "completed"
     return {
         "user_name": j.get("user_name"),
         "from_name": j.get("from_name"), "to_name": j.get("to_name"),
-        "from_coords": j.get("from_coords"), "to_coords": j.get("to_coords"),
-        "route": j.get("route"),
-        "current_position": j.get("current_position") or j.get("from_coords"),
+        # SECURITY: once the journey is over, stop exposing precise route/live position.
+        "from_coords": None if completed else j.get("from_coords"),
+        "to_coords": None if completed else j.get("to_coords"),
+        "route": [] if completed else j.get("route"),
+        "current_position": None if completed else (j.get("current_position") or j.get("from_coords")),
         "progress": j.get("progress", 0), "status": j.get("status"),
         "distance_km": j.get("distance_km"), "eta_min": j.get("eta_min"),
         "mode": j.get("mode"), "vehicle_label": j.get("vehicle_label"),
-        "last_update": j.get("last_update"), "events": events,
+        "last_update": j.get("last_update"),
+        "events": [e for e in events if e.get("type") == "arrived"] if completed else events,
     }
 
 
@@ -470,7 +482,10 @@ class IncidentIn(BaseModel):
 
 @api_router.post("/incidents")
 async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
-    j = await db.journeys.find_one({"journey_id": payload.journey_id}, {"_id": 0})
+    j = await db.journeys.find_one(
+        {"journey_id": payload.journey_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not j:
+        raise HTTPException(status_code=404, detail="Journey not found")
     veh = await db.vehicles.find_one({"user_id": user["user_id"]}, {"_id": 0})
     docs = await db.documents.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(200)
     contacts = await db.contacts.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
@@ -522,12 +537,15 @@ async def my_incidents(user=Depends(get_current_user)):
 # ---------------- Journey completion ----------------
 @api_router.post("/journeys/{journey_id}/complete")
 async def complete_journey(journey_id: str, user=Depends(get_current_user)):
+    j0 = await db.journeys.find_one(
+        {"journey_id": journey_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not j0:
+        raise HTTPException(status_code=404, detail="Not found")
     contacts = await db.contacts.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
-    j0 = await db.journeys.find_one({"journey_id": journey_id}, {"_id": 0})
     ch = {"sms": "SMS", "whatsapp": "WhatsApp", "email": "Email"}.get(
-        (j0 or {}).get("channel", "sms"), "SMS")
+        j0.get("channel", "sms"), "SMS")
     await db.journeys.update_one(
-        {"journey_id": journey_id},
+        {"journey_id": journey_id, "user_id": user["user_id"]},
         {"$set": {"status": "completed", "completed_at": iso(now_utc()), "progress": 1.0}})
     msg = f"Safe arrival alert sent via {ch} to {len(contacts)} family contact(s)."
     await add_event_internal(journey_id, "arrived", msg, "success", None)
