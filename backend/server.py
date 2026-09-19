@@ -439,10 +439,12 @@ class PositionIn(BaseModel):
 
 @api_router.post("/journeys/{journey_id}/position")
 async def update_position(journey_id: str, payload: PositionIn, user=Depends(get_current_user)):
-    await db.journeys.update_one(
+    res = await db.journeys.update_one(
         {"journey_id": journey_id, "user_id": user["user_id"]},
         {"$set": {"current_position": payload.position, "progress": payload.progress,
                   "last_update": iso(now_utc())}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Not found")
     return {"ok": True}
 
 
@@ -576,7 +578,9 @@ STAGE_KEYS = [s["key"] for s in CLAIM_STAGES]
 async def create_claim(payload: ClaimIn, user=Depends(get_current_user)):
     docs = await db.documents.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(200)
     veh = await db.vehicles.find_one({"user_id": user["user_id"]}, {"_id": 0})
-    j = await db.journeys.find_one({"journey_id": payload.journey_id}, {"_id": 0}) if payload.journey_id else None
+    j = await db.journeys.find_one(
+        {"journey_id": payload.journey_id, "user_id": user["user_id"]}, {"_id": 0}
+    ) if payload.journey_id else None
 
     def find(t):
         return next((d for d in docs if d["doc_type"] == t), None)
