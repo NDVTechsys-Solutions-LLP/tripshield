@@ -1,0 +1,48 @@
+{
+  "summary": "Frontend E2E validation of NEW Safe Journey feature set — Settings (phone/channel/auto-share/contacts), dual-mode Start Journey (Live+GPS-fallback+sim distance / Manual A→B), Live cockpit (share-panel with tracking link, share-whatsapp/sms/email, end-journey), Public unauthenticated /track/:token view, Journey History (copy link), Nav entries, and Role gating. 12/13 checks pass. The only frontend gap: the SOS 'Broadcast Payload' modal UI does NOT render the rider PHONE row even though the backend correctly stores it in incidents.shared_data.phone (verified via /api/incidents).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "LiveJourney SOS Dialog · Broadcast Payload", "issue": "The 'BROADCAST PAYLOAD' section in the SOS modal renders only Aadhaar, Medical, Location and Contacts rows. It does NOT surface the rider's phone number, even though the incident payload (incidents.shared_data.phone) contains it (verified: '+919812345678'). Per the new spec ('SOS panel broadcast payload should include the rider's PHONE from settings'), a Phone row should be added to LiveJourney.jsx SOS dialog (e.g. <PayRow icon={Phone} label='Phone' value={sos?.shared_data?.phone || '—'} />).", "selector": "div[role=dialog] :has-text('BROADCAST PAYLOAD')", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Radix Dialogs (safety check-in, SOS, arrival)", "issues": ["Console warnings: 'DialogContent requires a DialogTitle for accessibility' + 'Missing Description or aria-describedby'. These modals hide the default close button and don't provide a DialogTitle/VisuallyHidden wrapper — add <VisuallyHidden><DialogTitle/></VisuallyHidden> and a <DialogDescription> for a11y compliance."]},
+      {"screen": "Console (all pages)", "issues": ["Sporadic 'Failed to load resource: net::ERR_CONNECTION_CLOSED' errors observed in console — likely tile/asset fetches on the preview URL. Non-blocking but worth investigating."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Add a Phone row to the SOS 'BROADCAST PAYLOAD' section in src/pages/user/LiveJourney.jsx so the rider phone (from settings) is visible in the SOS panel — backend already returns shared_data.phone.",
+    "Add VisuallyHidden DialogTitle + DialogDescription to LiveJourney check-in / SOS / arrival dialogs to silence Radix a11y warnings.",
+    "(Nice-to-have) In StartJourney when switching from Live→Manual, either clear from/to or hint that origin is preserved — 'point-a-preset' isn't clickable until user hits 'Change'."
+  ],
+  "critical_code_review_comments": [
+    "LiveJourney SOS dialog payload UI is out-of-sync with backend contract — misses the newly-added phone field despite spec requiring it.",
+    "In StartJourney.jsx the mode toggle does not reset from/to state, so switching Live→Manual can leave a stale 'Current location' as Point A (LocationPicker then shows 'Change' instead of the preset chips).",
+    "Multiple Radix Dialogs (LiveJourney check-in/SOS/arrival) omit DialogTitle/Description — a11y warnings on every open.",
+    "LeafletMap network noise: sporadic ERR_CONNECTION_CLOSED on console (basemap or leaflet CDN)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "~92% (12/13 spec checks pass; SOS-panel phone row missing)"},
+  "test_credentials": "session_token=tok_user_1789498189466 (rider.test@example.com); dealer tok_dealer_1789498189466. Base: https://trip-shield-5.preview.emergentagent.com.",
+  "seed_data_creation": "Saved settings (phone=+919812345678, channel=whatsapp, auto_share=true), added 'TEST Contact' emergency contact, created 1 fresh journey (Connaught Place→Cyber City, manual, share_token=eedefa4310a54bb6) which was completed via end-journey-button; SOS was raised & cancelled during the run.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All spec data-testids exist and work: settings-phone-input, settings-channel-{sms|whatsapp|email}, settings-autoshare-toggle, settings-save-button, settings-contact-{name|phone|add|delete}, journey-mode-{live|manual}, detect-location-button (New Delhi fallback confirmed after 8s), sim-km-{15|18|20}, generate-sim-route, point-{a|b}-preset (only visible when that side is empty — must click point-{a|b}-clear first if a value is already set), share-channel-{sms|whatsapp|email}, journey-start-button, share-panel, copy-share-link, share-{whatsapp|sms|email}, end-journey-button, close-journey-button, history-row, history-copy-link, nav-history, nav-settings, emergency-sos-trigger-button, sos-cancel-button. Public GET /api/track/<token> and /track/<token> both work without cookies. Verified backend shared_data.phone via /api/incidents.",
+  "verified_flows": [
+    "Settings PUT persists (200) and reload restores phone + selected channel + autoshare",
+    "Emergency contact add appears in list",
+    "Live mode: detect-location falls back to New Delhi after geolocation denial, sim-km-18 + generate-sim-route yields ~25.8 km / 32 min route-summary",
+    "Manual mode: point-a-preset[0] + point-b-preset[1] yields 23.7 km / 28 min route-summary",
+    "share-channel-{sms,whatsapp,email} all present on Start Journey",
+    "journey-start-button navigates to /app/journey/live; share-panel shows a real tracking URL (/track/<token>) with copy-share-link, share-whatsapp/sms/email",
+    "SOS dialog opens on emergency-sos-trigger-button; backend /api/incidents[0].shared_data.phone == '+919812345678' (phone IS in payload) BUT the UI PayRow list omits it",
+    "end-journey-button opens arrival modal with close-journey-button that returns to /app",
+    "Journey History lists rows including new one; expanding shows event log incl. 'Live tracking link dispatched via WhatsApp to 3 emergency contact(s)' and 'Safe arrival alert sent via WhatsApp'; history-copy-link visible",
+    "Public /track/<share_token> loads WITHOUT the session cookie in a fresh incognito context — no login redirect, shows 'RIDER TEST IS ON THE MOVE', route/ETA/progress stats and Leaflet map",
+    "Sidebar has nav-history + nav-settings and they route correctly",
+    "Role gating: user token hitting /dealer redirects to /app"
+  ],
+  "rca of the issue": "SOS Broadcast Payload UI (LiveJourney.jsx lines ~468-475) hardcodes 4 PayRow entries (Aadhaar, Medical, Location, Contacts) but never renders sos?.shared_data?.phone. Backend server.py correctly attaches phone from user settings to incident.shared_data. Fix: insert one more <PayRow icon={Phone} label='Phone' value={sos?.shared_data?.phone || 'Not set'} /> in the payload block."
+}

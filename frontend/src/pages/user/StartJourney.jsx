@@ -136,12 +136,12 @@ export default function StartJourney() {
         <div className="space-y-5">
           {/* Mode selector */}
           <div className="grid grid-cols-2 gap-2">
-            <button data-testid="journey-mode-live" onClick={() => setMode("live")}
+            <button data-testid="journey-mode-live" onClick={() => { setMode("live"); setFrom(null); setTo(null); setRouteData(null); }}
               className={`rounded-lg border px-3 py-3 text-left transition-colors ${mode === "live" ? "border-[#e60012] bg-[#e60012]/10" : "border-white/10 hover:border-white/25"}`}>
               <span className="flex items-center gap-2 text-white font-display font-bold text-sm"><Radio size={15} className="text-[#e60012]" /> Live Tracking</span>
               <span className="text-[11px] text-slate-500 font-mono">Current location + simulation</span>
             </button>
-            <button data-testid="journey-mode-manual" onClick={() => setMode("manual")}
+            <button data-testid="journey-mode-manual" onClick={() => { setMode("manual"); setFrom(null); setTo(null); setRouteData(null); }}
               className={`rounded-lg border px-3 py-3 text-left transition-colors ${mode === "manual" ? "border-[#e60012] bg-[#e60012]/10" : "border-white/10 hover:border-white/25"}`}>
               <span className="flex items-center gap-2 text-white font-display font-bold text-sm"><RouteIcon size={15} className="text-[#3b82f6]" /> Point A → B</span>
               <span className="text-[11px] text-slate-500 font-mono">Enter start &amp; destination</span>
