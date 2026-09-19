@@ -131,6 +131,9 @@ export default function TrackView() {
         <p className="flex items-center justify-center gap-2 text-xs text-slate-600 mt-8 font-mono">
           <ShieldCheck size={13} className="text-emerald-400" /> Secured by TripShield · Auto-refreshes every few seconds
         </p>
+        <p data-testid="track-demo-disclaimer" className="text-center text-[11px] text-slate-600 mt-2 font-mono">
+          Demo &amp; simulation only — not affiliated with any real brand or emergency service. Location and events shown are simulated.
+        </p>
       </main>
     </div>
   );

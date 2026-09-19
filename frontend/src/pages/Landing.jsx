@@ -62,7 +62,7 @@ export default function Landing() {
         <div className="hsj-fade-up">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#e60012]/40 bg-[#e60012]/10 px-4 py-1.5 mb-6">
             <span className="font-mono text-xs tracking-widest text-red-400 uppercase">
-              Prepare · Protect · Recover
+              Demo · Prepare · Protect · Recover
             </span>
           </div>
           <h1 className="font-display font-extrabold text-white text-4xl sm:text-5xl lg:text-6xl uppercase tracking-tight leading-[0.95]">
@@ -142,6 +142,11 @@ export default function Landing() {
           <p className="flex items-center gap-2 text-xs text-slate-500 mt-5 font-mono">
             <ShieldCheck size={14} className="text-emerald-400" />
             Secured with Google · Data shared only on your consent
+          </p>
+          <p data-testid="demo-disclaimer" className="text-[11px] text-slate-600 mt-3 font-mono leading-relaxed">
+            Demo &amp; simulation only. Not affiliated with, endorsed by, or connected to any real
+            vehicle brand, insurer, or emergency service. All telemetry, documents, alerts and
+            notifications shown are simulated for demonstration.
           </p>
         </div>
       </main>
