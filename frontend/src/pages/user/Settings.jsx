@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import {
   Settings as SettingsIcon, Phone, MessageSquare, Mail, Send, Users, Plus,
-  Trash2, Heart, Save, Radio,
+  Trash2, Heart, Save, Radio, Bluetooth, Bike, Wallet, ChevronRight, ShieldCheck,
 } from "lucide-react";
 
 const CHANNELS = [
@@ -14,14 +15,19 @@ const CHANNELS = [
 ];
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({ phone: "", channel: "sms", auto_share: true });
   const [contacts, setContacts] = useState([]);
+  const [vehicle, setVehicle] = useState(null);
+  const [docs, setDocs] = useState([]);
   const [form, setForm] = useState({ name: "", phone: "", relation: "Family", priority: "primary" });
   const [saving, setSaving] = useState(false);
 
   const loadContacts = () => api.get("/contacts").then((r) => setContacts(r.data));
   useEffect(() => {
     api.get("/settings").then((r) => setSettings(r.data));
+    api.get("/vehicle").then((r) => setVehicle(r.data));
+    api.get("/documents").then((r) => setDocs(r.data));
     loadContacts();
   }, []);
 
@@ -44,15 +50,72 @@ export default function Settings() {
   };
   const removeContact = async (id) => { await api.delete(`/contacts/${id}`); loadContacts(); };
 
+  const tools = [
+    {
+      to: "/app/bluetooth", icon: Bluetooth, testid: "settings-tool-telemetry",
+      title: "Telemetry Sync", desc: "Connect vehicle sensors for live ride analytics",
+      status: vehicle?.bt_connected ? `Connected · ${vehicle.energy_level}%` : "Not connected",
+      ok: !!vehicle?.bt_connected,
+    },
+    {
+      to: "/app/onboarding", icon: Bike, testid: "settings-tool-vehicle",
+      title: "My Vehicle", desc: "Honda 2W/4W profile, specs & service history",
+      status: vehicle ? `${vehicle.model} · ${vehicle.reg_no}` : "Not registered",
+      ok: !!vehicle,
+    },
+    {
+      to: "/app/wallet", icon: Wallet, testid: "settings-tool-wallet",
+      title: "Document Wallet", desc: "Insurance, license, RC book & PUC certificate",
+      status: docs.length ? `${docs.length} document(s)` : "Empty",
+      ok: docs.length > 0,
+    },
+    {
+      to: "/app/contacts", icon: Users, testid: "settings-tool-family",
+      title: "Family Network", desc: "Emergency contacts, trusted circle & permissions",
+      status: contacts.length ? `${contacts.length} contact(s)` : "None added",
+      ok: contacts.length > 0,
+    },
+  ];
+
   return (
     <div className="hsj-fade-up max-w-4xl">
-      <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">Preferences</p>
+      <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">Control Center</p>
       <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight flex items-center gap-3">
         <SettingsIcon className="text-[#e60012]" size={30} /> Safe Journey Settings
       </h1>
+      <p className="text-slate-400 mt-2 font-body">
+        All configuration &amp; vehicle management tools, organized in one place.
+      </p>
 
-      {/* Identity + channel */}
-      <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6 sm:p-7 mt-8 space-y-6">
+      {/* Management tool hub */}
+      <div className="grid sm:grid-cols-2 gap-4 mt-8">
+        {tools.map((t) => (
+          <button
+            key={t.to}
+            data-testid={t.testid}
+            onClick={() => navigate(t.to)}
+            className="group text-left rounded-xl border border-white/10 bg-[#0f141f] hover:border-[#e60012]/50 hover:bg-[#161d2c] transition-all p-5 flex items-start gap-4"
+          >
+            <div className="w-11 h-11 rounded-lg bg-[#e60012]/15 flex items-center justify-center text-[#e60012] shrink-0">
+              <t.icon size={20} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-bold text-white">{t.title}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{t.desc}</p>
+              <span className={`inline-flex items-center gap-1 mt-2 font-mono text-[10px] uppercase tracking-wide ${t.ok ? "text-emerald-400" : "text-slate-500"}`}>
+                <ShieldCheck size={11} /> {t.status}
+              </span>
+            </div>
+            <ChevronRight className="text-slate-600 group-hover:text-[#e60012] transition-colors" size={18} />
+          </button>
+        ))}
+      </div>
+
+      {/* Preferences */}
+      <h2 className="font-display font-bold text-white text-xl uppercase tracking-wide mt-10 mb-4">
+        Preferences
+      </h2>
+      <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6 sm:p-7 space-y-6">
         <div>
           <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2 flex items-center gap-2">
             <Phone size={13} /> Your Phone Number (used for SOS identification)

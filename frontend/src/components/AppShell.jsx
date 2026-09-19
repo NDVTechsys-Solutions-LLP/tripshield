@@ -19,17 +19,27 @@ import {
   Settings as SettingsIcon,
 } from "lucide-react";
 
-const NAV = [
+const NAV_MAIN = [
   { to: "/app", icon: LayoutDashboard, label: "Command Hub", end: true, testid: "nav-hub" },
-  { to: "/app/onboarding", icon: Bike, label: "My Vehicle", testid: "nav-vehicle" },
-  { to: "/app/bluetooth", icon: Bluetooth, label: "Telemetry Sync", testid: "nav-bluetooth" },
-  { to: "/app/wallet", icon: Wallet, label: "Document Wallet", testid: "nav-wallet" },
-  { to: "/app/contacts", icon: Users, label: "Family Network", testid: "nav-contacts" },
   { to: "/app/journey/new", icon: Navigation, label: "Start Journey", testid: "nav-journey" },
   { to: "/app/claim", icon: FileText, label: "Insurance Claim", testid: "nav-claim" },
   { to: "/app/history", icon: HistoryIcon, label: "Journey History", testid: "nav-history" },
-  { to: "/app/settings", icon: SettingsIcon, label: "Settings", testid: "nav-settings" },
 ];
+
+const NAV_SETTINGS = [
+  { to: "/app/settings", icon: SettingsIcon, label: "Preferences", end: true, testid: "nav-settings" },
+  { to: "/app/bluetooth", icon: Bluetooth, label: "Telemetry Sync", testid: "nav-bluetooth" },
+  { to: "/app/onboarding", icon: Bike, label: "My Vehicle", testid: "nav-vehicle" },
+  { to: "/app/wallet", icon: Wallet, label: "Document Wallet", testid: "nav-wallet" },
+  { to: "/app/contacts", icon: Users, label: "Family Network", testid: "nav-contacts" },
+];
+
+const linkClass = ({ isActive }) =>
+  `group flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm transition-colors ${
+    isActive
+      ? "bg-[#e60012] text-white shadow-lg shadow-[#e60012]/25"
+      : "text-slate-400 hover:bg-white/5 hover:text-white"
+  }`;
 
 export default function AppShell() {
   const { user, logout } = useAuth();
@@ -43,25 +53,23 @@ export default function AppShell() {
 
   const NavItems = ({ onClick }) => (
     <nav className="flex flex-col gap-1">
-      {NAV.map((n) => (
-        <NavLink
-          key={n.to}
-          to={n.to}
-          end={n.end}
-          data-testid={n.testid}
-          onClick={onClick}
-          className={({ isActive }) =>
-            `group flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm transition-colors ${
-              isActive
-                ? "bg-[#e60012] text-white shadow-lg shadow-[#e60012]/25"
-                : "text-slate-400 hover:bg-white/5 hover:text-white"
-            }`
-          }
-        >
+      {NAV_MAIN.map((n) => (
+        <NavLink key={n.to} to={n.to} end={n.end} data-testid={n.testid} onClick={onClick} className={linkClass}>
           <n.icon size={18} />
           <span>{n.label}</span>
         </NavLink>
       ))}
+
+      <p className="font-mono text-[10px] tracking-widest text-slate-600 uppercase px-4 mt-5 mb-1">
+        Safe Journey Settings
+      </p>
+      {NAV_SETTINGS.map((n) => (
+        <NavLink key={n.to} to={n.to} end={n.end} data-testid={n.testid} onClick={onClick} className={linkClass}>
+          <n.icon size={18} />
+          <span>{n.label}</span>
+        </NavLink>
+      ))}
+
       {active && (
         <button
           data-testid="nav-live-journey"
@@ -69,7 +77,7 @@ export default function AppShell() {
             navigate("/app/journey/live");
             onClick && onClick();
           }}
-          className="mt-3 flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25"
+          className="mt-4 flex items-center gap-3 px-4 py-3 rounded-lg font-body text-sm bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25"
         >
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
