@@ -40,7 +40,13 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - Removed Aadhaar & Medical from incident `shared_data` (backend now only phone, holder, contacts).
 - SOS Broadcast Payload (LiveJourney) & dealer Shared Emergency Data (DealerDashboard) now show only Rider Phone, Location, Contacts.
 - Verified 100% by testing agent (iteration_5.json; pytest suite /app/backend/tests/test_sos_no_aadhaar.py).
-- NOTE: POST /api/claims data_package still builds an `aadhaar` field (out of this scope).
+
+## Update (Jun 2026) — Feature batch: medical profile, live map, model search
+- Claim Aadhaar purged from `create_claim` package (backend) and Claim.jsx preview.
+- Rider Medical Profile: `blood_group` + `allergies` in SettingsIn/_settings_view; Settings.jsx UI; injected into incident `shared_data`; surfaced in SOS Broadcast Payload + dealer detail modal.
+- Live Fleet Map: new `GET /api/dealer/active-map`; LeafletMap gained `markers` prop (multi-marker + fitBounds); DealerDashboard "Live Fleet Map" section (red = emergency).
+- Onboarding model search box (`model-search-input`) filters model grid.
+- Verified 100% by testing agent (iteration_6.json; pytest /app/backend/tests/test_feature_batch_medical_map.py).
 
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
