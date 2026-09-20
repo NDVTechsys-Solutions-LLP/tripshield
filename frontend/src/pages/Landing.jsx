@@ -13,8 +13,13 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const HERO =
-  "https://images.unsplash.com/photo-1741243632891-de9e443f004e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzl8MHwxfHNlYXJjaHwyfHxob25kYSUyMG1vdG9yY3ljbGUlMjBzY29vdGVyJTIwZWxlY3RyaWMlMjB2ZWhpY2xlJTIwZGFyayUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzg5NDk3MzI2fDA&ixlib=rb-4.1.0&q=85";
+const PROTECT = [
+  { icon: ShieldCheck, title: "Safe Journey", body: "Plan any route and ride inside a live safety net that watches every kilometre from start to arrival." },
+  { icon: Navigation, title: "Live Tracking", body: "Your exact position updates in real time, so the right people always know where you are." },
+  { icon: Users, title: "Family Sharing", body: "One tap shares a private live link — loved ones follow your trip and get notified on safe arrival." },
+  { icon: Radio, title: "Auto Check-In", body: "Periodic safety check-ins confirm you're okay. No response? It auto-escalates into an alert." },
+  { icon: Mic, title: "Auto Recording", body: "On an SOS, a 60-second audio clip is captured and shared with family automatically — hands-free." },
+];
 
 // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
 function startLogin(role) {
@@ -99,10 +104,7 @@ export default function Landing() {
 
         {/* Right: login cards */}
         <div className="hsj-fade-up" style={{ animationDelay: "0.15s" }}>
-          <div className="relative rounded-2xl overflow-hidden border border-white/10 mb-6 h-40 sm:h-52">
-            <img src={HERO} alt="TripShield" className="w-full h-full object-cover opacity-70" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent" />
-          </div>
+          <TrackPreview />
 
           <h2 className="font-display font-bold text-white text-xl uppercase tracking-wide mb-4">
             Choose your portal
@@ -151,6 +153,100 @@ export default function Landing() {
           </p>
         </div>
       </main>
+
+      {/* How it protects you */}
+      <section data-testid="how-it-protects" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">
+          How it protects you
+        </p>
+        <h2 className="font-display font-extrabold text-white text-2xl sm:text-3xl uppercase tracking-tight">
+          Five layers of safety, one ride
+        </h2>
+        <p className="text-slate-400 mt-2 font-body max-w-xl">
+          Swipe through everything TripShield does the moment you hit the road.
+        </p>
+        <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory hsj-scroll">
+          {PROTECT.map((f, i) => (
+            <div
+              key={f.title}
+              data-testid={`protect-card-${i}`}
+              className="snap-start shrink-0 w-72 rounded-2xl border border-white/10 bg-[#0f141f] p-6 hover:border-[#e60012]/50 hover:bg-[#161d2c] transition-colors"
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#e60012]/15 flex items-center justify-center text-[#e60012]">
+                <f.icon size={24} />
+              </div>
+              <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mt-5">
+                Step {i + 1}
+              </p>
+              <h3 className="font-display font-bold text-white text-lg mt-1">{f.title}</h3>
+              <p className="text-sm text-slate-400 mt-2 leading-relaxed">{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TrackPreview() {
+  return (
+    <div data-testid="landing-track-preview" className="relative rounded-2xl overflow-hidden border border-white/10 mb-6 h-44 sm:h-56 bg-[#0b1120]">
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/50 border border-white/10 px-2.5 py-1">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+        </span>
+        <span className="font-mono text-[10px] tracking-widest text-red-300 uppercase">Live</span>
+      </div>
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/50 border border-white/10 px-2.5 py-1">
+        <Users size={11} className="text-emerald-400" />
+        <span className="font-mono text-[10px] tracking-widest text-emerald-300 uppercase">Sharing</span>
+      </div>
+
+      <svg viewBox="0 0 400 200" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+        <path d="M0,150 H400 M0,70 H400 M120,0 V200 M280,0 V200" stroke="rgba(255,255,255,.05)" strokeWidth="1" />
+        <path
+          id="landing-route"
+          d="M30,165 C90,60 170,185 240,105 S350,45 378,82"
+          fill="none"
+          stroke="#e60012"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray="2 8"
+          opacity="0.85"
+        >
+          <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="2.5s" repeatCount="indefinite" />
+        </path>
+        <circle cx="30" cy="165" r="5" fill="#10b981" stroke="#0b1120" strokeWidth="2" />
+        <circle cx="378" cy="82" r="5" fill="#3b82f6" stroke="#0b1120" strokeWidth="2" />
+        <g>
+          <circle r="10" fill="#e60012" opacity="0.3">
+            <animate attributeName="r" values="6;13;6" dur="1.6s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.35;0;0.35" dur="1.6s" repeatCount="indefinite" />
+            <animateMotion dur="6s" repeatCount="indefinite">
+              <mpath href="#landing-route" />
+            </animateMotion>
+          </circle>
+          <circle r="6" fill="#e60012" stroke="#fff" strokeWidth="2">
+            <animateMotion dur="6s" repeatCount="indefinite">
+              <mpath href="#landing-route" />
+            </animateMotion>
+          </circle>
+        </g>
+      </svg>
+
+      <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent pointer-events-none" />
+      <p className="absolute bottom-3 left-3 z-10 font-mono text-[10px] text-slate-400">
+        Delhi → Jaipur · tracking live
+      </p>
     </div>
   );
 }

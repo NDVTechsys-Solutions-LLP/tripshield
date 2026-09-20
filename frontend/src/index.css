@@ -177,3 +177,18 @@ body {
         44px 44px,
         44px 44px;
 }
+
+.hsj-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(230, 0, 18, 0.5) transparent;
+}
+.hsj-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.hsj-scroll::-webkit-scrollbar-thumb {
+    background: rgba(230, 0, 18, 0.5);
+    border-radius: 9999px;
+}
+.hsj-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}

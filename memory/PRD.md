@@ -62,6 +62,11 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - Claim copy no longer mentions Document Wallet; fallbacks say "Not on file".
 - Verified via desktop + mobile screenshots (no overflow); grep confirms no wallet/vault/telemetry/112 ERSS/route-intel strings remain in src.
 
+## Update (Jun 2026) — Landing: track preview + "How it protects you"
+- Replaced static hero image with an animated SVG live-tracking preview (`TrackPreview`): dashed route, green origin / blue destination, moving red vehicle dot (animateMotion) + pulse, LIVE/SHARING badges.
+- Added scrollable "How it protects you" section (`how-it-protects`): 5 snap cards (Safe Journey, Live Tracking, Family Sharing, Auto Check-In, Auto Recording) with explainers; `.hsj-scroll` styled scrollbar.
+- Verified desktop + mobile screenshots; body horizontal overflow = 0 (card row is an intentional swipe container).
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").
