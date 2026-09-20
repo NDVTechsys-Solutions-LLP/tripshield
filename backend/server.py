@@ -570,7 +570,7 @@ async def public_sos_audio(share_token: str, audio_id: str):
         raise HTTPException(status_code=404, detail="Audio not found")
     content, ctype = get_object(rec["storage_path"])
     return Response(content=content, media_type=rec.get("content_type", ctype),
-                    headers={"Accept-Ranges": "bytes", "Cache-Control": "public, max-age=3600"})
+                    headers={"Accept-Ranges": "bytes", "Cache-Control": "private, max-age=60"})
 
 
 # ---------------- Incidents (SOS / Accident / Deviation) ----------------

@@ -48,6 +48,13 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - Onboarding model search box (`model-search-input`) filters model grid.
 - Verified 100% by testing agent (iteration_6.json; pytest /app/backend/tests/test_feature_batch_medical_map.py).
 
+## Update (Jun 2026) — Silent SOS emergency audio
+- Integrated Emergent Object Storage (helpers init_storage/put_object/get_object; startup init; EMERGENT_LLM_KEY in backend .env).
+- On SOS/accident, browser records up to 60s audio (mic consent requested once at journey start) and uploads via `POST /api/journeys/{id}/sos-audio`; stored in object storage + db.sos_audios; journey gains `sos_audio` array.
+- Public playback: `GET /api/track/{share_token}/audio/{audio_id}` (share-token gated, unauth) — family tracking page renders `<audio>` players. NOT shown to dealer.
+- SOS panel shows a live "Recording… Ns/60s" indicator + manual Stop & Send; graceful fallback when mic unavailable.
+- Verified 100% by testing agent (iteration_7.json; pytest /app/backend/tests/test_sos_audio.py).
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").
