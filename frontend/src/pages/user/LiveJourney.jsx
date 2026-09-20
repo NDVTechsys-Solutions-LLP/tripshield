@@ -468,8 +468,6 @@ export default function LiveJourney() {
           <div className="rounded-lg bg-black/40 border border-white/10 p-4 mt-3 space-y-2">
             <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">Broadcast Payload</p>
             <PayRow icon={Phone} label="Rider Phone" value={sos?.shared_data?.phone || "Set in Settings"} />
-            <PayRow icon={FileText} label="Aadhaar" value={sos?.shared_data?.aadhaar || "Not shared (check wallet)"} />
-            <PayRow icon={ShieldCheck} label="Medical" value={sos?.shared_data?.medical_policy || "Not in wallet"} />
             <PayRow icon={MapPin} label="Location" value={position ? `${position[0].toFixed(4)}, ${position[1].toFixed(4)}` : "—"} />
             <PayRow icon={Phone} label="Contacts" value={`${sos?.shared_data?.contacts?.length || 0} family notified`} />
           </div>

@@ -199,8 +199,7 @@ export default function DealerDashboard() {
 
               <div className="rounded-lg bg-[#0b0f17] border border-white/10 p-4 mt-3">
                 <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-2">Shared Emergency Data</p>
-                <Info label="Aadhaar" value={detail.shared_data?.aadhaar || "Not shared"} icon={FileText} />
-                <Info label="Medical Policy" value={detail.shared_data?.medical_policy || "Not shared"} icon={ShieldCheck} />
+                <Info label="Rider Phone" value={detail.shared_data?.phone || "Not shared"} icon={Phone} />
                 <Info label="Location" value={detail.location ? `${detail.location[0].toFixed(4)}, ${detail.location[1].toFixed(4)}` : "—"} icon={MapPin} />
                 <div className="mt-2">
                   <p className="text-slate-500 font-mono text-xs flex items-center gap-1.5 mb-1"><Users size={12} /> Family Contacts</p>

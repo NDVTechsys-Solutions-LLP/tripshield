@@ -490,7 +490,6 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
     if not j:
         raise HTTPException(status_code=404, detail="Journey not found")
     veh = await db.vehicles.find_one({"user_id": user["user_id"]}, {"_id": 0})
-    docs = await db.documents.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(200)
     contacts = await db.contacts.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
 
     shared_with = []
@@ -498,10 +497,6 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
         shared_with = ["112 ERSS / VSSR", "Emergency Family Contacts", "TripShield Service Center"]
     elif payload.type == "deviation":
         shared_with = ["TripShield Service Center"]
-
-    aadhaar = next((d for d in docs if d["doc_type"] == "Aadhaar Card"
-                    and (d.get("share_police") or d.get("share_family"))), None)
-    medical = next((d for d in docs if d["doc_type"] == "Medical Insurance"), None)
 
     iid = new_id("inc")
     data = {
@@ -515,9 +510,7 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
         "shared_with": shared_with,
         "shared_data": {
             "phone": user.get("phone") or (j.get("user_phone") if j else None),
-            "aadhaar": aadhaar["doc_number"] if aadhaar else None,
-            "holder": aadhaar["holder_name"] if aadhaar else user.get("name"),
-            "medical_policy": medical["doc_number"] if medical else None,
+            "holder": user.get("name"),
             "contacts": [{"name": c["name"], "phone": c["phone"]} for c in contacts],
         },
         "status": "open", "dealer_notes": "", "created_at": iso(now_utc()),
