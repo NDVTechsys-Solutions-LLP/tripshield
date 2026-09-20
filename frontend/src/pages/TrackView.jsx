@@ -5,7 +5,7 @@ import LeafletMap from "@/components/LeafletMap";
 import { TripShieldMark } from "@/components/BrandMark";
 import {
   ShieldCheck, MapPin, Navigation, Clock, Route as RouteIcon, Activity,
-  AlertTriangle, CheckCircle2, Siren, Loader2, WifiOff, AudioLines,
+  AlertTriangle, CheckCircle2, Siren, Loader2, WifiOff, AudioLines, PhoneCall,
 } from "lucide-react";
 
 export default function TrackView() {
@@ -22,6 +22,12 @@ export default function TrackView() {
     } catch {
       setError(true);
     }
+  };
+
+  const callErss = async () => {
+    try { await api.post(`/track/${token}/erss-call`); } catch { /* still allow dialing */ }
+    const num = data?.erss?.phone || "9620910910";
+    window.location.href = `tel:${num}`;
   };
 
   useEffect(() => {
@@ -90,6 +96,28 @@ export default function TrackView() {
             </p>
           </div>
         )}
+
+        {/* Family → 112 / ERSS one-tap call */}
+        <div data-testid="track-erss-card" className="rounded-xl border border-[#ef4444]/40 bg-[#ef4444]/5 p-4 mt-5 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+          <div className="flex items-center gap-3">
+            <PhoneCall className="text-[#ef4444] shrink-0" size={22} />
+            <div>
+              <p className="text-sm text-white font-body font-semibold">Emergency? Call 112 / ERSS now</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {data.erss?.notified
+                  ? "TripShield's AI dispatcher has already auto-reported this incident to 112 / ERSS."
+                  : "Connects you directly to the emergency response line."}
+              </p>
+            </div>
+          </div>
+          <button
+            data-testid="track-call-erss-button"
+            onClick={callErss}
+            className="shrink-0 px-5 py-2.5 rounded-lg bg-[#ef4444] hover:bg-[#dc2626] text-white font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2 transition-colors"
+          >
+            <PhoneCall size={16} /> Call {data.erss?.phone || "112"}
+          </button>
+        </div>
 
         <div className="grid grid-cols-3 gap-3 mt-6">
           <Stat icon={RouteIcon} label="Distance" value={`${data.distance_km} km`} />

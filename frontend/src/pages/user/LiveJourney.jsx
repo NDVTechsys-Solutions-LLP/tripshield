@@ -11,7 +11,7 @@ import {
   Gauge, Clock, Route as RouteIcon, Zap, Siren, GitBranch, TrafficCone,
   Car, ShieldCheck, ShieldAlert, Phone, MapPin, X, CheckCircle2, Radio,
   Activity, FileText, Home, Play, Pause, Mic, MicOff, Share2, Copy, Square,
-  MessageSquare, Send, Mail, Heart, ShieldPlus, AudioLines,
+  MessageSquare, Send, Mail, Heart, ShieldPlus, AudioLines, Bot, PhoneCall,
 } from "lucide-react";
 
 export default function LiveJourney() {
@@ -582,6 +582,28 @@ export default function LiveJourney() {
                     <span className="text-slate-400 font-body">Microphone unavailable — audio capture skipped</span></>
                   )}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* AI dispatcher auto-report to 112 / ERSS */}
+          {sos?.erss_report && (
+            <div data-testid="sos-erss-report" className="rounded-lg bg-black/40 border border-[#3b82f6]/30 p-4 mt-3 space-y-2">
+              <p className="font-mono text-[10px] tracking-widest text-blue-300 uppercase flex items-center gap-2">
+                <Bot size={13} /> AI Dispatcher · 112 / ERSS
+              </p>
+              <div className="flex items-start gap-2 text-sm text-slate-300">
+                <PhoneCall size={14} className="text-blue-400 mt-0.5 shrink-0" />
+                <span>{sos.erss_report.call_status}</span>
+              </div>
+              <div className="flex items-start gap-2 text-sm text-slate-300">
+                <Mail size={14} className="text-blue-400 mt-0.5 shrink-0" />
+                <span>{sos.erss_report.email_status}</span>
+              </div>
+              {sos.erss_report.ai_narrative && (
+                <p className="text-xs text-slate-400 italic leading-relaxed border-l-2 border-blue-500/40 pl-2.5 mt-1">
+                  "{sos.erss_report.ai_narrative}"
+                </p>
               )}
             </div>
           )}

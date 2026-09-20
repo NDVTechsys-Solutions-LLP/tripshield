@@ -24,6 +24,95 @@ api_router = APIRouter(prefix="/api")
 
 EMERGENT_SESSION_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
 
+# ---------------- ERSS (112) simulated dispatch ----------------
+ERSS_PHONE = os.environ.get("ERSS_PHONE", "9620910910")
+ERSS_EMAIL = os.environ.get("ERSS_EMAIL", "narendra.macherla@ndvtechsys.com")
+
+
+def _maps_link(loc):
+    if loc and isinstance(loc, (list, tuple)) and len(loc) == 2:
+        return f"https://maps.google.com/?q={loc[0]},{loc[1]}"
+    return None
+
+
+async def _generate_ai_dispatch(ctx: dict) -> str:
+    fallback = (
+        f"Automated emergency call from TripShield. A {ctx.get('severity')} {ctx.get('type')} "
+        f"involving {ctx.get('vehicle')} has been detected. Rider {ctx.get('name')}, contact {ctx.get('phone') or 'unknown'}. "
+        f"Blood group {ctx.get('blood_group') or 'unknown'}, allergies {ctx.get('allergies') or 'none noted'}. "
+        f"Location {ctx.get('location')}. Please dispatch assistance immediately."
+    )
+    if not EMERGENT_KEY:
+        return fallback
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=EMERGENT_KEY,
+            session_id=f"erss-{ctx.get('incident_id', 'x')}",
+            system_message=(
+                "You are an automated emergency dispatch voice agent for a road-safety app. "
+                "Produce a concise, calm spoken script (max 80 words) that an AI voice agent reads aloud "
+                "when auto-calling emergency services (112 / ERSS). State that this is an automated call, "
+                "the incident type & severity, the vehicle, rider name and phone, blood group and allergies "
+                "if present, and the exact GPS location, then request immediate dispatch. Plain sentences only, no markdown."
+            ),
+        ).with_model("openai", "gpt-5.4-mini")
+        text = (
+            f"Incident: {ctx.get('type')} ({ctx.get('severity')}). Vehicle: {ctx.get('vehicle')}. "
+            f"Rider: {ctx.get('name')}, phone {ctx.get('phone') or 'unknown'}. "
+            f"Blood group: {ctx.get('blood_group') or 'unknown'}. Allergies: {ctx.get('allergies') or 'none noted'}. "
+            f"GPS: {ctx.get('location')}. Route: {ctx.get('route_name')}."
+        )
+        resp = await chat.send_message(UserMessage(text=text))
+        out = resp if isinstance(resp, str) else str(resp)
+        return out.strip() or fallback
+    except Exception as e:
+        logging.getLogger(__name__).error(f"AI dispatch generation failed: {e}")
+        return fallback
+
+
+async def build_erss_report(incident: dict, contacts: list) -> dict:
+    loc = incident.get("location")
+    sd = incident.get("shared_data", {}) or {}
+    ctx = {
+        "incident_id": incident.get("incident_id"), "type": incident.get("type"),
+        "severity": incident.get("severity"), "vehicle": incident.get("vehicle_label"),
+        "name": incident.get("user_name"), "phone": sd.get("phone"),
+        "blood_group": sd.get("blood_group"), "allergies": sd.get("allergies"),
+        "location": loc, "route_name": incident.get("route_name"),
+    }
+    narrative = await _generate_ai_dispatch(ctx)
+    link = _maps_link(loc)
+    contact_lines = "\n".join([f"  - {c['name']}: {c['phone']}" for c in contacts]) or "  - None on file"
+    subject = f"[TripShield SOS] {(incident.get('type') or 'SOS').upper()} reported — {incident.get('user_name') or 'Rider'}"
+    body = (
+        "AUTOMATED EMERGENCY INCIDENT REPORT (SIMULATED)\n"
+        "================================================\n"
+        f"Incident ID  : {incident.get('incident_id')}\n"
+        f"Type/Severity: {incident.get('type')} / {incident.get('severity')}\n"
+        f"Reported at  : {iso(now_utc())}\n\n"
+        "RIDER\n"
+        f"  Name        : {ctx['name']}\n"
+        f"  Phone       : {ctx['phone'] or 'not set'}\n"
+        f"  Blood group : {ctx['blood_group'] or 'unknown'}\n"
+        f"  Allergies   : {ctx['allergies'] or 'none noted'}\n"
+        f"  Vehicle     : {ctx['vehicle']}\n\n"
+        "LOCATION\n"
+        f"  GPS         : {loc}\n"
+        f"  Map         : {link or 'unavailable'}\n"
+        f"  Route       : {ctx['route_name']}\n\n"
+        f"EMERGENCY CONTACTS\n{contact_lines}\n\n"
+        f"AI DISPATCH SCRIPT\n  {narrative}\n\n"
+        "AUDIO EVIDENCE: pending — attached when the 60s clip finishes uploading.\n"
+    )
+    return {
+        "phone": ERSS_PHONE, "email": ERSS_EMAIL, "ai_narrative": narrative,
+        "call_status": f"simulated · AI agent dialing {ERSS_PHONE}",
+        "email_status": f"simulated · report queued to {ERSS_EMAIL}",
+        "email_subject": subject, "email_body": body, "maps_link": link,
+        "audio_id": None, "audio_attached": False, "reported_at": iso(now_utc()),
+    }
+
 # ---------------- Object Storage ----------------
 STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
 STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
@@ -503,6 +592,16 @@ async def public_track(share_token: str):
     events = [e for e in (j.get("events") or [])
               if e.get("severity") in ("danger", "warning", "success")][-8:]
     completed = j.get("status") == "completed"
+    latest_inc = await db.incidents.find_one(
+        {"journey_id": j["journey_id"], "type": {"$in": ["sos", "accident"]}},
+        {"_id": 0, "erss_report": 1}, sort=[("created_at", -1)])
+    er = (latest_inc or {}).get("erss_report") or {}
+    erss = {
+        "phone": ERSS_PHONE,
+        "notified": bool(er),
+        "call_status": er.get("call_status"),
+        "email_status": er.get("email_status"),
+    }
     return {
         "user_name": j.get("user_name"),
         "from_name": j.get("from_name"), "to_name": j.get("to_name"),
@@ -515,12 +614,24 @@ async def public_track(share_token: str):
         "distance_km": j.get("distance_km"), "eta_min": j.get("eta_min"),
         "mode": j.get("mode"), "vehicle_label": j.get("vehicle_label"),
         "last_update": j.get("last_update"),
+        "erss": erss,
         "sos_audio": [
             {"audio_id": a["audio_id"], "created_at": a.get("created_at")}
             for a in (j.get("sos_audio") or [])
         ],
         "events": [e for e in events if e.get("type") == "arrived"] if completed else events,
     }
+
+
+@api_router.post("/track/{share_token}/erss-call")
+async def track_erss_call(share_token: str):
+    j = await db.journeys.find_one({"share_token": share_token}, {"_id": 0, "journey_id": 1})
+    if not j:
+        raise HTTPException(status_code=404, detail="Tracking link not found")
+    await add_event_internal(
+        j["journey_id"], "sos",
+        f"Family member initiated a call to 112 / ERSS ({ERSS_PHONE})", "danger", None)
+    return {"phone": ERSS_PHONE}
 
 
 # ---------------- SOS Emergency Audio ----------------
@@ -556,6 +667,19 @@ async def upload_sos_audio(journey_id: str, file: UploadFile = File(...),
         {"$push": {"sos_audio": {"audio_id": audio_id, "created_at": entry["created_at"]}}})
     await add_event_internal(
         journey_id, "sos", "Emergency audio clip captured & shared with family", "danger", None)
+    inc = await db.incidents.find_one(
+        {"journey_id": journey_id, "type": {"$in": ["sos", "accident"]}},
+        {"_id": 0, "incident_id": 1, "erss_report": 1}, sort=[("created_at", -1)])
+    if inc and inc.get("erss_report"):
+        await db.incidents.update_one(
+            {"incident_id": inc["incident_id"]},
+            {"$set": {
+                "erss_report.audio_id": audio_id,
+                "erss_report.audio_attached": True,
+                "erss_report.email_status": f"simulated · report + audio clip sent to {ERSS_EMAIL}",
+            }})
+        await add_event_internal(
+            journey_id, "sos", "Audio clip attached to the 112 / ERSS incident email", "danger", None)
     return {"audio_id": audio_id, "size": len(data)}
 
 
@@ -616,10 +740,17 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
         },
         "status": "open", "dealer_notes": "", "created_at": iso(now_utc()),
     }
+    if payload.type in ("sos", "accident"):
+        data["erss_report"] = await build_erss_report(data, contacts)
     await db.incidents.insert_one(data)
     if payload.type in ("sos", "accident", "deviation"):
         await db.journeys.update_one({"journey_id": payload.journey_id},
                                      {"$set": {"status": "emergency"}})
+    if payload.type in ("sos", "accident"):
+        await add_event_internal(
+            payload.journey_id, "sos",
+            f"AI dispatcher auto-reported incident to 112 / ERSS (call {ERSS_PHONE} + email {ERSS_EMAIL})",
+            "danger", payload.location)
     await add_event_internal(payload.journey_id, payload.type, payload.message,
                              payload.severity, payload.location)
     return await db.incidents.find_one({"incident_id": iid}, {"_id": 0})

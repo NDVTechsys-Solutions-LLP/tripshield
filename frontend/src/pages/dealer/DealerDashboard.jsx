@@ -10,7 +10,7 @@ import {
 import {
   ShieldAlert, Siren, Car, Activity, Users, LogOut, MapPin, Phone, FileText,
   CheckCircle2, Clock, GitBranch, TrafficCone, ShieldCheck, Radio, Eye, Building2,
-  Heart, ShieldPlus, Navigation,
+  Heart, ShieldPlus, Navigation, Bot, PhoneCall, Mail, AudioLines,
 } from "lucide-react";
 
 const TYPE_META = {
@@ -253,6 +253,23 @@ export default function DealerDashboard() {
                   <div key={s} className="flex items-center gap-2 text-sm text-emerald-300"><CheckCircle2 size={14} /> {s}</div>
                 ))}
               </div>
+
+              {detail.erss_report && (
+                <div data-testid="dealer-erss-report" className="rounded-lg bg-[#0b0f17] border border-[#3b82f6]/30 p-4 mt-3">
+                  <p className="font-mono text-[10px] tracking-widest text-blue-300 uppercase mb-2 flex items-center gap-2">
+                    <Bot size={12} /> AI Dispatcher · 112 / ERSS Report
+                  </p>
+                  <Info label="Call" value={detail.erss_report.call_status} icon={PhoneCall} />
+                  <Info label="Email" value={detail.erss_report.email_status} icon={Mail} />
+                  <Info label="Sent to" value={detail.erss_report.email} icon={Mail} />
+                  <Info label="Audio" value={detail.erss_report.audio_attached ? "Clip attached to report" : "Pending / not captured"} icon={AudioLines} />
+                  {detail.erss_report.ai_narrative && (
+                    <p className="text-xs text-slate-400 italic leading-relaxed border-l-2 border-blue-500/40 pl-2.5 mt-2">
+                      "{detail.erss_report.ai_narrative}"
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Journey activity timeline */}
               {detail.journey?.events?.length > 0 && (
