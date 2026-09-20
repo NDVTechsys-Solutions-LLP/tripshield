@@ -15,6 +15,7 @@ export default function Onboarding() {
   const [existing, setExisting] = useState(false);
   const [oemOpen, setOemOpen] = useState(false);
   const [oemQuery, setOemQuery] = useState("");
+  const [modelQuery, setModelQuery] = useState("");
 
   useEffect(() => {
     api.get("/vehicle").then((r) => {
@@ -37,19 +38,25 @@ export default function Onboarding() {
     return all.filter((o) => o.toLowerCase().includes(oemQuery.toLowerCase()));
   }, [type, oemQuery]);
 
-  const models = useMemo(() => modelsFor(type, form.make), [type, form.make]);
+  const models = useMemo(() => {
+    const all = modelsFor(type, form.make);
+    if (!modelQuery.trim()) return all;
+    return all.filter((m) => m.toLowerCase().includes(modelQuery.toLowerCase()));
+  }, [type, form.make, modelQuery]);
 
   const changeType = (t) => {
     setType(t);
     upd("make", "");
     upd("model", "");
     setOemQuery("");
+    setModelQuery("");
   };
 
   const pickOem = (make) => {
     setForm((f) => ({ ...f, make, model: "" }));
     setOemOpen(false);
     setOemQuery("");
+    setModelQuery("");
   };
 
   const save = async () => {
@@ -173,22 +180,38 @@ export default function Onboarding() {
               Select a manufacturer first to see available models
             </p>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {models.map((m) => (
-                <button
-                  key={m}
-                  data-testid="model-option"
-                  onClick={() => upd("model", m)}
-                  className={`rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                    form.model === m
-                      ? "border-[#e60012] bg-[#e60012]/10 text-white"
-                      : "border-white/10 text-slate-400 hover:border-white/25"
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="relative mb-3">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  data-testid="model-search-input"
+                  value={modelQuery}
+                  onChange={(e) => setModelQuery(e.target.value)}
+                  placeholder="Search models…"
+                  className="w-full rounded-lg bg-[#0b0f17] border border-white/10 pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none transition-colors"
+                />
+              </div>
+              {models.length === 0 ? (
+                <p className="text-sm text-slate-600 px-1">No models match "{modelQuery}"</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {models.map((m) => (
+                    <button
+                      key={m}
+                      data-testid="model-option"
+                      onClick={() => upd("model", m)}
+                      className={`rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+                        form.model === m
+                          ? "border-[#e60012] bg-[#e60012]/10 text-white"
+                          : "border-white/10 text-slate-400 hover:border-white/25"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </Field>
 

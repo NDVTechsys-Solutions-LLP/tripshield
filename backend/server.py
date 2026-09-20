@@ -511,6 +511,8 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
         "shared_data": {
             "phone": user.get("phone") or (j.get("user_phone") if j else None),
             "holder": user.get("name"),
+            "blood_group": user.get("blood_group") or None,
+            "allergies": user.get("allergies") or None,
             "contacts": [{"name": c["name"], "phone": c["phone"]} for c in contacts],
         },
         "status": "open", "dealer_notes": "", "created_at": iso(now_utc()),
@@ -581,7 +583,6 @@ async def create_claim(payload: ClaimIn, user=Depends(get_current_user)):
 
     rc = find("Vehicle RC")
     ins = find("Vehicle Insurance")
-    aad = find("Aadhaar Card")
     dl = find("Driving License")
 
     package = {
@@ -589,7 +590,6 @@ async def create_claim(payload: ClaimIn, user=Depends(get_current_user)):
         "policy_number": (ins or {}).get("doc_number"),
         "registration_no": (rc or {}).get("doc_number") or (veh or {}).get("reg_no"),
         "vehicle_model": (veh or {}).get("model"),
-        "aadhaar": (aad or {}).get("doc_number"),
         "driving_license": (dl or {}).get("doc_number"),
         "incident_location": (j or {}).get("to_name"),
         "impact_g_force": payload.impact_g or 4.2,
@@ -657,11 +657,14 @@ class SettingsIn(BaseModel):
     phone: Optional[str] = None
     channel: Optional[str] = None
     auto_share: Optional[bool] = None
+    blood_group: Optional[str] = None
+    allergies: Optional[str] = None
 
 
 def _settings_view(u):
     return {"phone": u.get("phone", ""), "channel": u.get("channel", "sms"),
-            "auto_share": u.get("auto_share", True)}
+            "auto_share": u.get("auto_share", True),
+            "blood_group": u.get("blood_group", ""), "allergies": u.get("allergies", "")}
 
 
 @api_router.get("/settings")
@@ -694,6 +697,32 @@ async def dealer_incidents(user=Depends(require_dealer)):
 @api_router.get("/dealer/journeys")
 async def dealer_journeys(user=Depends(require_dealer)):
     return await db.journeys.find({}, {"_id": 0, "route": 0, "events": 0}).sort("created_at", -1).to_list(300)
+
+
+@api_router.get("/dealer/active-map")
+async def dealer_active_map(user=Depends(require_dealer)):
+    rows = await db.journeys.find(
+        {"status": {"$in": ["active", "emergency"]}},
+        {"_id": 0, "journey_id": 1, "user_name": 1, "vehicle_label": 1, "vehicle_type": 1,
+         "status": 1, "from_name": 1, "to_name": 1, "from_coords": 1, "to_coords": 1,
+         "current_position": 1, "progress": 1},
+    ).sort("created_at", -1).to_list(300)
+    out = []
+    for j in rows:
+        pos = j.get("current_position") or j.get("from_coords")
+        if not pos:
+            continue
+        out.append({
+            "journey_id": j.get("journey_id"),
+            "user_name": j.get("user_name"),
+            "vehicle_label": j.get("vehicle_label"),
+            "vehicle_type": j.get("vehicle_type"),
+            "status": j.get("status"),
+            "route_name": f"{j.get('from_name')} → {j.get('to_name')}",
+            "position": pos,
+            "progress": j.get("progress", 0),
+        })
+    return out
 
 
 @api_router.get("/dealer/stats")

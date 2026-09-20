@@ -8,6 +8,7 @@ export default function LeafletMap({
   to = null,
   deviationPath = null,
   incident = null,
+  markers = null,
   className = "",
 }) {
   const mapRef = useRef(null);
@@ -125,6 +126,39 @@ export default function LeafletMap({
     }
     map.panTo(position, { animate: true, duration: 0.4 });
   }, [position]);
+
+  // Multiple markers (dealer live map)
+  useEffect(() => {
+    const L = window.L;
+    const map = mapRef.current;
+    if (!L || !map) return;
+    const layers = layersRef.current;
+    if (layers.multi) {
+      layers.multi.forEach((m) => map.removeLayer(m));
+      layers.multi = null;
+    }
+    if (markers && markers.length) {
+      const group = [];
+      markers.forEach((mk) => {
+        const color = mk.color || "#e60012";
+        const emoji = mk.type === "4w" ? "🚗" : "🏍️";
+        const pulse = mk.status === "emergency"
+          ? `<span style="position:absolute;inset:-6px;border-radius:50%;border:2px solid ${color};animation:hsjping 1.2s infinite"></span>` : "";
+        const html = `<div style="position:relative;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.6);font-size:14px">${emoji}${pulse}</div>`;
+        const m = L.marker(mk.position, {
+          icon: L.divIcon({ className: "", html, iconAnchor: [15, 15] }),
+          zIndexOffset: mk.status === "emergency" ? 1200 : 800,
+        }).addTo(map);
+        if (mk.popup) m.bindPopup(mk.popup);
+        group.push(m);
+      });
+      layers.multi = group;
+      try {
+        const bounds = L.latLngBounds(markers.map((m) => m.position));
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+      } catch (e) {}
+    }
+  }, [markers]);
 
   return <div ref={containerRef} className={className} data-testid="leaflet-map" />;
 }

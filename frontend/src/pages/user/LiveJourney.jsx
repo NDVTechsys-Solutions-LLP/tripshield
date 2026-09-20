@@ -11,7 +11,7 @@ import {
   Gauge, Clock, Route as RouteIcon, Zap, Siren, GitBranch, TrafficCone,
   Car, ShieldCheck, ShieldAlert, Phone, MapPin, X, CheckCircle2, Radio,
   Activity, FileText, Home, Play, Pause, Mic, MicOff, Share2, Copy, Square,
-  MessageSquare, Send, Mail,
+  MessageSquare, Send, Mail, Heart, ShieldPlus,
 } from "lucide-react";
 
 export default function LiveJourney() {
@@ -468,6 +468,8 @@ export default function LiveJourney() {
           <div className="rounded-lg bg-black/40 border border-white/10 p-4 mt-3 space-y-2">
             <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">Broadcast Payload</p>
             <PayRow icon={Phone} label="Rider Phone" value={sos?.shared_data?.phone || "Set in Settings"} />
+            <PayRow icon={Heart} label="Blood Group" value={sos?.shared_data?.blood_group || "Not set"} />
+            <PayRow icon={ShieldPlus} label="Allergies" value={sos?.shared_data?.allergies || "None noted"} />
             <PayRow icon={MapPin} label="Location" value={position ? `${position[0].toFixed(4)}, ${position[1].toFixed(4)}` : "—"} />
             <PayRow icon={Phone} label="Contacts" value={`${sos?.shared_data?.contacts?.length || 0} family notified`} />
           </div>

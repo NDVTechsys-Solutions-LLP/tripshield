@@ -16,7 +16,7 @@ const CHANNELS = [
 
 export default function Settings() {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState({ phone: "", channel: "sms", auto_share: true });
+  const [settings, setSettings] = useState({ phone: "", channel: "sms", auto_share: true, blood_group: "", allergies: "" });
   const [contacts, setContacts] = useState([]);
   const [vehicle, setVehicle] = useState(null);
   const [docs, setDocs] = useState([]);
@@ -152,6 +152,43 @@ export default function Settings() {
             onCheckedChange={(v) => setSettings({ ...settings, auto_share: v })}
             className="data-[state=checked]:bg-[#e60012]"
           />
+        </div>
+
+        <div className="border-t border-white/5 pt-6">
+          <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-1 flex items-center gap-2">
+            <Heart size={13} /> Medical Profile for Responders
+          </p>
+          <p className="text-xs text-slate-500 mb-4">Shared with first responders during an SOS — instead of ID documents.</p>
+          <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
+            <div>
+              <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2">Blood Group</label>
+              <div className="grid grid-cols-4 gap-2">
+                {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map((bg) => (
+                  <button
+                    key={bg}
+                    data-testid={`settings-blood-${bg}`}
+                    onClick={() => setSettings({ ...settings, blood_group: settings.blood_group === bg ? "" : bg })}
+                    className={`rounded-lg border py-2.5 text-sm font-mono transition-colors ${
+                      settings.blood_group === bg ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400 hover:border-white/25"
+                    }`}
+                  >
+                    {bg}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2">Allergies / Medical Notes</label>
+              <textarea
+                data-testid="settings-allergies-input"
+                value={settings.allergies}
+                onChange={(e) => setSettings({ ...settings, allergies: e.target.value })}
+                placeholder="e.g. Penicillin allergy, diabetic, no known allergies"
+                rows={3}
+                className="w-full rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-3 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none resize-none text-sm"
+              />
+            </div>
+          </div>
         </div>
 
         <button

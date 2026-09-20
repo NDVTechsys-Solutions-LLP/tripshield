@@ -50,7 +50,6 @@ export default function Claim() {
     "Policy Number": find("Vehicle Insurance")?.doc_number || "Not in wallet",
     "Registration": find("Vehicle RC")?.doc_number || vehicle?.reg_no || "—",
     "Vehicle": vehicle?.model || "—",
-    "Aadhaar": find("Aadhaar Card")?.doc_number || "Not in wallet",
     "Driving License": find("Driving License")?.doc_number || "Not in wallet",
     "Incident Location": lastAccident?.route_name || lastJourney?.to_name || "—",
     "Impact G-Force": "4.2 G",

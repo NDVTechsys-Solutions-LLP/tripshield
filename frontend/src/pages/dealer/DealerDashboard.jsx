@@ -10,6 +10,7 @@ import {
 import {
   ShieldAlert, Siren, Car, Activity, Users, LogOut, MapPin, Phone, FileText,
   CheckCircle2, Clock, GitBranch, TrafficCone, ShieldCheck, Radio, Eye, Building2,
+  Heart, ShieldPlus, Navigation,
 } from "lucide-react";
 
 const TYPE_META = {
@@ -23,12 +24,14 @@ export default function DealerDashboard() {
   const { user, logout } = useAuth();
   const [stats, setStats] = useState(null);
   const [incidents, setIncidents] = useState([]);
+  const [activeMap, setActiveMap] = useState([]);
   const [filter, setFilter] = useState("all");
   const [detail, setDetail] = useState(null);
 
   const load = () => {
     api.get("/dealer/stats").then((r) => setStats(r.data));
     api.get("/dealer/incidents").then((r) => setIncidents(r.data));
+    api.get("/dealer/active-map").then((r) => setActiveMap(r.data));
   };
   useEffect(() => {
     load();
@@ -105,6 +108,38 @@ export default function DealerDashboard() {
           <DStat icon={Radio} label="Active" value={stats?.active_journeys ?? "—"} color="#e60012" testid="dealer-stat-active" />
           <DStat icon={ShieldAlert} label="Open" value={stats?.open_incidents ?? "—"} color="#ef4444" testid="dealer-stat-open" />
           <DStat icon={Clock} label="Total Inc." value={stats?.total_incidents ?? "—"} color="#f59e0b" testid="dealer-stat-total" />
+        </div>
+
+        {/* Live fleet map */}
+        <div className="rounded-xl border border-white/10 bg-[#0f141f] mt-8 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <Navigation size={18} className="text-[#3b82f6]" />
+              <h2 className="font-display font-bold text-white uppercase tracking-wide text-sm">Live Fleet Map</h2>
+            </div>
+            <span data-testid="dealer-active-count" className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
+              {activeMap.length} active {activeMap.length === 1 ? "journey" : "journeys"}
+            </span>
+          </div>
+          {activeMap.length === 0 ? (
+            <div className="p-12 text-center">
+              <MapPin className="text-slate-600 mx-auto" size={36} />
+              <p className="text-slate-500 mt-3 font-body text-sm">No active journeys on the network right now.</p>
+            </div>
+          ) : (
+            <div className="h-[380px]" data-testid="dealer-live-map">
+              <LeafletMap
+                className="w-full h-full"
+                markers={activeMap.map((j) => ({
+                  position: j.position,
+                  type: j.vehicle_type,
+                  status: j.status,
+                  color: j.status === "emergency" ? "#ef4444" : "#3b82f6",
+                  popup: `<b>${j.user_name || "Rider"}</b><br/>${j.vehicle_label || ""}<br/><span style="color:${j.status === "emergency" ? "#ef4444" : "#3b82f6"}">${j.status.toUpperCase()}</span> · ${j.route_name || ""}`,
+                }))}
+              />
+            </div>
+          )}
         </div>
 
         {/* Filters */}
@@ -200,6 +235,8 @@ export default function DealerDashboard() {
               <div className="rounded-lg bg-[#0b0f17] border border-white/10 p-4 mt-3">
                 <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-2">Shared Emergency Data</p>
                 <Info label="Rider Phone" value={detail.shared_data?.phone || "Not shared"} icon={Phone} />
+                <Info label="Blood Group" value={detail.shared_data?.blood_group || "Not set"} icon={Heart} />
+                <Info label="Allergies" value={detail.shared_data?.allergies || "None noted"} icon={ShieldPlus} />
                 <Info label="Location" value={detail.location ? `${detail.location[0].toFixed(4)}, ${detail.location[1].toFixed(4)}` : "—"} icon={MapPin} />
                 <div className="mt-2">
                   <p className="text-slate-500 font-mono text-xs flex items-center gap-1.5 mb-1"><Users size={12} /> Family Contacts</p>
