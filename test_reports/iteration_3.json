@@ -23,7 +23,7 @@
   ],
   "updated_files": [],
   "success_rate": {"backend": "not tested (per request)", "frontend": "~90% (30/33 checks — 3 FAIL all traceable to stale DB data, not code)"},
-  "test_credentials": "session_token=tok_user_1789498189466 (rider.test@example.com); dealer tok_dealer_1789498189466. Base: https://trip-shield-5.preview.emergentagent.com",
+  "test_credentials": "session_token=tok_user_1789498189466 (rider.test@example.com); dealer tok_dealer_1789498189466. Base: https://connected-rider-app.preview.emergentagent.com",
   "seed_data_creation": "None created this iteration; reused /track token eedefa4310a54bb6 from iteration_2 and pre-seeded incidents.",
   "retest_needed": true,
   "should_main_agent_self_test": true,

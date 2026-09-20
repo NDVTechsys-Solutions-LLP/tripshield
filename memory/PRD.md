@@ -30,6 +30,12 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - Backend E2E via curl (all flows incl. SOS Aadhaar/112/family/dealer sharing, claim, dealer stats, 403 role gating).
 - Frontend E2E via testing agent: 21/22 checks passed; map tiles fixed (Carto→OSM).
 
+## Update (Jun 2026) — Vehicle OEM/Model catalog
+- Added Indian-market OEM catalog in `/app/frontend/src/lib/vehicleData.js` (2W + 4W, brand → models).
+- Onboarding now cascades: Type → Manufacturer (OEM, searchable dropdown) → Model (filtered by OEM).
+- Backend `VehicleIn` gained optional `make` field; `vehicle_label` now prefixes make (journeys + incidents).
+- Verified: backend curl (POST/GET /api/vehicle persists make) + frontend screenshot (Tata Motors → filtered models).
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").

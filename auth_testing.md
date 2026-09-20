@@ -18,8 +18,8 @@ Use role:"dealer" for the dealer portal.
 ```
 await page.context.add_cookies([{ "name":"session_token","value":"<TOKEN>",
   "domain":"trip-shield-5.preview.emergentagent.com","path":"/","httpOnly":True,"secure":True,"sameSite":"None"}])
-await page.goto("https://trip-shield-5.preview.emergentagent.com/app")   # user
-await page.goto("https://trip-shield-5.preview.emergentagent.com/dealer") # dealer
+await page.goto("https://connected-rider-app.preview.emergentagent.com/app")   # user
+await page.goto("https://connected-rider-app.preview.emergentagent.com/dealer") # dealer
 ```
 
 ## Pre-seeded tokens (created during build; may be reused)

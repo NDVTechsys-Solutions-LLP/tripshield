@@ -1,29 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { toast } from "sonner";
-import { Bike, Car, ArrowRight, CheckCircle2, Zap, Fuel } from "lucide-react";
-
-const MODELS = {
-  "2w": ["Activa 6G", "Shine 125", "SP 125", "CB350", "Hornet 2.0", "Transalp", "EM1 e: (EV)"],
-  "4w": ["City", "Elevate", "Amaze", "City e:HEV", "Civic", "WR-V"],
-};
+import { Bike, Car, ArrowRight, CheckCircle2, Zap, Fuel, Search, ChevronDown } from "lucide-react";
+import { OEM_NAMES, modelsFor } from "@/lib/vehicleData";
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [type, setType] = useState("2w");
   const [form, setForm] = useState({
-    model: "", reg_no: "", vin: "", color: "", year: "", fuel_type: "petrol",
+    make: "", model: "", reg_no: "", vin: "", color: "", year: "", fuel_type: "petrol",
   });
   const [saving, setSaving] = useState(false);
   const [existing, setExisting] = useState(false);
+  const [oemOpen, setOemOpen] = useState(false);
+  const [oemQuery, setOemQuery] = useState("");
 
   useEffect(() => {
     api.get("/vehicle").then((r) => {
       if (r.data) {
         setType(r.data.type);
         setForm({
-          model: r.data.model, reg_no: r.data.reg_no, vin: r.data.vin || "",
+          make: r.data.make || "", model: r.data.model, reg_no: r.data.reg_no, vin: r.data.vin || "",
           color: r.data.color || "", year: r.data.year || "", fuel_type: r.data.fuel_type || "petrol",
         });
         setExisting(true);
@@ -33,7 +31,32 @@ export default function Onboarding() {
 
   const upd = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
+  const oemList = useMemo(() => {
+    const all = OEM_NAMES[type] || [];
+    if (!oemQuery.trim()) return all;
+    return all.filter((o) => o.toLowerCase().includes(oemQuery.toLowerCase()));
+  }, [type, oemQuery]);
+
+  const models = useMemo(() => modelsFor(type, form.make), [type, form.make]);
+
+  const changeType = (t) => {
+    setType(t);
+    upd("make", "");
+    upd("model", "");
+    setOemQuery("");
+  };
+
+  const pickOem = (make) => {
+    setForm((f) => ({ ...f, make, model: "" }));
+    setOemOpen(false);
+    setOemQuery("");
+  };
+
   const save = async () => {
+    if (!form.make) {
+      toast.error("Please select a manufacturer (OEM)");
+      return;
+    }
     if (!form.model || !form.reg_no) {
       toast.error("Model and registration number are required");
       return;
@@ -62,13 +85,13 @@ export default function Onboarding() {
       {/* Type switch */}
       <div className="grid grid-cols-2 gap-4 mt-8">
         {[
-          { key: "2w", icon: Bike, label: "Two-Wheeler", sub: "Activa · CB · Hornet" },
-          { key: "4w", icon: Car, label: "Four-Wheeler", sub: "City · Elevate · Amaze" },
+          { key: "2w", icon: Bike, label: "Two-Wheeler", sub: "Bikes · Scooters · EVs" },
+          { key: "4w", icon: Car, label: "Four-Wheeler", sub: "Hatchback · Sedan · SUV" },
         ].map((t) => (
           <button
             key={t.key}
             data-testid={`vehicle-type-${t.key === "2w" ? "2wheeler" : "4wheeler"}-card`}
-            onClick={() => { setType(t.key); upd("model", ""); }}
+            onClick={() => changeType(t.key)}
             className={`rounded-xl border p-6 text-left transition-all ${
               type === t.key
                 ? "border-[#e60012] bg-[#e60012]/10 shadow-lg shadow-[#e60012]/10"
@@ -85,23 +108,88 @@ export default function Onboarding() {
 
       {/* Form */}
       <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6 sm:p-7 mt-6 space-y-5">
-        <Field label="Model">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {MODELS[type].map((m) => (
-              <button
-                key={m}
-                data-testid={`model-option`}
-                onClick={() => upd("model", m)}
-                className={`rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                  form.model === m
-                    ? "border-[#e60012] bg-[#e60012]/10 text-white"
-                    : "border-white/10 text-slate-400 hover:border-white/25"
-                }`}
+        {/* OEM / Manufacturer */}
+        <Field label="Manufacturer (OEM)">
+          <div className="relative">
+            <button
+              type="button"
+              data-testid="oem-select-trigger"
+              onClick={() => setOemOpen((o) => !o)}
+              className={`w-full flex items-center justify-between rounded-lg bg-[#0b0f17] border px-4 py-3 text-left transition-colors ${
+                oemOpen ? "border-[#e60012]" : "border-white/10 hover:border-white/25"
+              }`}
+            >
+              <span className={form.make ? "text-white" : "text-slate-600"}>
+                {form.make || "Select manufacturer"}
+              </span>
+              <ChevronDown size={18} className={`text-slate-500 transition-transform ${oemOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {oemOpen && (
+              <div
+                data-testid="oem-dropdown"
+                className="absolute z-20 mt-2 w-full rounded-lg border border-white/10 bg-[#111826] shadow-2xl shadow-black/50 overflow-hidden"
               >
-                {m}
-              </button>
-            ))}
+                <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+                  <Search size={16} className="text-slate-500" />
+                  <input
+                    autoFocus
+                    data-testid="oem-search-input"
+                    value={oemQuery}
+                    onChange={(e) => setOemQuery(e.target.value)}
+                    placeholder="Search brand…"
+                    className="w-full bg-transparent text-sm text-white placeholder:text-slate-600 focus:outline-none"
+                  />
+                </div>
+                <div className="max-h-60 overflow-y-auto py-1">
+                  {oemList.length === 0 && (
+                    <p className="px-4 py-3 text-sm text-slate-500">No manufacturers found</p>
+                  )}
+                  {oemList.map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      data-testid="oem-option"
+                      onClick={() => pickOem(o)}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                        form.make === o
+                          ? "bg-[#e60012]/15 text-white"
+                          : "text-slate-300 hover:bg-white/5"
+                      }`}
+                    >
+                      {o}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
+        </Field>
+
+        {/* Model — filtered by OEM */}
+        <Field label="Model">
+          {!form.make ? (
+            <p className="text-sm text-slate-600 rounded-lg border border-dashed border-white/10 px-4 py-3">
+              Select a manufacturer first to see available models
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {models.map((m) => (
+                <button
+                  key={m}
+                  data-testid="model-option"
+                  onClick={() => upd("model", m)}
+                  className={`rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+                    form.model === m
+                      ? "border-[#e60012] bg-[#e60012]/10 text-white"
+                      : "border-white/10 text-slate-400 hover:border-white/25"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
         </Field>
 
         <div className="grid sm:grid-cols-2 gap-5">
@@ -122,7 +210,7 @@ export default function Onboarding() {
         <Field label="Powertrain">
           <div className="flex gap-3">
             {[
-              { k: "petrol", icon: Fuel, label: "Petrol" },
+              { k: "petrol", icon: Fuel, label: "Petrol / Diesel" },
               { k: "electric", icon: Zap, label: "Electric" },
             ].map((p) => (
               <button

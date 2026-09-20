@@ -25,7 +25,7 @@
   ],
   "updated_files": [],
   "success_rate": {"backend": "not tested (per request)", "frontend": "~92% (12/13 spec checks pass; SOS-panel phone row missing)"},
-  "test_credentials": "session_token=tok_user_1789498189466 (rider.test@example.com); dealer tok_dealer_1789498189466. Base: https://trip-shield-5.preview.emergentagent.com.",
+  "test_credentials": "session_token=tok_user_1789498189466 (rider.test@example.com); dealer tok_dealer_1789498189466. Base: https://connected-rider-app.preview.emergentagent.com.",
   "seed_data_creation": "Saved settings (phone=+919812345678, channel=whatsapp, auto_share=true), added 'TEST Contact' emergency contact, created 1 fresh journey (Connaught Place→Cyber City, manual, share_token=eedefa4310a54bb6) which was completed via end-journey-button; SOS was raised & cancelled during the run.",
   "retest_needed": true,
   "should_main_agent_self_test": true,

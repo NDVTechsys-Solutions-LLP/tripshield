@@ -150,6 +150,7 @@ async def logout(request: Request, response: Response):
 # ---------------- Vehicle ----------------
 class VehicleIn(BaseModel):
     type: str  # '2w' | '4w'
+    make: Optional[str] = ""  # OEM / manufacturer
     model: str
     reg_no: str
     vin: Optional[str] = ""
@@ -368,7 +369,7 @@ async def create_journey(payload: JourneyIn, user=Depends(get_current_user)):
         "journey_id": jid, "user_id": user["user_id"], "user_name": user.get("name"),
         "user_email": user.get("email"), "user_phone": user.get("phone", ""),
         "vehicle_id": veh["vehicle_id"] if veh else None,
-        "vehicle_label": f"{veh.get('model')} · {veh.get('reg_no')}" if veh else "Unknown",
+        "vehicle_label": (f"{veh.get('make') + ' ' if veh.get('make') else ''}{veh.get('model')} · {veh.get('reg_no')}") if veh else "Unknown",
         "vehicle_type": veh.get("type") if veh else None,
         "share_token": share_token,
         "current_position": payload.from_coords, "progress": 0.0,
@@ -509,7 +510,7 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
         "type": payload.type, "severity": payload.severity, "message": payload.message,
         "location": payload.location or (j.get("to_coords") if j else None),
         "route_name": f"{j.get('from_name')} → {j.get('to_name')}" if j else "",
-        "vehicle_label": (f"{veh.get('model')} · {veh.get('reg_no')}") if veh else "Unknown",
+        "vehicle_label": (f"{veh.get('make') + ' ' if veh.get('make') else ''}{veh.get('model')} · {veh.get('reg_no')}") if veh else "Unknown",
         "vehicle_type": veh.get("type") if veh else None,
         "shared_with": shared_with,
         "shared_data": {
