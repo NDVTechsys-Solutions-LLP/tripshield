@@ -241,8 +241,8 @@ export default function DealerDashboard() {
                 <div className="mt-2">
                   <p className="text-slate-500 font-mono text-xs flex items-center gap-1.5 mb-1"><Users size={12} /> Family Contacts</p>
                   {(detail.shared_data?.contacts || []).length === 0 && <p className="text-xs text-slate-600">None</p>}
-                  {(detail.shared_data?.contacts || []).map((c) => (
-                    <p key={c.phone} className="text-sm text-white font-mono flex items-center gap-2"><Phone size={12} className="text-slate-500" /> {c.name} · {c.phone}</p>
+                  {(detail.shared_data?.contacts || []).map((c, ci) => (
+                    <p key={`${c.phone}-${ci}`} className="text-sm text-white font-mono flex items-center gap-2"><Phone size={12} className="text-slate-500" /> {c.name} · {c.phone}</p>
                   ))}
                 </div>
               </div>

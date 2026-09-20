@@ -650,8 +650,8 @@ export default function LiveJourney() {
                 <Radio size={12} /> Auto-Notified Family
               </p>
               {(arrived?.notified || []).length === 0 && <p className="text-xs text-slate-600 font-mono">No contacts configured</p>}
-              {(arrived?.notified || []).map((c) => (
-                <div key={c.phone} className="flex items-center gap-2 text-sm text-emerald-300">
+              {(arrived?.notified || []).map((c, ci) => (
+                <div key={`${c.phone}-${ci}`} className="flex items-center gap-2 text-sm text-emerald-300">
                   <CheckCircle2 size={14} /> {c.name} · {c.phone}
                 </div>
               ))}

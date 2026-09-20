@@ -67,6 +67,12 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - Added scrollable "How it protects you" section (`how-it-protects`): 5 snap cards (Safe Journey, Live Tracking, Family Sharing, Auto Check-In, Auto Recording) with explainers; `.hsj-scroll` styled scrollbar.
 - Verified desktop + mobile screenshots; body horizontal overflow = 0 (card row is an intentional swipe container).
 
+## Update (Jun 2026) — Simulated 112/ERSS AI auto-dispatch + family call
+- Family tracking page: one-tap "Call 112 / ERSS" button (`track-call-erss-button`) → logs event + `tel:9620910910`; shows AI-auto-reported note.
+- On SOS/accident, user app auto-generates an AI dispatcher incident report (emergentintegrations, openai/gpt-5.4-mini, deterministic fallback) and simulates a call + email to ERSS (narendra.macherla@ndvtechsys.com / 9620910910). Email body carries GPS + Google maps link, rider details, emergency contacts; audio clip attaches to the report after upload.
+- `erss_report` stored on incident; surfaced in Live SOS panel (`sos-erss-report`) and dealer detail (`dealer-erss-report`). Public track exposes `erss` + `POST /api/track/{token}/erss-call`. All SIMULATED — no real calls/emails sent.
+- Verified 100% by testing agent (iteration_8.json; pytest /app/backend/tests/test_erss_ai_dispatch.py). Fixed duplicate React key on contacts lists.
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").
