@@ -292,7 +292,7 @@ export default function LiveJourney() {
       if (type === "sos" || type === "accident") {
         startEmergencyRecording(journey.journey_id);
       }
-      pushEvent("sos", "SOS broadcast: 112 ERSS + Family + TripShield dealer notified", "danger");
+      pushEvent("sos", "SOS broadcast: Family + TripShield dealer notified", "danger");
     } catch { toast.error("SOS dispatch failed"); }
   };
 
@@ -369,7 +369,7 @@ export default function LiveJourney() {
         </div>
       </div>
 
-      {/* Telemetry cluster */}
+      {/* Live cluster */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
         <Tele icon={Gauge} label="Speed" value={sos || arrived ? "0" : speed} unit="km/h" color="#e60012" />
         <Tele icon={Zap} label="Energy" value={energy} unit="%" color={energy > 30 ? "#10b981" : "#ef4444"} />

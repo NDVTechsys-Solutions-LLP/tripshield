@@ -4,8 +4,6 @@ import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import {
   Bike,
-  Bluetooth,
-  Wallet,
   Users,
   Navigation,
   CheckCircle2,
@@ -20,7 +18,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
-  const [docs, setDocs] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [journeys, setJourneys] = useState([]);
   const [incidents, setIncidents] = useState([]);
@@ -28,13 +25,11 @@ export default function Dashboard() {
   useEffect(() => {
     Promise.all([
       api.get("/vehicle"),
-      api.get("/documents"),
       api.get("/contacts"),
       api.get("/journeys"),
       api.get("/incidents"),
-    ]).then(([v, d, c, j, i]) => {
+    ]).then(([v, c, j, i]) => {
       setVehicle(v.data);
-      setDocs(d.data);
       setContacts(c.data);
       setJourneys(j.data);
       setIncidents(i.data);

@@ -6,8 +6,6 @@ import { TripShieldMark } from "@/components/BrandMark";
 import {
   LayoutDashboard,
   Bike,
-  Bluetooth,
-  Wallet,
   Users,
   Navigation,
   FileText,

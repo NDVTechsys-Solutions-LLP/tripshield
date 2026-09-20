@@ -593,7 +593,7 @@ async def raise_incident(payload: IncidentIn, user=Depends(get_current_user)):
 
     shared_with = []
     if payload.type in ("sos", "accident"):
-        shared_with = ["112 ERSS / VSSR", "Emergency Family Contacts", "TripShield Service Center"]
+        shared_with = ["Emergency Services", "Emergency Family Contacts", "TripShield Service Center"]
     elif payload.type == "deviation":
         shared_with = ["TripShield Service Center"]
 

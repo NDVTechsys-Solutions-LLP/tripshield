@@ -47,10 +47,10 @@ export default function Claim() {
 
   const pkg = {
     "Policy Holder": find("Vehicle Insurance")?.holder_name || "—",
-    "Policy Number": find("Vehicle Insurance")?.doc_number || "Not in wallet",
+    "Policy Number": find("Vehicle Insurance")?.doc_number || "Not on file",
     "Registration": find("Vehicle RC")?.doc_number || vehicle?.reg_no || "—",
     "Vehicle": vehicle?.model || "—",
-    "Driving License": find("Driving License")?.doc_number || "Not in wallet",
+    "Driving License": find("Driving License")?.doc_number || "Not on file",
     "Incident Location": lastAccident?.route_name || lastJourney?.to_name || "—",
     "Impact G-Force": "4.2 G",
     "Telematics Speed": "54 km/h",
@@ -83,7 +83,7 @@ export default function Claim() {
         One-Tap Insurance Claim
       </h1>
       <p className="text-slate-400 mt-2 font-body max-w-xl">
-        Auto-assembles your claim from the Document Wallet &amp; telematics, then transmits to your insurer via API.
+        Auto-assembles your claim from your vehicle &amp; journey details, then transmits to your insurer via API.
       </p>
 
       <div className="grid lg:grid-cols-5 gap-6 mt-8">

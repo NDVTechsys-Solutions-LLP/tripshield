@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import {
   Settings as SettingsIcon, Phone, MessageSquare, Mail, Send, Users, Plus,
-  Trash2, Heart, Save, Radio, Bluetooth, Bike, Wallet, ChevronRight, ShieldCheck, LayoutDashboard,
+  Trash2, Heart, Save, Radio, Bike, ChevronRight, ShieldCheck, LayoutDashboard,
 } from "lucide-react";
 
 const CHANNELS = [

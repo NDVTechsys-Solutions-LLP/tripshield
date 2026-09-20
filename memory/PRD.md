@@ -55,6 +55,13 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - SOS panel shows a live "Recording… Ns/60s" indicator + manual Stop & Send; graceful fallback when mic unavailable.
 - Verified 100% by testing agent (iteration_7.json; pytest /app/backend/tests/test_sos_audio.py).
 
+## Update (Jun 2026) — Rebrand copy: remove vault/telemetry/112 ESRS/route-intel
+- Removed Encrypted Document Vault (deleted Wallet.jsx + BluetoothSync.jsx orphan pages; purged unused imports/docs fetch).
+- Landing: replaced 4 chips (Encrypted Vault/Live Telemetry/112 VSSR SOS/Route Intel) with 5 (Safe Journey, Live Tracking, Family Sharing, Auto Check-In, Auto Recording); rewrote hero copy + disclaimer (no telemetry/vault/112 ERSS).
+- Removed "112 ERSS" from SOS event text (LiveJourney) and backend incident `shared_with` (now "Emergency Services").
+- Claim copy no longer mentions Document Wallet; fallbacks say "Not on file".
+- Verified via desktop + mobile screenshots (no overflow); grep confirms no wallet/vault/telemetry/112 ERSS/route-intel strings remain in src.
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").

@@ -6,10 +6,10 @@ import {
   ShieldCheck,
   Bike,
   Building2,
-  Lock,
+  Navigation,
+  Users,
   Radio,
-  Siren,
-  MapPin,
+  Mic,
   ArrowRight,
 } from "lucide-react";
 
@@ -71,17 +71,18 @@ export default function Landing() {
             <span className="text-[#e60012]">fully guarded.</span>
           </h1>
           <p className="font-body text-slate-400 text-base sm:text-lg mt-6 max-w-lg leading-relaxed">
-            Real-time telemetry, encrypted document vault, automatic accident
-            detection, one-tap SOS to 112 ERSS &amp; family, and instant
-            insurance claims — for every two &amp; four-wheeler.
+            Live journey tracking, instant sharing with family, automatic safety
+            check-ins, and auto-recording &amp; reporting of incidents — for every
+            two &amp; four-wheeler.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 max-w-lg">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-8 max-w-2xl">
             {[
-              { icon: Lock, label: "Encrypted Vault" },
-              { icon: Radio, label: "Live Telemetry" },
-              { icon: Siren, label: "112 VSSR SOS" },
-              { icon: MapPin, label: "Route Intel" },
+              { icon: ShieldCheck, label: "Safe Journey" },
+              { icon: Navigation, label: "Live Tracking" },
+              { icon: Users, label: "Family Sharing" },
+              { icon: Radio, label: "Auto Check-In" },
+              { icon: Mic, label: "Auto Recording" },
             ].map((f) => (
               <div
                 key={f.label}
@@ -145,7 +146,7 @@ export default function Landing() {
           </p>
           <p data-testid="demo-disclaimer" className="text-[11px] text-slate-600 mt-3 font-mono leading-relaxed">
             Demo &amp; simulation only. Not affiliated with, endorsed by, or connected to any real
-            vehicle brand, insurer, or emergency service. All telemetry, documents, alerts and
+            vehicle brand, insurer, or emergency service. All locations, alerts and
             notifications shown are simulated for demonstration.
           </p>
         </div>
