@@ -11,7 +11,7 @@ import {
   Gauge, Clock, Route as RouteIcon, Zap, Siren, GitBranch, TrafficCone,
   Car, ShieldCheck, ShieldAlert, Phone, MapPin, X, CheckCircle2, Radio,
   Activity, FileText, Home, Play, Pause, Mic, MicOff, Share2, Copy, Square,
-  MessageSquare, Send, Mail, Heart, ShieldPlus,
+  MessageSquare, Send, Mail, Heart, ShieldPlus, AudioLines,
 } from "lucide-react";
 
 export default function LiveJourney() {
@@ -35,6 +35,13 @@ export default function LiveJourney() {
 
   const timerRef = useRef(null);
   const startSpokenRef = useRef(false);
+  const micStreamRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const recChunksRef = useRef([]);
+  const recTimerRef = useRef(null);
+  const [micReady, setMicReady] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [recSecs, setRecSecs] = useState(0);
 
   useEffect(() => {
     initSpeech();
@@ -157,6 +164,71 @@ export default function LiveJourney() {
 
   useEffect(() => () => stopSpeaking(), []);
 
+  // Request mic access once when the live journey starts (for silent SOS recording)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!navigator.mediaDevices?.getUserMedia) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (cancelled) { stream.getTracks().forEach((t) => t.stop()); return; }
+        micStreamRef.current = stream;
+        setMicReady(true);
+      } catch {
+        setMicReady(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Cleanup recorder + mic on unmount
+  useEffect(() => () => {
+    try { mediaRecorderRef.current?.stop(); } catch {}
+    clearInterval(recTimerRef.current);
+    micStreamRef.current?.getTracks().forEach((t) => t.stop());
+  }, []);
+
+  const uploadEmergencyAudio = useCallback(async (blob, jid) => {
+    try {
+      const fd = new FormData();
+      const ext = blob.type.includes("ogg") ? "ogg" : blob.type.includes("mp4") ? "mp4" : "webm";
+      fd.append("file", blob, `sos.${ext}`);
+      await api.post(`/journeys/${jid}/sos-audio`, fd, { headers: { "Content-Type": "multipart/form-data" } });
+      pushEvent("sos", "Emergency audio clip shared with family", "danger");
+    } catch { /* silent — SOS already dispatched */ }
+  }, [pushEvent]);
+
+  const stopEmergencyRecording = useCallback(() => {
+    try { mediaRecorderRef.current?.stop(); } catch {}
+  }, []);
+
+  const startEmergencyRecording = useCallback((jid) => {
+    const stream = micStreamRef.current;
+    if (!stream || mediaRecorderRef.current) return;
+    let mr;
+    try { mr = new MediaRecorder(stream); } catch { return; }
+    recChunksRef.current = [];
+    mr.ondataavailable = (e) => { if (e.data && e.data.size) recChunksRef.current.push(e.data); };
+    mr.onstop = () => {
+      const blob = new Blob(recChunksRef.current, { type: mr.mimeType || "audio/webm" });
+      mediaRecorderRef.current = null;
+      setRecording(false);
+      clearInterval(recTimerRef.current);
+      setRecSecs(0);
+      if (blob.size) uploadEmergencyAudio(blob, jid);
+    };
+    mediaRecorderRef.current = mr;
+    mr.start();
+    setRecording(true);
+    setRecSecs(0);
+    recTimerRef.current = setInterval(() => {
+      setRecSecs((s) => {
+        if (s + 1 >= 60) { stopEmergencyRecording(); return 60; }
+        return s + 1;
+      });
+    }, 1000);
+  }, [uploadEmergencyAudio, stopEmergencyRecording]);
+
   const frac = total ? idx / (total - 1) : 0;
   const position = total ? route[Math.min(idx, total - 1)] : null;
   const distanceRemaining = journey ? (journey.distance_km * (1 - frac)).toFixed(1) : 0;
@@ -217,6 +289,9 @@ export default function LiveJourney() {
       });
       setSos(r.data);
       setIncidentMark(position);
+      if (type === "sos" || type === "accident") {
+        startEmergencyRecording(journey.journey_id);
+      }
       pushEvent("sos", "SOS broadcast: 112 ERSS + Family + TripShield dealer notified", "danger");
     } catch { toast.error("SOS dispatch failed"); }
   };
@@ -473,6 +548,43 @@ export default function LiveJourney() {
             <PayRow icon={MapPin} label="Location" value={position ? `${position[0].toFixed(4)}, ${position[1].toFixed(4)}` : "—"} />
             <PayRow icon={Phone} label="Contacts" value={`${sos?.shared_data?.contacts?.length || 0} family notified`} />
           </div>
+
+          {/* Silent emergency audio recording */}
+          {(sos?.type === "accident" || sos?.type === "sos") && (
+            <div data-testid="sos-audio-recorder" className="rounded-lg bg-black/40 border border-[#ef4444]/30 p-4 mt-3">
+              {recording ? (
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="relative flex h-3 w-3 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                    </span>
+                    <AudioLines size={16} className="text-red-300 shrink-0" />
+                    <span className="text-sm text-red-200 font-body truncate">
+                      Recording audio for family… <span className="font-mono">{recSecs}s / 60s</span>
+                    </span>
+                  </div>
+                  <button
+                    data-testid="sos-audio-stop-button"
+                    onClick={stopEmergencyRecording}
+                    className="shrink-0 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wide flex items-center gap-1.5"
+                  >
+                    <Square size={12} /> Stop & Send
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-sm">
+                  {micReady ? (
+                    <><CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
+                    <span className="text-emerald-300 font-body">Emergency audio captured & shared with family</span></>
+                  ) : (
+                    <><MicOff size={15} className="text-slate-500 shrink-0" />
+                    <span className="text-slate-400 font-body">Microphone unavailable — audio capture skipped</span></>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-3 mt-5">
             {(sos?.type === "accident" || sos?.type === "sos") && (

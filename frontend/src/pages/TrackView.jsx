@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import api from "@/lib/api";
+import api, { API } from "@/lib/api";
 import LeafletMap from "@/components/LeafletMap";
 import { TripShieldMark } from "@/components/BrandMark";
 import {
   ShieldCheck, MapPin, Navigation, Clock, Route as RouteIcon, Activity,
-  AlertTriangle, CheckCircle2, Siren, Loader2, WifiOff,
+  AlertTriangle, CheckCircle2, Siren, Loader2, WifiOff, AudioLines,
 } from "lucide-react";
 
 export default function TrackView() {
@@ -107,6 +107,30 @@ export default function TrackView() {
             incident={emergency ? data.current_position : null}
           />
         </div>
+
+        {(data.sos_audio || []).length > 0 && (
+          <div data-testid="track-sos-audio" className="rounded-xl border border-[#ef4444]/40 bg-[#ef4444]/5 p-5 mt-6">
+            <p className="font-mono text-[10px] tracking-widest text-red-300 uppercase mb-3 flex items-center gap-2">
+              <AudioLines size={13} /> Emergency Audio from the scene
+            </p>
+            <div className="space-y-3">
+              {[...data.sos_audio].reverse().map((a) => (
+                <div key={a.audio_id} className="rounded-lg bg-black/30 border border-white/10 p-3">
+                  <p className="font-mono text-[11px] text-slate-500 mb-2">
+                    Captured {a.created_at ? new Date(a.created_at).toLocaleTimeString() : ""}
+                  </p>
+                  <audio
+                    data-testid="track-audio-player"
+                    controls
+                    preload="none"
+                    className="w-full"
+                    src={`${API}/track/${token}/audio/${a.audio_id}`}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5 mt-6">
           <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-3 flex items-center gap-2">

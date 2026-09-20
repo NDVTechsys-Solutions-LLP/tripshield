@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -23,6 +23,51 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 EMERGENT_SESSION_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
+
+# ---------------- Object Storage ----------------
+STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
+STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
+EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
+APP_NAME = "tripshield"
+_storage_key = None
+
+
+def init_storage(force: bool = False):
+    global _storage_key
+    if _storage_key and not force:
+        return _storage_key
+    resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
+    resp.raise_for_status()
+    _storage_key = resp.json()["storage_key"]
+    return _storage_key
+
+
+def put_object(path: str, data: bytes, content_type: str) -> dict:
+    key = init_storage()
+    resp = requests.put(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key, "Content-Type": content_type},
+        data=data, timeout=120,
+    )
+    if resp.status_code == 404:
+        key = init_storage(force=True)
+        resp = requests.put(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key, "Content-Type": content_type},
+            data=data, timeout=120,
+        )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_object(path: str):
+    key = init_storage()
+    resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
+    if resp.status_code == 404:
+        key = init_storage(force=True)
+        resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
+    resp.raise_for_status()
+    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
 
 
 # ---------------- Helpers ----------------
@@ -470,8 +515,62 @@ async def public_track(share_token: str):
         "distance_km": j.get("distance_km"), "eta_min": j.get("eta_min"),
         "mode": j.get("mode"), "vehicle_label": j.get("vehicle_label"),
         "last_update": j.get("last_update"),
+        "sos_audio": [
+            {"audio_id": a["audio_id"], "created_at": a.get("created_at")}
+            for a in (j.get("sos_audio") or [])
+        ],
         "events": [e for e in events if e.get("type") == "arrived"] if completed else events,
     }
+
+
+# ---------------- SOS Emergency Audio ----------------
+@api_router.post("/journeys/{journey_id}/sos-audio")
+async def upload_sos_audio(journey_id: str, file: UploadFile = File(...),
+                           user=Depends(get_current_user)):
+    j = await db.journeys.find_one(
+        {"journey_id": journey_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not j:
+        raise HTTPException(status_code=404, detail="Journey not found")
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty audio")
+    if len(data) > 12 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Audio too large")
+    ext = "webm"
+    if file.content_type and "ogg" in file.content_type:
+        ext = "ogg"
+    elif file.content_type and "mp4" in file.content_type:
+        ext = "mp4"
+    audio_id = new_id("aud")
+    path = f"{APP_NAME}/sos-audio/{journey_id}/{audio_id}.{ext}"
+    content_type = file.content_type or "audio/webm"
+    put_object(path, data, content_type)
+    entry = {
+        "audio_id": audio_id, "journey_id": journey_id, "user_id": user["user_id"],
+        "storage_path": path, "content_type": content_type, "size": len(data),
+        "is_deleted": False, "created_at": iso(now_utc()),
+    }
+    await db.sos_audios.insert_one(dict(entry))
+    await db.journeys.update_one(
+        {"journey_id": journey_id},
+        {"$push": {"sos_audio": {"audio_id": audio_id, "created_at": entry["created_at"]}}})
+    await add_event_internal(
+        journey_id, "sos", "Emergency audio clip captured & shared with family", "danger", None)
+    return {"audio_id": audio_id, "size": len(data)}
+
+
+@api_router.get("/track/{share_token}/audio/{audio_id}")
+async def public_sos_audio(share_token: str, audio_id: str):
+    j = await db.journeys.find_one({"share_token": share_token}, {"_id": 0, "journey_id": 1})
+    if not j:
+        raise HTTPException(status_code=404, detail="Tracking link not found")
+    rec = await db.sos_audios.find_one(
+        {"audio_id": audio_id, "journey_id": j["journey_id"], "is_deleted": False}, {"_id": 0})
+    if not rec:
+        raise HTTPException(status_code=404, detail="Audio not found")
+    content, ctype = get_object(rec["storage_path"])
+    return Response(content=content, media_type=rec.get("content_type", ctype),
+                    headers={"Accept-Ranges": "bytes", "Cache-Control": "public, max-age=3600"})
 
 
 # ---------------- Incidents (SOS / Accident / Deviation) ----------------
@@ -764,6 +863,15 @@ async def root():
 
 
 app.include_router(api_router)
+
+
+@app.on_event("startup")
+async def _init_storage_startup():
+    try:
+        init_storage()
+        logging.getLogger(__name__).info("Object storage initialized")
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Storage init failed: {e}")
 
 app.add_middleware(
     CORSMiddleware,
