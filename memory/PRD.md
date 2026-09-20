@@ -73,6 +73,10 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - `erss_report` stored on incident; surfaced in Live SOS panel (`sos-erss-report`) and dealer detail (`dealer-erss-report`). Public track exposes `erss` + `POST /api/track/{token}/erss-call`. All SIMULATED — no real calls/emails sent.
 - Verified 100% by testing agent (iteration_8.json; pytest /app/backend/tests/test_erss_ai_dispatch.py). Fixed duplicate React key on contacts lists.
 
+## Update (Jun 2026) — Audio recording on ALL SOS scenarios
+- `escalateSOS` now starts silent audio recording for every incident type (crash/manual SOS + Route Deviation + ETA/Traffic Delay), not just accident/sos.
+- SOS panel recorder block gate relaxed from accident/sos to `{sos && …}` so it shows for deviation/delay too; upload endpoint is type-agnostic and clips appear on the family track page.
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").

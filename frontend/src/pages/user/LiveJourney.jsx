@@ -289,9 +289,7 @@ export default function LiveJourney() {
       });
       setSos(r.data);
       setIncidentMark(position);
-      if (type === "sos" || type === "accident") {
-        startEmergencyRecording(journey.journey_id);
-      }
+      startEmergencyRecording(journey.journey_id);
       pushEvent("sos", "SOS broadcast: Family + TripShield dealer notified", "danger");
     } catch { toast.error("SOS dispatch failed"); }
   };
@@ -549,8 +547,8 @@ export default function LiveJourney() {
             <PayRow icon={Phone} label="Contacts" value={`${sos?.shared_data?.contacts?.length || 0} family notified`} />
           </div>
 
-          {/* Silent emergency audio recording */}
-          {(sos?.type === "accident" || sos?.type === "sos") && (
+          {/* Silent emergency audio recording — all SOS scenarios */}
+          {sos && (
             <div data-testid="sos-audio-recorder" className="rounded-lg bg-black/40 border border-[#ef4444]/30 p-4 mt-3">
               {recording ? (
                 <div className="flex items-center justify-between gap-3">
