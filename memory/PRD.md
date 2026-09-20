@@ -36,6 +36,12 @@ Connected-mobility safety web app for Honda 2-wheeler & 4-wheeler owners (India)
 - Backend `VehicleIn` gained optional `make` field; `vehicle_label` now prefixes make (journeys + incidents).
 - Verified: backend curl (POST/GET /api/vehicle persists make) + frontend screenshot (Tata Motors → filtered models).
 
+## Update (Jun 2026) — Aadhaar removal from SOS & Command Center
+- Removed Aadhaar & Medical from incident `shared_data` (backend now only phone, holder, contacts).
+- SOS Broadcast Payload (LiveJourney) & dealer Shared Emergency Data (DealerDashboard) now show only Rider Phone, Location, Contacts.
+- Verified 100% by testing agent (iteration_5.json; pytest suite /app/backend/tests/test_sos_no_aadhaar.py).
+- NOTE: POST /api/claims data_package still builds an `aadhaar` field (out of this scope).
+
 ## Backlog (P1/P2)
 - Real SMS/email to family/112 (Twilio/SendGrid) — currently simulated in-app.
 - Voice-activated SOS ("Honda, help me").
