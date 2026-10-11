@@ -266,12 +266,6 @@ export default function Landing() {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="lg:col-span-7 flex flex-col items-start justify-center max-w-2xl pr-0 lg:pr-6"
             >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 mb-5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-xs font-semibold tracking-wide text-slate-200">
-                  Connected Mobility Safety Network
-                </span>
-              </div>
 
               <h1 className="font-display font-extrabold text-white text-5xl sm:text-6xl lg:text-7xl tracking-tight uppercase leading-[0.95]">
                 GUARDED<span className="text-[#e60012]">.</span>
@@ -298,9 +292,6 @@ export default function Landing() {
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="font-display font-bold text-white text-sm sm:text-base truncate">
                         Vehicle Owner / Rider
-                      </span>
-                      <span className="hidden sm:inline-block text-[10px] font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md tracking-wide shrink-0">
-                        Rider App
                       </span>
                     </div>
                   </div>
@@ -329,9 +320,6 @@ export default function Landing() {
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="font-display font-bold text-white text-sm sm:text-base truncate">
                         TripShield Service Center
-                      </span>
-                      <span className="hidden sm:inline-block text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md tracking-wide shrink-0">
-                        Dealer Portal
                       </span>
                     </div>
                   </div>
@@ -423,12 +411,9 @@ export default function Landing() {
                 </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center gap-2">
+              <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center gap-3 text-xs text-slate-400 font-medium">
                 {item.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5"
-                  >
+                  <span key={tag} className="flex items-center gap-1.5">
                     <CheckCircle2 size={13} className="text-[#e60012]" />
                     <span>{tag}</span>
                   </span>
@@ -562,9 +547,9 @@ export default function Landing() {
               className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-7 flex flex-col justify-between hover:border-white/20 transition-all shadow-xl"
             >
               <div>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#e60012]/10 border border-[#e60012]/20 text-xs text-[#ff3b47] font-mono font-bold">
+                <p className="text-xs text-[#e60012] font-mono font-bold tracking-wider uppercase mb-1">
                   Step {step.num}
-                </span>
+                </p>
                 <h3 className="font-display font-bold text-white text-xl mt-4">
                   {step.title}
                 </h3>
@@ -669,11 +654,9 @@ export default function Landing() {
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-4">
-                <span className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
-                <span className="text-[11px] font-mono font-semibold tracking-wider text-blue-400 uppercase">
-                  Another Monafa Product
-                </span>
+              <div className="flex items-center gap-2 mb-3 text-xs font-mono font-semibold tracking-wider text-blue-400 uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
+                <span>Another Monafa Product</span>
               </div>
 
               <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight leading-tight">

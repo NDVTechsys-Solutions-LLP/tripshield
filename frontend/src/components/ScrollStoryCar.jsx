@@ -9,120 +9,146 @@ import {
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
-// Compact, Professional Top-Down Automotive Vector (Short Red Vehicle)
-function CompactRedVehicle() {
+// Sleek, High-Tech Top-Down Performance Scooty / 2-Wheeler Vector
+function SleekRedScooty() {
   return (
     <svg
-      viewBox="0 0 68 112"
-      className="w-11 sm:w-13 md:w-14 h-auto drop-shadow-[0_10px_20px_rgba(0,0,0,0.85)]"
+      viewBox="0 0 56 120"
+      className="w-10 sm:w-12 md:w-13 h-auto drop-shadow-[0_12px_24px_rgba(0,0,0,0.95)]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {/* Rich Crimson Metallic Body Gradient */}
-        <linearGradient id="compact-red-paint" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#A80710" />
+        {/* Rich Crimson Metallic Paint Gradient */}
+        <linearGradient id="scooty-crimson" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#99000D" />
           <stop offset="20%" stopColor="#C90812" />
           <stop offset="50%" stopColor="#E50914" />
-          <stop offset="80%" stopColor="#F5222D" />
-          <stop offset="100%" stopColor="#A80710" />
+          <stop offset="80%" stopColor="#FF2E3B" />
+          <stop offset="100%" stopColor="#99000D" />
         </linearGradient>
 
-        {/* Clean Tinted Glass Gradient */}
-        <linearGradient id="compact-windshield-glass" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#0c1017" />
-          <stop offset="60%" stopColor="#141a24" />
-          <stop offset="100%" stopColor="#1e2634" />
+        {/* Premium Dark Seat Gradient */}
+        <linearGradient id="scooty-seat" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#12161f" />
+          <stop offset="50%" stopColor="#1a212d" />
+          <stop offset="100%" stopColor="#0e1219" />
+        </linearGradient>
+
+        {/* Headlight Beam Forward Glow */}
+        <linearGradient id="scooty-beam" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.75" />
+          <stop offset="40%" stopColor="#ff4d55" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#ff4d55" stopOpacity="0" />
         </linearGradient>
       </defs>
 
       {/* Realistic Ground Shadow */}
-      <ellipse cx="34" cy="58" rx="26" ry="48" fill="#000000" opacity="0.6" filter="blur(4px)" />
+      <ellipse cx="28" cy="62" rx="15" ry="52" fill="#000000" opacity="0.65" filter="blur(5px)" />
 
-      {/* 4 Flush Wheels */}
-      <rect x="4" y="20" width="5" height="17" rx="2.5" fill="#111318" />
-      <rect x="59" y="20" width="5" height="17" rx="2.5" fill="#111318" />
-      <rect x="4" y="74" width="5" height="17" rx="2.5" fill="#111318" />
-      <rect x="59" y="74" width="5" height="17" rx="2.5" fill="#111318" />
+      {/* Headlight Light Cone Casting Downwards onto Road */}
+      <polygon points="28,98 12,120 44,120" fill="url(#scooty-beam)" />
 
-      {/* Main Compact Car Body (Normal Short Proportions) */}
+      {/* Rear Wheel (Top, Trailing) */}
+      <rect x="24.5" y="10" width="7" height="22" rx="3.5" fill="#0b0d13" stroke="#1f2430" strokeWidth="0.8" />
+      <rect x="26.5" y="14" width="3" height="14" rx="1.5" fill="#323b4c" opacity="0.6" />
+
+      {/* Rear Tire Hugger / Mudguard */}
+      <path d="M 22 26 C 22 18, 34 18, 34 26 L 33 32 L 23 32 Z" fill="#141822" stroke="#232938" strokeWidth="0.5" />
+
+      {/* Rear Taillight / Tail Cowl (Sleek upswept red LED bar) */}
       <path
-        d="M 22 10 
-           C 26 8, 42 8, 46 10 
-           C 52 12, 57 26, 57 48 
-           C 57 74, 56 94, 50 102 
-           C 46 106, 22 106, 18 102 
-           C 12 94, 11 74, 11 48 
-           C 11 26, 16 12, 22 10 Z"
-        fill="url(#compact-red-paint)"
+        d="M 21 34 C 24 31, 32 31, 35 34 L 33 42 C 30 40, 26 40, 23 42 Z"
+        fill="url(#scooty-crimson)"
+        stroke="#ff4d55"
+        strokeWidth="0.6"
+      />
+      {/* Crisp Red LED Taillight Strip */}
+      <line x1="23" y1="33" x2="33" y2="33" stroke="#ff1f2d" strokeWidth="2.2" strokeLinecap="round" filter="drop-shadow(0 0 3px #ff1f2d)" />
+
+      {/* Split Sport Pillion Grab Rails */}
+      <path d="M 18 38 Q 20 44 21 50" stroke="#717a8a" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M 38 38 Q 36 44 35 50" stroke="#717a8a" strokeWidth="1.2" strokeLinecap="round" />
+
+      {/* Main Scooter Body Panels (Flank Fenders) */}
+      <path
+        d="M 20 42 
+           C 16 48, 15 58, 17 72 
+           L 21 75 
+           L 35 75 
+           L 39 72 
+           C 41 58, 40 48, 36 42 Z"
+        fill="url(#scooty-crimson)"
+        stroke="#ff4d55"
+        strokeWidth="0.7"
+      />
+
+      {/* Contoured Two-Tone Sport Seat */}
+      <path
+        d="M 23 41 
+           C 21 46, 21 54, 22 66 
+           C 24 67, 32 67, 34 66 
+           C 35 54, 35 46, 33 41 
+           C 31 39, 25 39, 23 41 Z"
+        fill="url(#scooty-seat)"
+        stroke="#273142"
+        strokeWidth="0.7"
+      />
+      {/* Seat Center Stitching Accent */}
+      <line x1="28" y1="43" x2="28" y2="64" stroke="#ff4d55" strokeWidth="0.6" strokeDasharray="1.5 1.5" opacity="0.7" />
+
+      {/* Floorboard / Foot Deck with Rubber Grip Ribs */}
+      <rect x="20" y="73" width="16" height="10" rx="2" fill="#0d1017" stroke="#1f2533" strokeWidth="0.6" />
+      <line x1="22" y1="76" x2="34" y2="76" stroke="#252d3d" strokeWidth="0.8" />
+      <line x1="22" y1="78" x2="34" y2="78" stroke="#252d3d" strokeWidth="0.8" />
+      <line x1="22" y1="80" x2="34" y2="80" stroke="#252d3d" strokeWidth="0.8" />
+
+      {/* Front Wheel (Bottom, Leading forward) */}
+      <rect x="25" y="88" width="6" height="19" rx="3" fill="#0b0d13" stroke="#1f2430" strokeWidth="0.8" />
+      <rect x="26.8" y="91" width="2.4" height="13" rx="1.2" fill="#323b4c" opacity="0.6" />
+
+      {/* Front Fender / Mudguard */}
+      <path d="M 23 90 C 23 85, 33 85, 33 90 L 32 96 C 29 95, 27 95, 24 96 Z" fill="url(#scooty-crimson)" stroke="#ff4d55" strokeWidth="0.5" />
+
+      {/* Front Aerodynamic Apron / Cowl */}
+      <path
+        d="M 22 78 
+           C 18 82, 17 89, 21 96 
+           C 25 99, 31 99, 35 96 
+           C 39 89, 38 82, 34 78 Z"
+        fill="url(#scooty-crimson)"
         stroke="#ff4d55"
         strokeWidth="0.8"
       />
 
-      {/* Front Windshield (Bottom-facing, pointing forward) */}
+      {/* Sporty Handlebars & Cockpit (x = 8 to 48) */}
+      <line x1="12" y1="81" x2="44" y2="81" stroke="#181e29" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Rubber Handgrips */}
+      <rect x="10" y="79" width="7" height="4" rx="1.5" fill="#080a0e" stroke="#2a3242" strokeWidth="0.6" />
+      <rect x="39" y="79" width="7" height="4" rx="1.5" fill="#080a0e" stroke="#2a3242" strokeWidth="0.6" />
+      {/* Brake Levers (Silver) */}
+      <line x1="9" y1="82" x2="15" y2="83" stroke="#c0c7d4" strokeWidth="1" strokeLinecap="round" />
+      <line x1="47" y1="82" x2="41" y2="83" stroke="#c0c7d4" strokeWidth="1" strokeLinecap="round" />
+
+      {/* Aerodynamic Bar-End Rear-View Mirrors */}
+      <rect x="6" y="75" width="4.5" height="2.5" rx="1" fill="#0e1219" stroke="#3a4457" strokeWidth="0.6" />
+      <line x1="8.5" y1="77.5" x2="11" y2="80" stroke="#5a657c" strokeWidth="0.8" />
+      <rect x="45.5" y="75" width="4.5" height="2.5" rx="1" fill="#0e1219" stroke="#3a4457" strokeWidth="0.6" />
+      <line x1="47.5" y1="77.5" x2="45" y2="80" stroke="#5a657c" strokeWidth="0.8" />
+
+      {/* Digital Dashboard / Cockpit Screen (Center of Handlebar) */}
+      <rect x="24" y="78" width="8" height="5.5" rx="1.5" fill="#040609" stroke="#38bdf8" strokeWidth="0.5" />
+      <rect x="25.2" y="79.2" width="5.6" height="3" rx="0.5" fill="#0284c7" opacity="0.8" />
+
+      {/* Sharp Dual LED Headlight Signature at Front Nose (Pointing Downwards) */}
       <path
-        d="M 19 72 
-           C 24 76, 44 76, 49 72 
-           L 47 85 
-           C 43 88, 25 88, 21 85 Z"
-        fill="url(#compact-windshield-glass)"
-        stroke="#222b3a"
-        strokeWidth="0.6"
-      />
-
-      {/* Dark Panoramic Glass Roof */}
-      <rect x="20" y="38" width="28" height="32" rx="4" fill="#0d1118" stroke="#1d2432" strokeWidth="0.6" />
-
-      {/* Rear Windshield (Top-facing) */}
-      <path
-        d="M 21 36 
-           C 25 33, 43 33, 47 36 
-           L 46 25 
-           C 42 23, 26 23, 22 25 Z"
-        fill="url(#compact-windshield-glass)"
-        stroke="#222b3a"
-        strokeWidth="0.6"
-      />
-
-      {/* Side Windows */}
-      <rect x="18" y="42" width="1.5" height="26" rx="0.75" fill="#141a24" />
-      <rect x="48.5" y="42" width="1.5" height="26" rx="0.75" fill="#141a24" />
-
-      {/* Sleek Front Headlights (Bottom, pointing forward) */}
-      <path
-        d="M 17 101 Q 23 104 26 101"
+        d="M 23 96 Q 28 99 33 96"
         stroke="#ffffff"
-        strokeWidth="2"
+        strokeWidth="2.2"
         strokeLinecap="round"
-        filter="drop-shadow(0 0 2px #fff)"
+        filter="drop-shadow(0 0 4px #ffffff)"
       />
-      <path
-        d="M 42 101 Q 45 104 51 101"
-        stroke="#ffffff"
-        strokeWidth="2"
-        strokeLinecap="round"
-        filter="drop-shadow(0 0 2px #fff)"
-      />
-
-      {/* Sleek Rear Taillight Bar (Top, pointing backward) */}
-      <line
-        x1="20"
-        y1="11"
-        x2="48"
-        y2="11"
-        stroke="#ff1f2d"
-        strokeWidth="2"
-        strokeLinecap="round"
-        filter="drop-shadow(0 0 2.5px #ff1f2d)"
-      />
-
-      {/* Side Mirrors */}
-      <rect x="8" y="73" width="3" height="6" rx="1.5" fill="#A80710" />
-      <rect x="57" y="73" width="3" height="6" rx="1.5" fill="#A80710" />
-
-      {/* Subtle Hood Lines */}
-      <line x1="24" y1="88" x2="23" y2="99" stroke="#8c060e" strokeWidth="0.6" strokeLinecap="round" />
-      <line x1="44" y1="88" x2="45" y2="99" stroke="#8c060e" strokeWidth="0.6" strokeLinecap="round" />
+      <circle cx="28" cy="97" r="1.5" fill="#ffffff" filter="drop-shadow(0 0 5px #ff4d55)" />
     </svg>
   );
 }
@@ -155,7 +181,7 @@ const STORY_STEPS = [
     problem:
       "Anxious family members call repeatedly asking 'Where have you reached?', forcing risky one-handed driving to answer.",
     solution:
-      "Your family opens the live link to view your car's exact location, road speed, and battery level in real time. They stay calm and let you drive focused.",
+      "Your family opens the live link to view your scooty's exact location, road speed, and battery level in real time. They stay calm and let you ride focused.",
   },
   {
     id: 3,
@@ -197,7 +223,7 @@ const STORY_STEPS = [
     problem:
       "Normally, families are left in silence and panic for hours when a driver doesn't arrive.",
     solution:
-      "Your family receives your exact pinned GPS location and a 60-second recorded audio snippet from the car cabin, giving them instant context.",
+      "Your family receives your exact pinned GPS location and a 60-second recorded audio snippet from the incident scene, giving them instant context.",
   },
   {
     id: 6,
@@ -211,7 +237,7 @@ const STORY_STEPS = [
     problem:
       "Calling a tow truck at midnight usually means stranded drivers trying to guess mile markers and road names.",
     solution:
-      "National 112 emergency services receive verified satellite coordinates, while the nearest TripShield Service Center dispatches roadside recovery straight to your car.",
+      "National 112 emergency services receive verified satellite coordinates, while the nearest TripShield Service Center dispatches roadside recovery straight to your scooty.",
   },
   {
     id: 7,
@@ -321,13 +347,13 @@ export default function ScrollStoryCar() {
           </div>
 
           {/* ======================================================== */}
-          {/* COMPACT RED CAR (Scrolls Top to Bottom)                  */}
+          {/* SLEEK RED PERFORMANCE SCOOTY (Scrolls Top to Bottom)     */}
           {/* ======================================================== */}
           <motion.div
             style={{ y: carY }}
             className="absolute top-0 left-1/2 -translate-x-1/2 z-20 will-change-transform flex flex-col items-center pointer-events-none"
           >
-            <CompactRedVehicle />
+            <SleekRedScooty />
           </motion.div>
         </div>
 
