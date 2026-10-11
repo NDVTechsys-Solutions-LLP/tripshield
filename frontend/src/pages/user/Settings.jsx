@@ -36,9 +36,12 @@ export default function Settings() {
     try {
       const r = await api.put("/settings", settings);
       setSettings(r.data);
-      toast.success("Preferences saved");
-    } catch { toast.error("Save failed"); }
-    finally { setSaving(false); }
+      toast.success("Preferences saved successfully");
+    } catch {
+      toast.error("Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const addContact = async () => {
@@ -48,7 +51,7 @@ export default function Settings() {
     setForm({ name: "", phone: "", relation: "Family", priority: "primary" });
     loadContacts();
   };
-  const removeContact = async (id) => { await api.delete(`/contacts/${id}`); loadContacts(); };
+  const removeContact = async (id) => { await api.delete(`/contacts/${id}`); toast.info("Contact removed"); loadContacts(); };
 
   const tools = [
     {
@@ -58,93 +61,104 @@ export default function Settings() {
     },
     {
       to: "/app/onboarding", icon: Bike, testid: "settings-tool-vehicle",
-      title: "My Vehicle", desc: "2W/4W profile, specs & service history",
+      title: "My Vehicle", desc: "2W/4W profile, specs & service records",
       status: vehicle ? `${vehicle.model} · ${vehicle.reg_no}` : "Not registered",
       ok: !!vehicle,
     },
     {
       to: "/app/contacts", icon: Users, testid: "settings-tool-family",
-      title: "Family Network", desc: "Emergency contacts, trusted circle & permissions",
-      status: contacts.length ? `${contacts.length} contact(s)` : "None added",
+      title: "Family Network", desc: "Emergency contacts & live sharing circle",
+      status: contacts.length ? `${contacts.length} active contact(s)` : "None added",
       ok: contacts.length > 0,
     },
   ];
 
   return (
-    <div className="hsj-fade-up max-w-4xl">
-      <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">Control Center</p>
-      <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight flex items-center gap-3">
-        <SettingsIcon className="text-[#e60012]" size={30} /> Safe Journey Settings
-      </h1>
-      <p className="text-slate-400 mt-2 font-body">
-        All configuration &amp; vehicle management tools, organized in one place.
-      </p>
+    <div className="hsj-fade-up max-w-5xl space-y-8">
+      {/* Header */}
+      <div>
+        <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+          Control Center &amp; Profiles
+        </p>
+        <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight flex items-center gap-3">
+          Safe Journey Settings
+        </h1>
+        <p className="text-slate-400 mt-2 font-body text-sm sm:text-base">
+          Manage your safety parameters, medical responder profile, and automated dispatch preferences.
+        </p>
+      </div>
 
-      {/* Management tool hub */}
-      <div className="grid sm:grid-cols-2 gap-4 mt-8">
+      {/* Navigation Tool Cards */}
+      <div className="grid sm:grid-cols-3 gap-4">
         {tools.map((t) => (
           <button
             key={t.to}
             data-testid={t.testid}
             onClick={() => navigate(t.to)}
-            className="group text-left rounded-xl border border-white/10 bg-[#0f141f] hover:border-[#e60012]/50 hover:bg-[#161d2c] transition-all p-5 flex items-start gap-4"
+            className="group text-left rounded-2xl border border-white/10 bg-[#0c111d] hover:border-white/25 hover:bg-[#111726] transition-all p-5 sm:p-6 flex flex-col justify-between shadow-xl cursor-pointer"
           >
-            <div className="w-11 h-11 rounded-lg bg-[#e60012]/15 flex items-center justify-center text-[#e60012] shrink-0">
-              <t.icon size={20} />
+            <div>
+              <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#e60012] mb-4 group-hover:scale-105 transition-transform">
+                <t.icon size={20} />
+              </div>
+              <p className="font-display font-bold text-white text-lg">{t.title}</p>
+              <p className="text-xs text-slate-400 mt-1 font-body">{t.desc}</p>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-display font-bold text-white">{t.title}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{t.desc}</p>
-              <span className={`inline-flex items-center gap-1 mt-2 font-mono text-[10px] uppercase tracking-wide ${t.ok ? "text-emerald-400" : "text-slate-500"}`}>
-                <ShieldCheck size={11} /> {t.status}
+            <div className="flex items-center justify-between mt-5 pt-3 border-t border-white/5">
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider ${t.ok ? "text-emerald-400" : "text-slate-500"}`}>
+                <ShieldCheck size={13} /> {t.status}
               </span>
+              <ChevronRight className="text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all" size={16} />
             </div>
-            <ChevronRight className="text-slate-600 group-hover:text-[#e60012] transition-colors" size={18} />
           </button>
         ))}
       </div>
 
-      {/* Preferences */}
-      <h2 className="font-display font-bold text-white text-xl uppercase tracking-wide mt-10 mb-4">
-        Preferences
-      </h2>
-      <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6 sm:p-7 space-y-6">
+      {/* Preferences Section */}
+      <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-8 space-y-7 shadow-xl">
+        <h2 className="font-display font-bold text-white text-xl uppercase tracking-wide">
+          Emergency Escalation Preferences
+        </h2>
+
         <div>
-          <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2 flex items-center gap-2">
-            <Phone size={13} /> Your Phone Number (used for SOS identification)
+          <label className="text-xs font-bold tracking-wider text-slate-400 uppercase block mb-2 flex items-center gap-2">
+            <Phone size={13} /> Rider Phone Number (Used for 112 Caller ID)
           </label>
           <input
             data-testid="settings-phone-input"
             value={settings.phone}
             onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
             placeholder="+91 98XXXXXXXX"
-            className="w-full max-w-sm rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-3 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none"
+            className="w-full max-w-sm rounded-xl bg-[#090d16] border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none transition-all font-body"
           />
         </div>
 
         <div>
-          <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2">
+          <label className="text-xs font-bold tracking-wider text-slate-400 uppercase block mb-2">
             Preferred Communication Channel
           </label>
-          <div className="grid grid-cols-3 gap-2 max-w-md">
+          <div className="grid grid-cols-3 gap-3 max-w-md">
             {CHANNELS.map((c) => (
               <button
                 key={c.key}
+                type="button"
                 data-testid={`settings-channel-${c.key}`}
                 onClick={() => setSettings({ ...settings, channel: c.key })}
-                className={`flex items-center justify-center gap-2 rounded-lg border py-3 text-sm transition-colors ${
-                  settings.channel === c.key ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400 hover:border-white/25"
+                className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                  settings.channel === c.key
+                    ? "border-[#e60012] bg-[#e60012]/15 text-white font-semibold shadow-[0_0_12px_rgba(230,0,18,0.2)]"
+                    : "border-white/10 bg-[#090d16] text-slate-400 hover:text-white hover:border-white/25"
                 }`}
               >
-                <c.icon size={15} /> {c.label}
+                <c.icon size={14} /> {c.label}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center justify-between rounded-lg bg-[#0b0f17] border border-white/5 px-4 py-3 max-w-md">
-          <span className="flex items-center gap-2 text-sm text-slate-300">
-            <Radio size={15} className="text-slate-500" /> Auto-share tracking link at journey start
+        <div className="flex items-center justify-between rounded-xl bg-[#090d16] border border-white/10 px-5 py-3.5 max-w-xl">
+          <span className="flex items-center gap-2.5 text-sm text-slate-300 font-body">
+            <Radio size={16} className="text-[#e60012]" /> Auto-share live tracking link at ignition
           </span>
           <Switch
             data-testid="settings-autoshare-toggle"
@@ -154,22 +168,28 @@ export default function Settings() {
           />
         </div>
 
-        <div className="border-t border-white/5 pt-6">
-          <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-1 flex items-center gap-2">
-            <Heart size={13} /> Medical Profile for Responders
+        {/* Medical Profile */}
+        <div className="border-t border-white/10 pt-6">
+          <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-1 flex items-center gap-2">
+            <Heart size={14} /> First-Responder Medical Dossier
           </p>
-          <p className="text-xs text-slate-500 mb-4">Shared with first responders during an SOS — instead of ID documents.</p>
-          <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
+          <p className="text-xs text-slate-400 mb-4 font-body">
+            Securely attached to 112 emergency dispatches for immediate lifesaving context.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-5 max-w-3xl">
             <div>
-              <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2">Blood Group</label>
+              <label className="text-xs font-bold tracking-wider text-slate-400 uppercase block mb-2">Blood Group</label>
               <div className="grid grid-cols-4 gap-2">
                 {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map((bg) => (
                   <button
                     key={bg}
+                    type="button"
                     data-testid={`settings-blood-${bg}`}
                     onClick={() => setSettings({ ...settings, blood_group: settings.blood_group === bg ? "" : bg })}
-                    className={`rounded-lg border py-2.5 text-sm font-mono transition-colors ${
-                      settings.blood_group === bg ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400 hover:border-white/25"
+                    className={`rounded-xl border py-2 text-xs font-semibold transition-all cursor-pointer ${
+                      settings.blood_group === bg
+                        ? "border-[#e60012] bg-[#e60012]/15 text-white font-semibold"
+                        : "border-white/10 bg-[#090d16] text-slate-400 hover:text-white hover:border-white/25"
                     }`}
                   >
                     {bg}
@@ -178,58 +198,28 @@ export default function Settings() {
               </div>
             </div>
             <div>
-              <label className="font-mono text-xs tracking-widest text-slate-500 uppercase block mb-2">Allergies / Medical Notes</label>
+              <label className="text-xs font-bold tracking-wider text-slate-400 uppercase block mb-2">Allergies / Critical Notes</label>
               <textarea
                 data-testid="settings-allergies-input"
                 value={settings.allergies}
                 onChange={(e) => setSettings({ ...settings, allergies: e.target.value })}
-                placeholder="e.g. Penicillin allergy, diabetic, no known allergies"
+                placeholder="e.g. Penicillin allergy, asthma, diabetic…"
                 rows={3}
-                className="w-full rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-3 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none resize-none text-sm"
+                className="w-full rounded-xl bg-[#090d16] border border-white/10 px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none resize-none transition-all font-body"
               />
             </div>
           </div>
         </div>
 
-        <button
-          data-testid="settings-save-button"
-          onClick={save}
-          disabled={saving}
-          className="px-6 py-3 rounded-lg bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2"
-        >
-          <Save size={16} /> {saving ? "Saving…" : "Save Preferences"}
-        </button>
-      </div>
-
-      {/* Emergency contacts */}
-      <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6 sm:p-7 mt-6">
-        <h2 className="font-display font-bold text-white uppercase tracking-wide mb-4 flex items-center gap-2">
-          <Users size={18} className="text-[#e60012]" /> Emergency Contact List
-        </h2>
-        <div className="grid sm:grid-cols-4 gap-2 mb-4">
-          <input data-testid="settings-contact-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name"
-            className="rounded-lg bg-[#0b0f17] border border-white/10 px-3 py-2.5 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none text-sm" />
-          <input data-testid="settings-contact-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="Phone"
-            className="rounded-lg bg-[#0b0f17] border border-white/10 px-3 py-2.5 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none text-sm" />
-          <input value={form.relation} onChange={(e) => setForm({ ...form, relation: e.target.value })} placeholder="Relation"
-            className="rounded-lg bg-[#0b0f17] border border-white/10 px-3 py-2.5 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none text-sm" />
-          <button data-testid="settings-contact-add" onClick={addContact}
-            className="rounded-lg bg-[#e60012] hover:bg-[#cc0010] text-white font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2">
-            <Plus size={16} /> Add
+        <div>
+          <button
+            data-testid="settings-save-button"
+            onClick={save}
+            disabled={saving}
+            className="px-8 py-3 rounded-xl bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wider text-xs transition-all shadow-[0_0_20px_rgba(230,0,18,0.35)] flex items-center gap-2 cursor-pointer"
+          >
+            <Save size={15} /> {saving ? "Saving…" : "Save Preferences"}
           </button>
-        </div>
-        <div className="space-y-2">
-          {contacts.length === 0 && <p className="text-sm text-slate-500 font-mono">No contacts yet.</p>}
-          {contacts.map((c) => (
-            <div key={c.contact_id} className="flex items-center gap-3 rounded-lg bg-[#0b0f17] border border-white/5 px-4 py-3">
-              <Heart size={16} className="text-[#e60012]" />
-              <span className="font-display font-bold text-white text-sm">{c.name}</span>
-              <span className="font-mono text-xs text-slate-500 flex-1">{c.phone} · {c.relation}</span>
-              <button data-testid="settings-contact-delete" onClick={() => removeContact(c.contact_id)} className="text-slate-600 hover:text-[#e60012]">
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))}
         </div>
       </div>
     </div>

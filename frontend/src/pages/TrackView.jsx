@@ -39,17 +39,17 @@ export default function TrackView() {
 
   if (error && !data) {
     return (
-      <div className="min-h-screen bg-background hsj-grid-bg flex flex-col items-center justify-center text-center px-6">
+      <div className="min-h-screen bg-[#07090e] hsj-grid-bg flex flex-col items-center justify-center text-center px-6">
         <WifiOff className="text-slate-600" size={48} />
-        <h1 className="font-display font-bold text-white text-2xl uppercase mt-4">Link Unavailable</h1>
-        <p className="text-slate-400 mt-2 font-body">This tracking link is invalid or the journey has ended.</p>
+        <h1 className="font-display font-extrabold text-white text-2xl uppercase mt-4">Link Unavailable</h1>
+        <p className="text-slate-400 mt-2 font-body text-sm">This tracking link is invalid or the journey has ended.</p>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#07090e] flex items-center justify-center">
         <Loader2 className="text-[#e60012] animate-spin" size={40} />
       </div>
     );
@@ -60,37 +60,45 @@ export default function TrackView() {
   const pct = Math.round((data.progress || 0) * 100);
 
   return (
-    <div className="min-h-screen bg-background hsj-grid-bg">
-      <header className="border-b border-white/10 bg-[#0b0f17]/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[#e60012]">
-            <TripShieldMark size={26} />
-            <span className="font-display font-extrabold text-white text-sm">SAFE JOURNEY · LIVE</span>
-          </div>
-          <span className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest ${
-            emergency ? "bg-[#ef4444]/15 text-red-300" : done ? "bg-emerald-500/15 text-emerald-300" : "bg-emerald-500/15 text-emerald-300"
-          }`}>
-            <span className="relative flex h-2 w-2">
-              {!done && <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${emergency ? "bg-red-400" : "bg-emerald-400"} opacity-75`} />}
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${emergency ? "bg-red-400" : "bg-emerald-400"}`} />
+    <div className="min-h-screen bg-[#07090e] text-white hsj-grid-bg pb-16">
+      {/* Floating Curved Top Bar (Matching Landing & Dealer style) */}
+      <header className="sticky top-0 z-30 pt-4 px-4 sm:px-6 pointer-events-none">
+        <div className="max-w-5xl mx-auto pointer-events-auto rounded-full bg-[#0a0f1b]/90 backdrop-blur-xl border border-white/10 px-5 sm:px-7 py-3 shadow-2xl flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <TripShieldMark size={28} glow />
+            <span className="font-display font-extrabold text-white text-sm tracking-wide">
+              TRIP<span className="text-[#e60012]">SHIELD</span> · LIVE
             </span>
-            {emergency ? "Emergency" : done ? "Arrived" : "Tracking Live"}
+          </div>
+          <span className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ${
+            emergency
+              ? "bg-red-500/15 border border-red-500/30 text-red-300"
+              : done
+              ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+              : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${emergency ? "bg-red-400 animate-pulse" : "bg-emerald-400"}`} />
+            <span>{emergency ? "Emergency" : done ? "Safely Arrived" : "Tracking Active"}</span>
           </span>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">Shared Live Location</p>
-        <h1 className="font-display font-extrabold text-white text-2xl sm:text-3xl uppercase tracking-tight">
-          {data.user_name || "Rider"} is on the move
-        </h1>
-        <p className="text-slate-400 mt-2 font-body">
-          {data.from_name?.split(",")[0]} → {data.to_name?.split(",")[0]} · {data.vehicle_label}
-        </p>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 space-y-6">
+        <div>
+          <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+            Shared Telematics Link
+          </p>
+          <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
+            {data.user_name || "Rider"} is on the move
+          </h1>
+          <p className="text-slate-400 mt-2 font-body text-sm sm:text-base">
+            {data.from_name?.split(",")[0]} → {data.to_name?.split(",")[0]} · {data.vehicle_label}
+          </p>
+        </div>
 
         {emergency && (
-          <div className="rounded-xl border border-[#ef4444]/50 bg-[#ef4444]/10 p-4 mt-5 flex items-center gap-3">
-            <Siren className="text-[#ef4444]" size={22} />
+          <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-5 flex items-center gap-3.5 shadow-xl">
+            <Siren className="text-[#ef4444] shrink-0" size={24} />
             <p className="text-sm text-red-200 font-body">
               An emergency has been reported on this journey. Authorities and family have been alerted.
             </p>
@@ -98,34 +106,41 @@ export default function TrackView() {
         )}
 
         {/* Family → 112 / ERSS one-tap call */}
-        <div data-testid="track-erss-card" className="rounded-xl border border-[#ef4444]/40 bg-[#ef4444]/5 p-4 mt-5 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-          <div className="flex items-center gap-3">
-            <PhoneCall className="text-[#ef4444] shrink-0" size={22} />
+        <div
+          data-testid="track-erss-card"
+          className="rounded-2xl border border-red-500/30 bg-[#0c111d] p-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between shadow-xl"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-[#ef4444] shrink-0">
+              <PhoneCall size={20} />
+            </div>
             <div>
               <p className="text-sm text-white font-body font-semibold">Emergency? Call 112 / ERSS now</p>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-400 font-body mt-0.5">
                 {data.erss?.notified
-                  ? "TripShield's AI dispatcher has already auto-reported this incident to 112 / ERSS."
-                  : "Connects you directly to the emergency response line."}
+                  ? "TripShield emergency dispatch has already auto-reported this incident to 112 / ERSS."
+                  : "Connects you directly to the national emergency response line."}
               </p>
             </div>
           </div>
           <button
             data-testid="track-call-erss-button"
             onClick={callErss}
-            className="shrink-0 px-5 py-2.5 rounded-lg bg-[#ef4444] hover:bg-[#dc2626] text-white font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2 transition-colors"
+            className="shrink-0 px-6 py-3 rounded-xl bg-[#e60012] hover:bg-[#ff1a2e] text-white font-display font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(230,0,18,0.35)] cursor-pointer"
           >
-            <PhoneCall size={16} /> Call {data.erss?.phone || "112"}
+            <PhoneCall size={15} /> Call {data.erss?.phone || "112"}
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-6">
-          <Stat icon={RouteIcon} label="Distance" value={`${data.distance_km} km`} />
-          <Stat icon={Clock} label="ETA" value={`${data.eta_min} min`} />
-          <Stat icon={Navigation} label="Progress" value={`${pct}%`} />
+        {/* Telemetry Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          <Stat icon={RouteIcon} label="Total Distance" value={`${data.distance_km} km`} />
+          <Stat icon={Clock} label="Estimated Time" value={`${data.eta_min} min`} />
+          <Stat icon={Navigation} label="Journey Progress" value={`${pct}%`} />
         </div>
 
-        <div className="rounded-xl border border-white/10 overflow-hidden h-[420px] mt-6">
+        {/* Map Container */}
+        <div className="rounded-2xl border border-white/10 bg-[#0c111d] overflow-hidden h-[460px] shadow-2xl">
           <LeafletMap
             className="w-full h-full"
             route={data.route || []}
@@ -136,15 +151,16 @@ export default function TrackView() {
           />
         </div>
 
+        {/* Audio Recordings */}
         {(data.sos_audio || []).length > 0 && (
-          <div data-testid="track-sos-audio" className="rounded-xl border border-[#ef4444]/40 bg-[#ef4444]/5 p-5 mt-6">
-            <p className="font-mono text-[10px] tracking-widest text-red-300 uppercase mb-3 flex items-center gap-2">
-              <AudioLines size={13} /> Emergency Audio from the scene
+          <div data-testid="track-sos-audio" className="rounded-2xl border border-red-500/30 bg-[#0c111d] p-6 shadow-xl">
+            <p className="text-xs text-red-300 uppercase mb-4 flex items-center gap-2 font-bold tracking-wider">
+              <AudioLines size={15} /> Emergency Audio Captured From Scene
             </p>
             <div className="space-y-3">
               {[...data.sos_audio].reverse().map((a) => (
-                <div key={a.audio_id} className="rounded-lg bg-black/30 border border-white/10 p-3">
-                  <p className="font-mono text-[11px] text-slate-500 mb-2">
+                <div key={a.audio_id} className="rounded-xl bg-[#090d16] border border-white/10 p-4">
+                  <p className="text-xs text-slate-400 mb-2.5 font-medium">
                     Captured {a.created_at ? new Date(a.created_at).toLocaleTimeString() : ""}
                   </p>
                   <audio
@@ -160,30 +176,31 @@ export default function TrackView() {
           </div>
         )}
 
-        <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5 mt-6">
-          <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-3 flex items-center gap-2">
-            <Activity size={12} /> Journey Events
+        {/* Journey Events */}
+        <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl">
+          <p className="text-xs text-slate-300 uppercase mb-4 flex items-center gap-2 font-bold tracking-wider">
+            <Activity size={14} className="text-[#e60012]" /> Journey Event Log
           </p>
           {(!data.events || data.events.length === 0) ? (
-            <p className="text-xs text-slate-600 font-mono">All nominal — no alerts.</p>
+            <p className="text-xs text-slate-400 py-2">All parameters nominal — no safety alerts.</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {[...data.events].reverse().map((e, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  {e.severity === "danger" ? <Siren size={14} className="text-[#ef4444]" /> :
-                   e.severity === "warning" ? <AlertTriangle size={14} className="text-[#f59e0b]" /> :
-                   <CheckCircle2 size={14} className="text-emerald-400" />}
-                  <span className="text-slate-300">{e.message}</span>
+                <div key={i} className="flex items-center gap-2.5 text-xs">
+                  {e.severity === "danger" ? <Siren size={15} className="text-[#ef4444] shrink-0" /> :
+                   e.severity === "warning" ? <AlertTriangle size={15} className="text-[#f59e0b] shrink-0" /> :
+                   <CheckCircle2 size={15} className="text-emerald-400 shrink-0" />}
+                  <span className="text-slate-200 font-body">{e.message}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <p className="flex items-center justify-center gap-2 text-xs text-slate-600 mt-8 font-mono">
-          <ShieldCheck size={13} className="text-emerald-400" /> Secured by TripShield · Auto-refreshes every few seconds
+        <p className="flex items-center justify-center gap-2 text-xs text-slate-400 pt-4 font-medium">
+          <ShieldCheck size={14} className="text-emerald-400" /> Secured by TripShield · Real-time telemetry auto-refreshed
         </p>
-        <p data-testid="track-demo-disclaimer" className="text-center text-[11px] text-slate-600 mt-2 font-mono">
+        <p data-testid="track-demo-disclaimer" className="text-center text-xs text-slate-500">
           Demo &amp; simulation only — not affiliated with any real brand or emergency service. Location and events shown are simulated.
         </p>
       </main>
@@ -193,10 +210,12 @@ export default function TrackView() {
 
 function Stat({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0f141f] p-4">
-      <Icon className="text-[#e60012]" size={16} />
-      <p className="font-mono font-bold text-lg sm:text-xl text-white mt-2">{value}</p>
-      <p className="font-mono text-[10px] text-slate-600 uppercase tracking-wide">{label}</p>
+    <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-5 shadow-xl">
+      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#e60012]">
+        <Icon size={16} />
+      </div>
+      <p className="font-display font-bold text-xl text-white mt-3 tracking-tight">{value}</p>
+      <p className="text-xs text-slate-400 uppercase tracking-wide mt-0.5 font-semibold">{label}</p>
     </div>
   );
 }

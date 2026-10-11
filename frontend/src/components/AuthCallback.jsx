@@ -46,7 +46,7 @@ export default function AuthCallback() {
         <div className="absolute inset-0 rounded-full border-t-2 border-[#e60012] animate-spin" />
         <ShieldCheck className="absolute inset-0 m-auto text-[#e60012]" size={26} />
       </div>
-      <p className="font-mono text-sm tracking-widest text-slate-400 uppercase">
+      <p className="text-sm font-semibold tracking-wider text-slate-300 uppercase">
         {error || "Securing your Safe Journey session…"}
       </p>
     </div>

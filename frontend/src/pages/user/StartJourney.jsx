@@ -7,9 +7,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  MapPin, Navigation, Search, Route as RouteIcon, Clock, Gauge, ShieldCheck,
+  MapPin, Navigation, Search, Route as RouteIcon, Clock, ShieldCheck,
   CheckCircle2, XCircle, ArrowRight, Loader2, Rocket, FileCheck,
-  Radio, Crosshair, Share2, MessageSquare, Send, Mail,
+  Radio, Crosshair, Share2, MessageSquare, Send, Mail, Sparkles,
 } from "lucide-react";
 
 const CHANNELS = [
@@ -119,64 +119,129 @@ export default function StartJourney() {
   };
 
   return (
-    <div className="hsj-fade-up">
-      <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">
-        Journey Planner
-      </p>
-      <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
-        Start Safe Journey
-      </h1>
+    <div className="hsj-fade-up max-w-6xl space-y-8">
+      {/* Header */}
+      <div>
+        <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+          Route Planner &amp; Telematics
+        </p>
+        <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
+          Start Safe Journey
+        </h1>
+        <p className="text-slate-400 mt-2 font-body text-sm sm:text-base max-w-2xl">
+          Set your origin and destination to activate live route tracking, family link sharing, and instant emergency response.
+        </p>
+      </div>
 
-      <div className="grid lg:grid-cols-2 gap-6 mt-8">
-        <div className="space-y-5">
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Left Form Column */}
+        <div className="lg:col-span-6 space-y-5">
           {/* Mode selector */}
-          <div className="grid grid-cols-2 gap-2">
-            <button data-testid="journey-mode-live" onClick={() => { setMode("live"); setFrom(null); setTo(null); setRouteData(null); }}
-              className={`rounded-lg border px-3 py-3 text-left transition-colors ${mode === "live" ? "border-[#e60012] bg-[#e60012]/10" : "border-white/10 hover:border-white/25"}`}>
-              <span className="flex items-center gap-2 text-white font-display font-bold text-sm"><Radio size={15} className="text-[#e60012]" /> Live Tracking</span>
-              <span className="text-[11px] text-slate-500 font-mono">Current location + simulation</span>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              data-testid="journey-mode-live"
+              onClick={() => { setMode("live"); setFrom(null); setTo(null); setRouteData(null); }}
+              className={`rounded-2xl border p-4 text-left transition-all cursor-pointer shadow-lg ${
+                mode === "live"
+                  ? "border-[#e60012] bg-[#0c111d] ring-1 ring-[#e60012]/40 shadow-[0_0_20px_rgba(230,0,18,0.15)]"
+                  : "border-white/10 bg-[#0c111d] hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center gap-2 text-white font-display font-bold text-sm">
+                <Radio size={16} className="text-[#e60012]" />
+                <span>Live GPS Tracking</span>
+              </div>
+              <p className="text-xs text-slate-400 font-medium mt-1">Current location + auto simulation</p>
             </button>
-            <button data-testid="journey-mode-manual" onClick={() => { setMode("manual"); setFrom(null); setTo(null); setRouteData(null); }}
-              className={`rounded-lg border px-3 py-3 text-left transition-colors ${mode === "manual" ? "border-[#e60012] bg-[#e60012]/10" : "border-white/10 hover:border-white/25"}`}>
-              <span className="flex items-center gap-2 text-white font-display font-bold text-sm"><RouteIcon size={15} className="text-[#3b82f6]" /> Point A → B</span>
-              <span className="text-[11px] text-slate-500 font-mono">Enter start &amp; destination</span>
+
+            <button
+              data-testid="journey-mode-manual"
+              onClick={() => { setMode("manual"); setFrom(null); setTo(null); setRouteData(null); }}
+              className={`rounded-2xl border p-4 text-left transition-all cursor-pointer shadow-lg ${
+                mode === "manual"
+                  ? "border-[#e60012] bg-[#0c111d] ring-1 ring-[#e60012]/40 shadow-[0_0_20px_rgba(230,0,18,0.15)]"
+                  : "border-white/10 bg-[#0c111d] hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center gap-2 text-white font-display font-bold text-sm">
+                <RouteIcon size={16} className="text-[#3b82f6]" />
+                <span>Point A → Point B</span>
+              </div>
+              <p className="text-xs text-slate-400 font-medium mt-1">Manual start &amp; destination picker</p>
             </button>
           </div>
 
           {mode === "manual" ? (
-            <>
-              <LocationPicker label="Point A · Origin" color="#10b981" value={from} onChange={setFrom} testid="point-a" />
+            <div className="space-y-4">
+              <LocationPicker label="Point A · Origin" color="#e60012" value={from} onChange={setFrom} testid="point-a" />
               <LocationPicker label="Point B · Destination" color="#3b82f6" value={to} onChange={setTo} testid="point-b" />
-            </>
+            </div>
           ) : (
-            <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5 space-y-4">
-              <p className="font-mono text-xs tracking-widest uppercase text-[#10b981]">Live Origin</p>
+            <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl space-y-5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold tracking-wider uppercase text-slate-300">
+                  Live Origin Detection
+                </p>
+                {from && (
+                  <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                    Location Locked
+                  </span>
+                )}
+              </div>
+
               {from ? (
-                <div className="flex items-center gap-3 rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-3">
-                  <Crosshair size={16} className="text-[#10b981]" />
-                  <span className="flex-1 text-sm text-white truncate">{from.name}</span>
-                  <button data-testid="live-reset" onClick={() => { setFrom(null); setTo(null); setRouteData(null); }} className="text-slate-500 text-xs hover:text-white">Reset</button>
+                <div className="flex items-center gap-3 rounded-xl bg-[#090d16] border border-white/10 px-4 py-3.5">
+                  <Crosshair size={18} className="text-[#e60012] shrink-0" />
+                  <span className="flex-1 text-sm text-white truncate font-medium">{from.name}</span>
+                  <button
+                    data-testid="live-reset"
+                    onClick={() => { setFrom(null); setTo(null); setRouteData(null); }}
+                    className="text-slate-400 hover:text-white text-xs font-medium px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    Reset
+                  </button>
                 </div>
               ) : (
-                <button data-testid="detect-location-button" onClick={detectLocation} disabled={gpsBusy}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg border border-[#10b981]/40 bg-[#10b981]/10 px-4 py-3 text-sm text-emerald-300 hover:bg-[#10b981]/20">
-                  {gpsBusy ? <Loader2 className="animate-spin" size={16} /> : <Crosshair size={16} />} Detect my current location
+                <button
+                  data-testid="detect-location-button"
+                  onClick={detectLocation}
+                  disabled={gpsBusy}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-4 py-3.5 text-sm text-white font-medium transition-all cursor-pointer"
+                >
+                  {gpsBusy ? <Loader2 className="animate-spin text-[#e60012]" size={18} /> : <Crosshair size={18} className="text-[#e60012]" />}
+                  <span>Detect my current location</span>
                 </button>
               )}
-              <div>
-                <p className="font-mono text-[10px] text-slate-500 uppercase mb-2">Simulation distance</p>
-                <div className="flex gap-2">
+
+              <div className="pt-2 border-t border-white/5">
+                <p className="text-xs font-bold tracking-wider text-slate-400 uppercase mb-2.5">
+                  Simulation distance
+                </p>
+                <div className="grid grid-cols-3 gap-2">
                   {[15, 18, 20].map((km) => (
-                    <button key={km} data-testid={`sim-km-${km}`} onClick={() => setSimKm(km)}
-                      className={`flex-1 rounded-lg border py-2 text-sm transition-colors ${simKm === km ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400"}`}>
+                    <button
+                      key={km}
+                      data-testid={`sim-km-${km}`}
+                      onClick={() => setSimKm(km)}
+                      className={`rounded-xl border py-2.5 text-xs font-semibold transition-all cursor-pointer ${
+                        simKm === km
+                          ? "border-[#e60012] bg-[#e60012]/15 text-white shadow-sm"
+                          : "border-white/10 bg-[#090d16] text-slate-400 hover:text-white hover:border-white/20"
+                      }`}
+                    >
                       {km} km
                     </button>
                   ))}
                 </div>
+
                 {from && (
-                  <button data-testid="generate-sim-route" onClick={generateSim}
-                    className="mt-3 w-full rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 py-2.5 text-sm flex items-center justify-center gap-2">
-                    <Navigation size={15} /> Generate ~{simKm} km simulated route
+                  <button
+                    data-testid="generate-sim-route"
+                    onClick={generateSim}
+                    className="mt-4 w-full rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 text-sm font-medium flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Navigation size={16} className="text-[#e60012]" />
+                    <span>Generate ~{simKm} km route simulation</span>
                   </button>
                 )}
               </div>
@@ -184,60 +249,73 @@ export default function StartJourney() {
           )}
 
           {loading && (
-            <div className="flex items-center gap-2 text-slate-400 font-mono text-sm">
-              <Loader2 className="animate-spin" size={16} /> Calculating optimal route…
+            <div className="flex items-center gap-2.5 text-slate-300 text-xs font-medium p-3 rounded-xl bg-white/5 border border-white/10">
+              <Loader2 className="animate-spin text-[#e60012]" size={16} />
+              <span>Calculating optimal route telematics…</span>
             </div>
           )}
 
           {routeData && (
             <div className="grid grid-cols-2 gap-3" data-testid="route-summary">
-              <Metric icon={RouteIcon} label="Distance" value={`${routeData.distance_km} km`} />
-              <Metric icon={Clock} label="ETA" value={`${routeData.duration_min} min`} />
+              <Metric icon={RouteIcon} label="Total Distance" value={`${routeData.distance_km} km`} />
+              <Metric icon={Clock} label="Estimated Time" value={`${routeData.duration_min} min`} />
             </div>
           )}
 
           {/* Share channel */}
-          <div className="rounded-xl border border-white/10 bg-[#0f141f] p-4">
-            <p className="font-mono text-[10px] text-slate-500 uppercase mb-2 flex items-center gap-2">
-              <Share2 size={12} /> Auto-share live link via
+          <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl">
+            <p className="text-xs font-bold tracking-wider text-slate-400 uppercase mb-3 flex items-center gap-2">
+              <Share2 size={14} className="text-[#e60012]" /> Auto-share live link via
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               {CHANNELS.map((c) => (
-                <button key={c.key} data-testid={`share-channel-${c.key}`} onClick={() => setChannel(c.key)}
-                  className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs transition-colors ${channel === c.key ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400"}`}>
-                  <c.icon size={13} /> {c.label}
+                <button
+                  key={c.key}
+                  data-testid={`share-channel-${c.key}`}
+                  onClick={() => setChannel(c.key)}
+                  className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                    channel === c.key
+                      ? "border-[#e60012] bg-[#e60012]/15 text-white font-semibold"
+                      : "border-white/10 bg-[#090d16] text-slate-400 hover:text-white hover:border-white/20"
+                  }`}
+                >
+                  <c.icon size={14} />
+                  <span>{c.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               data-testid="run-precheck-button"
               onClick={runPrecheck}
               disabled={!routeData}
-              className="flex-1 py-3.5 rounded-lg border border-white/15 hover:border-[#e60012]/50 disabled:opacity-40 text-white font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-white/25 disabled:opacity-40 text-white font-display font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <ShieldCheck size={18} /> Run Pre-Check
+              <ShieldCheck size={16} />
+              <span>Run Pre-Check</span>
             </button>
             <button
               data-testid="journey-start-button"
               onClick={launch}
               disabled={!routeData || starting}
-              className="flex-1 py-3.5 rounded-lg bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-40 text-white font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 rounded-xl bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-40 text-white font-display font-bold uppercase tracking-wider text-xs transition-all shadow-[0_0_20px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 cursor-pointer"
             >
-              {starting ? <Loader2 className="animate-spin" size={18} /> : <Rocket size={18} />}
-              {starting ? "Launching…" : "Start Journey"}
+              {starting ? <Loader2 className="animate-spin" size={16} /> : <Rocket size={16} />}
+              <span>{starting ? "Launching…" : "Start Journey"}</span>
             </button>
           </div>
-          <p className="font-mono text-[11px] text-slate-600">
-            Pre-check is optional — you can start directly.
+          <p className="text-xs text-slate-500 text-center font-medium">
+            Pre-check is optional — you can launch the journey directly.
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/10 overflow-hidden h-[380px] lg:h-auto min-h-[380px]">
+        {/* Right Map Column */}
+        <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-[#0c111d] overflow-hidden shadow-2xl h-[460px] lg:h-[620px] min-h-[460px]">
           <LeafletMap
-            className="w-full h-full min-h-[380px]"
+            className="w-full h-full min-h-[460px]"
             route={routeData?.coordinates || []}
             from={from ? [from.lat, from.lng] : null}
             to={to ? [to.lat, to.lng] : null}
@@ -245,35 +323,42 @@ export default function StartJourney() {
         </div>
       </div>
 
+      {/* Precheck Dialog */}
       <Dialog open={precheckOpen} onOpenChange={setPrecheckOpen}>
-        <DialogContent className="bg-[#0f141f] border-white/10 text-white backdrop-blur-md">
+        <DialogContent className="bg-[#0c111d]/95 border-white/10 text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 max-w-md shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="font-display uppercase tracking-wide flex items-center gap-2">
+            <DialogTitle className="font-display uppercase tracking-wide flex items-center gap-2 text-lg">
               <FileCheck className="text-[#e60012]" size={20} /> Readiness Pre-Check
             </DialogTitle>
-            <DialogDescription className="text-slate-500 text-sm">
-              Optional safety verification before you start the journey.
+            <DialogDescription className="text-slate-400 text-sm font-body mt-1">
+              Safety verification of registered devices and contacts before ignition.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2 mt-2">
+
+          <div className="space-y-2.5 mt-4">
             {precheck?.checks.map((c) => (
-              <div key={c.label} className="flex items-center gap-3 rounded-lg bg-[#0b0f17] border border-white/5 px-4 py-3">
-                {c.ok ? <CheckCircle2 className="text-emerald-400" size={18} /> : <XCircle className="text-[#ef4444]" size={18} />}
-                <span className={`text-sm ${c.ok ? "text-slate-300" : "text-white"}`}>{c.label}</span>
+              <div key={c.label} className="flex items-center gap-3 rounded-xl bg-[#090d16] border border-white/10 px-4 py-3">
+                {c.ok ? <CheckCircle2 className="text-emerald-400 shrink-0" size={18} /> : <XCircle className="text-[#ef4444] shrink-0" size={18} />}
+                <span className={`text-sm font-body ${c.ok ? "text-slate-200" : "text-white"}`}>{c.label}</span>
               </div>
             ))}
           </div>
-          <div className={`rounded-lg px-4 py-3 mt-2 font-mono text-sm ${
-            precheck?.pass ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
+
+          <div className={`rounded-xl px-4 py-3 mt-3 text-xs font-medium border ${
+            precheck?.pass
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300"
+              : "bg-amber-500/10 border-amber-500/20 text-amber-300"
           }`}>
-            {precheck?.pass ? "All systems go. Safe to ride." : "Some checks failed — you may still proceed with caution."}
+            {precheck?.pass ? "All safety parameters nominal. Safe to ride." : "Some parameters incomplete — you can proceed with caution."}
           </div>
+
           <button
             data-testid="precheck-proceed-button"
             onClick={() => { setPrecheckOpen(false); launch(); }}
-            className="w-full py-3 rounded-lg bg-[#e60012] hover:bg-[#cc0010] text-white font-display font-bold uppercase tracking-wide transition-colors flex items-center justify-center gap-2"
+            className="w-full mt-4 py-3.5 rounded-xl bg-[#e60012] hover:bg-[#cc0010] text-white font-display font-bold uppercase tracking-wider text-xs transition-all shadow-[0_0_20px_rgba(230,0,18,0.35)] flex items-center justify-center gap-2 cursor-pointer"
           >
-            Proceed & Start <ArrowRight size={18} />
+            <span>Proceed &amp; Start</span>
+            <ArrowRight size={16} />
           </button>
         </DialogContent>
       </Dialog>
@@ -298,13 +383,21 @@ function LocationPicker({ label, color, value, onChange, testid }) {
   };
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5">
-      <p className="font-mono text-xs tracking-widest uppercase mb-3" style={{ color }}>{label}</p>
+    <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl space-y-3.5">
+      <p className="text-xs font-bold tracking-wider uppercase text-slate-300">
+        {label}
+      </p>
       {value ? (
-        <div className="flex items-center gap-3 rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-3">
-          <MapPin size={16} style={{ color }} />
-          <span className="flex-1 text-sm text-white truncate">{value.name}</span>
-          <button data-testid={`${testid}-clear`} onClick={() => onChange(null)} className="text-slate-500 text-xs hover:text-white">Change</button>
+        <div className="flex items-center gap-3 rounded-xl bg-[#090d16] border border-white/10 px-4 py-3.5">
+          <MapPin size={18} style={{ color }} className="shrink-0" />
+          <span className="flex-1 text-sm text-white truncate font-medium">{value.name}</span>
+          <button
+            data-testid={`${testid}-clear`}
+            onClick={() => onChange(null)}
+            className="text-slate-400 hover:text-white text-xs font-medium px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            Change
+          </button>
         </div>
       ) : (
         <>
@@ -314,28 +407,41 @@ function LocationPicker({ label, color, value, onChange, testid }) {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && search()}
-              placeholder="Search location…"
-              className="flex-1 rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-2.5 text-white placeholder:text-slate-600 focus:border-[#e60012] focus:outline-none text-sm"
+              placeholder="Search address or area…"
+              className="flex-1 rounded-xl bg-[#090d16] border border-white/10 px-4 py-3 text-white placeholder:text-slate-500 focus:border-[#e60012] focus:outline-none text-sm font-body transition-colors"
             />
-            <button data-testid={`${testid}-search-button`} onClick={search} className="px-4 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300">
-              {searching ? <Loader2 className="animate-spin" size={16} /> : <Search size={16} />}
+            <button
+              data-testid={`${testid}-search-button`}
+              onClick={search}
+              className="px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-colors cursor-pointer flex items-center justify-center"
+            >
+              {searching ? <Loader2 className="animate-spin text-[#e60012]" size={16} /> : <Search size={16} />}
             </button>
           </div>
           {results.length > 0 && (
-            <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+            <div className="mt-2 space-y-1 max-h-40 overflow-y-auto hsj-scroll">
               {results.map((r, i) => (
-                <button key={i} onClick={() => { onChange(r); setResults([]); setQ(""); }}
-                  className="w-full text-left text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded px-3 py-2 truncate">
+                <button
+                  key={i}
+                  onClick={() => { onChange(r); setResults([]); setQ(""); }}
+                  className="w-full text-left text-xs text-slate-300 hover:text-white hover:bg-white/5 rounded-lg px-3 py-2 truncate transition-colors cursor-pointer"
+                >
                   {r.name}
                 </button>
               ))}
             </div>
           )}
-          <p className="font-mono text-[10px] text-slate-600 uppercase mt-3 mb-2">Quick presets</p>
+          <p className="text-[11px] font-bold tracking-wider text-slate-400 uppercase mt-2 mb-1.5">
+            Quick presets
+          </p>
           <div className="flex flex-wrap gap-1.5">
             {PRESETS.map((p) => (
-              <button key={p.name} data-testid={`${testid}-preset`} onClick={() => onChange(p)}
-                className="rounded-md border border-white/10 px-2.5 py-1 text-[11px] text-slate-400 hover:border-[#e60012]/50 hover:text-white transition-colors">
+              <button
+                key={p.name}
+                data-testid={`${testid}-preset`}
+                onClick={() => onChange(p)}
+                className="rounded-lg border border-white/10 bg-[#090d16] px-2.5 py-1 text-xs font-medium text-slate-300 hover:border-white/25 hover:text-white transition-all cursor-pointer"
+              >
                 {p.name.split(",")[0]}
               </button>
             ))}
@@ -348,10 +454,12 @@ function LocationPicker({ label, color, value, onChange, testid }) {
 
 function Metric({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-[#0b0f17] p-4">
-      <Icon className="text-[#e60012]" size={16} />
-      <p className="font-mono font-bold text-xl text-white mt-2">{value}</p>
-      <p className="font-mono text-[10px] text-slate-600 uppercase tracking-wide">{label}</p>
+    <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-5 shadow-xl">
+      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#e60012]">
+        <Icon size={16} />
+      </div>
+      <p className="font-display font-black text-2xl text-white mt-3 tracking-tight">{value}</p>
+      <p className="text-xs font-bold tracking-wider text-slate-400 uppercase mt-0.5">{label}</p>
     </div>
   );
 }

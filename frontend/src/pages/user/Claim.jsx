@@ -68,52 +68,71 @@ export default function Claim() {
         setClaim(r.data);
         setSelected(r.data);
         setSubmitting(false);
-        toast.success("Claim submitted to insurer");
+        toast.success("Claim package submitted to insurer");
         api.get("/claims").then((res) => setClaims(res.data));
-      }, 1600);
-    } catch { setSubmitting(false); toast.error("Submission failed"); }
+      }, 1400);
+    } catch {
+      setSubmitting(false);
+      toast.error("Submission failed");
+    }
   };
 
   return (
-    <div className="hsj-fade-up max-w-4xl">
-      <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">
-        Recover · FNOL
-      </p>
-      <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
-        One-Tap Insurance Claim
-      </h1>
-      <p className="text-slate-400 mt-2 font-body max-w-xl">
-        Auto-assembles your claim from your vehicle &amp; journey details, then transmits to your insurer via API.
-      </p>
+    <div className="hsj-fade-up max-w-5xl space-y-8">
+      {/* Header */}
+      <div>
+        <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+          Post-Ride Incident Recovery
+        </p>
+        <h1 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
+          One-Tap Insurance Claim
+        </h1>
+        <p className="text-slate-400 mt-2 font-body text-sm sm:text-base max-w-2xl">
+          Auto-assembles your crash telematics, vehicle VIN, and registered documents into an instant FNOL filing.
+        </p>
+      </div>
 
-      <div className="grid lg:grid-cols-5 gap-6 mt-8">
-        {/* Data package */}
-        <div className="lg:col-span-3 rounded-xl border border-white/10 bg-[#0f141f] p-6">
-          <h2 className="font-display font-bold text-white uppercase tracking-wide mb-4 flex items-center gap-2">
-            <FileText size={18} className="text-[#e60012]" /> Claim Data Package
-          </h2>
-          <div className="space-y-2">
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Data Package Card */}
+        <div className="lg:col-span-7 rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-7 shadow-xl">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display font-bold text-white text-lg uppercase tracking-wide flex items-center gap-2">
+              <FileText size={18} className="text-[#e60012]" /> Auto-Assembled Claim Package
+            </h2>
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+              Verified
+            </span>
+          </div>
+
+          <div className="space-y-2.5">
             {Object.entries(pkg).map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between rounded-lg bg-[#0b0f17] border border-white/5 px-4 py-2.5">
-                <span className="font-mono text-xs text-slate-500 uppercase tracking-wide">{k}</span>
-                <span className={`font-mono text-sm ${String(v).includes("Not in") ? "text-amber-400" : "text-white"}`}>{v}</span>
+              <div key={k} className="flex items-center justify-between rounded-xl bg-[#090d16] border border-white/10 px-4 py-3">
+                <span className="text-xs text-slate-400 uppercase tracking-wide font-semibold">{k}</span>
+                <span className={`text-xs font-semibold ${String(v).includes("Not") ? "text-amber-400" : "text-white"}`}>{v}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="lg:col-span-2 space-y-5">
-          <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6">
-            <h3 className="font-display font-bold text-white uppercase tracking-wide mb-3 flex items-center gap-2">
-              <Landmark size={18} className="text-[#3b82f6]" /> Insurer
+        {/* Submit & Insurer Selection */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-7 shadow-xl">
+            <h3 className="font-display font-bold text-white uppercase tracking-wide text-base mb-4 flex items-center gap-2">
+              <Landmark size={18} className="text-[#3b82f6]" /> Select Insurer
             </h3>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               {INSURERS.map((ins) => (
-                <button key={ins} data-testid="insurer-option" onClick={() => setInsurer(ins)}
-                  className={`rounded-lg border px-3 py-2.5 text-xs transition-colors ${
-                    insurer === ins ? "border-[#e60012] bg-[#e60012]/10 text-white" : "border-white/10 text-slate-400"
-                  }`}>
+                <button
+                  key={ins}
+                  type="button"
+                  data-testid="insurer-option"
+                  onClick={() => setInsurer(ins)}
+                  className={`rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all cursor-pointer ${
+                    insurer === ins
+                      ? "border-[#e60012] bg-[#e60012]/15 text-white font-semibold shadow-[0_0_12px_rgba(230,0,18,0.2)]"
+                      : "border-white/10 bg-[#090d16] text-slate-400 hover:text-white hover:border-white/25"
+                  }`}
+                >
                   {ins}
                 </button>
               ))}
@@ -125,19 +144,24 @@ export default function Claim() {
               data-testid="one-tap-claim-submit-button"
               onClick={submit}
               disabled={submitting}
-              className="w-full py-4 rounded-xl bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wide transition-colors flex items-center justify-center gap-2 shadow-lg shadow-[#e60012]/20"
+              className="w-full py-4 rounded-xl bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(230,0,18,0.4)] cursor-pointer"
             >
-              {submitting ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
-              {submitting ? "Transmitting to insurer…" : "Submit Claim · One Tap"}
+              {submitting ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
+              <span>{submitting ? "Transmitting FNOL package…" : "Submit Claim · One Tap"}</span>
             </button>
           ) : (
-            <div data-testid="claim-success" className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-6 text-center hsj-fade-up">
+            <div data-testid="claim-success" className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center hsj-fade-up shadow-xl">
               <CheckCircle2 className="text-emerald-400 mx-auto" size={40} />
-              <p className="font-display font-bold text-white text-lg mt-3 uppercase">Claim Filed</p>
-              <p className="font-mono text-xs text-slate-400 mt-1">{claim.insurer}</p>
-              <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-[#0b0f17] border border-white/10 px-4 py-2.5">
-                <span className="font-mono text-sm text-emerald-300">{claim.claim_ref}</span>
-                <button onClick={() => { navigator.clipboard?.writeText(claim.claim_ref); toast.success("Copied"); }} className="text-slate-500 hover:text-white">
+              <p className="font-display font-bold text-white text-lg mt-3 uppercase">Claim Transmitted</p>
+              <p className="text-xs text-slate-400 font-medium mt-1">{claim.insurer}</p>
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-[#090d16] border border-white/10 px-4 py-2.5">
+                <span className="text-xs text-emerald-300 font-bold tracking-wider uppercase">{claim.claim_ref}</span>
+                <button
+                  type="button"
+                  onClick={() => { navigator.clipboard?.writeText(claim.claim_ref); toast.success("Claim reference copied"); }}
+                  className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                  title="Copy reference"
+                >
                   <Copy size={14} />
                 </button>
               </div>
@@ -146,32 +170,40 @@ export default function Claim() {
         </div>
       </div>
 
+      {/* Claims History */}
       {claims.length > 0 && (
-        <div className="rounded-xl border border-white/10 bg-[#0f141f] p-6 mt-6">
-          <h2 className="font-display font-bold text-white uppercase tracking-wide mb-4 flex items-center gap-2">
-            <Clock size={18} className="text-[#e60012]" /> Claim Tracking
+        <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-7 shadow-xl">
+          <h2 className="font-display font-bold text-white text-lg uppercase tracking-wide mb-4 flex items-center gap-2">
+            <Clock size={18} className="text-[#e60012]" /> Submitted Claim Records
           </h2>
           <div className="space-y-2">
             {claims.map((c) => (
               <button
                 key={c.claim_id}
+                type="button"
                 data-testid="claim-history-row"
                 onClick={() => setSelected(c)}
-                className="w-full flex items-center gap-3 text-sm py-3 px-3 rounded-lg hover:bg-white/5 border border-transparent hover:border-white/10 transition-colors text-left"
+                className="w-full flex items-center gap-4 text-sm p-4 rounded-xl hover:bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all text-left cursor-pointer"
               >
-                <ShieldCheck size={16} style={{ color: statusColor(c.status) }} />
-                <span className="font-mono text-white">{c.claim_ref}</span>
-                <span className="text-slate-500 flex-1 truncate">{c.insurer}</span>
+                <ShieldCheck size={18} style={{ color: statusColor(c.status) }} />
+                <span className="text-xs text-white font-bold tracking-wider uppercase">{c.claim_ref}</span>
+                <span className="text-slate-400 flex-1 truncate text-xs font-body">{c.insurer}</span>
                 {c.photos?.length > 0 && (
-                  <span className="font-mono text-[10px] text-slate-500 flex items-center gap-1">
-                    <Camera size={11} /> {c.photos.length}
+                  <span className="text-[11px] font-semibold text-slate-300 flex items-center gap-1 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5">
+                    <Camera size={11} /> {c.photos.length} photos
                   </span>
                 )}
-                <span className="rounded-full px-2.5 py-0.5 font-mono text-[10px] uppercase"
-                  style={{ background: `${statusColor(c.status)}22`, color: statusColor(c.status) }}>
+                <span
+                  className="rounded-lg px-2.5 py-1 text-xs font-semibold uppercase tracking-wider border"
+                  style={{
+                    background: `${statusColor(c.status)}15`,
+                    borderColor: `${statusColor(c.status)}40`,
+                    color: statusColor(c.status),
+                  }}
+                >
                   {c.status?.replace("_", " ")}
                 </span>
-                <ChevronRight size={16} className="text-slate-600" />
+                <ChevronRight size={16} className="text-slate-500" />
               </button>
             ))}
           </div>
@@ -198,9 +230,12 @@ function ClaimDetail({ claim, onClose, onUpdate }) {
     try {
       const r = await api.post(`/claims/${claim.claim_id}/advance`);
       onUpdate(r.data);
-      toast.success("Claim status advanced");
-    } catch { toast.error("Update failed"); }
-    finally { setBusy(false); }
+      toast.success("Claim stage updated");
+    } catch {
+      toast.error("Update failed");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onFiles = async (e) => {
@@ -216,32 +251,39 @@ function ClaimDetail({ claim, onClose, onUpdate }) {
     try {
       const r = await api.post(`/claims/${claim.claim_id}/photos`, { photos: datas });
       onUpdate(r.data);
-      toast.success("Crash photos uploaded");
-    } catch { toast.error("Upload failed"); }
+      toast.success("Crash photos attached to claim");
+    } catch {
+      toast.error("Upload failed");
+    }
   };
 
   return (
     <Dialog open={!!claim} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#0f141f] border-white/10 text-white backdrop-blur-md max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-[#0c111d] border-white/10 text-white backdrop-blur-xl max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="font-display uppercase tracking-wide flex items-center gap-2">
+          <DialogTitle className="font-display uppercase tracking-wide flex items-center gap-2 text-xl">
             <FileText className="text-[#e60012]" size={20} /> {claim.claim_ref}
           </DialogTitle>
-          <DialogDescription className="text-slate-500 text-sm">
-            {claim.insurer} · Track your claim through to settlement
+          <DialogDescription className="text-slate-400 text-xs font-medium">
+            {claim.insurer} · Real-time FNOL settlement tracker
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-2" data-testid="claim-stage-tracker">
+        <div className="mt-3" data-testid="claim-stage-tracker">
           {CLAIM_STAGES.map((s, i) => {
             const done = i <= curIdx;
             const entry = (claim.timeline || []).find((t) => t.key === s.key);
             return (
               <div key={s.key} className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
-                    style={{ background: done ? "#10b98122" : "#0b0f17", border: `2px solid ${done ? "#10b981" : "#26304a"}` }}>
-                    {done ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Circle size={12} className="text-slate-600" />}
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 border"
+                    style={{
+                      background: done ? "#10b98120" : "#090d16",
+                      borderColor: done ? "#10b981" : "#26304a",
+                    }}
+                  >
+                    {done ? <CheckCircle2 size={15} className="text-emerald-400" /> : <Circle size={10} className="text-slate-600" />}
                   </div>
                   {i < CLAIM_STAGES.length - 1 && (
                     <div className="w-0.5 flex-1 min-h-[26px]" style={{ background: i < curIdx ? "#10b981" : "#26304a" }} />
@@ -250,9 +292,9 @@ function ClaimDetail({ claim, onClose, onUpdate }) {
                 <div className="pb-4">
                   <p className={`font-display font-bold text-sm ${done ? "text-white" : "text-slate-500"}`}>{s.label}</p>
                   {entry ? (
-                    <p className="font-mono text-[10px] text-slate-500">{entry.note} · {new Date(entry.at).toLocaleString()}</p>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">{entry.note} · {new Date(entry.at).toLocaleString()}</p>
                   ) : (
-                    <p className="font-mono text-[10px] text-slate-600">Pending</p>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Pending</p>
                   )}
                 </div>
               </div>
@@ -260,16 +302,20 @@ function ClaimDetail({ claim, onClose, onUpdate }) {
           })}
         </div>
 
-        <div className="rounded-lg bg-[#0b0f17] border border-white/10 p-4">
-          <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-2 flex items-center gap-2">
-            <Camera size={12} /> Crash Photos ({(claim.photos || []).length})
+        <div className="rounded-xl bg-[#090d16] border border-white/10 p-4">
+          <p className="text-xs font-bold tracking-wider text-slate-400 uppercase mb-2 flex items-center gap-2">
+            <Camera size={12} /> On-Scene Damage Photos ({(claim.photos || []).length})
           </p>
           <div className="grid grid-cols-4 gap-2">
             {(claim.photos || []).map((p, i) => (
-              <img key={i} src={p} alt="" className="w-full h-16 object-cover rounded-md border border-white/10" />
+              <img key={i} src={p} alt="" className="w-full h-16 object-cover rounded-lg border border-white/10" />
             ))}
-            <button data-testid="claim-add-photo-button" onClick={() => fileRef.current?.click()}
-              className="h-16 rounded-md border border-dashed border-white/20 flex items-center justify-center text-slate-500 hover:border-[#e60012]/50 hover:text-white transition-colors">
+            <button
+              type="button"
+              data-testid="claim-add-photo-button"
+              onClick={() => fileRef.current?.click()}
+              className="h-16 rounded-lg border border-dashed border-white/20 flex items-center justify-center text-slate-500 hover:border-[#e60012]/50 hover:text-white transition-colors cursor-pointer"
+            >
               <Upload size={16} />
             </button>
           </div>
@@ -277,13 +323,19 @@ function ClaimDetail({ claim, onClose, onUpdate }) {
         </div>
 
         {claim.status !== "settled" ? (
-          <button data-testid="claim-advance-button" onClick={advance} disabled={busy}
-            className="w-full py-3 rounded-lg bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
-            {busy ? <Loader2 className="animate-spin" size={18} /> : <ArrowRight size={18} />} Advance To Next Stage
+          <button
+            type="button"
+            data-testid="claim-advance-button"
+            onClick={advance}
+            disabled={busy}
+            className="w-full py-3 rounded-xl bg-[#e60012] hover:bg-[#cc0010] disabled:opacity-60 text-white font-display font-bold uppercase tracking-wider text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+          >
+            {busy ? <Loader2 className="animate-spin" size={16} /> : <ArrowRight size={16} />}
+            <span>Advance To Next Review Stage</span>
           </button>
         ) : (
-          <div className="text-center rounded-lg bg-emerald-500/10 border border-emerald-500/30 py-3 font-display font-bold uppercase text-emerald-300 text-sm">
-            Claim Settled ✓
+          <div className="text-center rounded-xl bg-emerald-500/10 border border-emerald-500/30 py-3 font-display font-bold uppercase text-emerald-300 text-xs">
+            Claim Settled &amp; Archived ✓
           </div>
         )}
       </DialogContent>

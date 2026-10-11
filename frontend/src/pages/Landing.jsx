@@ -1,7 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { TripShieldMark } from "@/components/BrandMark";
+import ScrollStoryCar from "@/components/ScrollStoryCar";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldCheck,
   Bike,
@@ -11,14 +13,145 @@ import {
   Radio,
   Mic,
   ArrowRight,
+  Heart,
+  Phone,
+  FileText,
+  CheckCircle2,
+  MapPin,
+  Clock,
+  ChevronDown,
+  Activity,
+  Volume2,
+  VolumeX,
+  Wrench,
+  ExternalLink,
 } from "lucide-react";
 
-const PROTECT = [
-  { icon: ShieldCheck, title: "Safe Journey", body: "Plan any route and ride inside a live safety net that watches every kilometre from start to arrival." },
-  { icon: Navigation, title: "Live Tracking", body: "Your exact position updates in real time, so the right people always know where you are." },
-  { icon: Users, title: "Family Sharing", body: "One tap shares a private live link — loved ones follow your trip and get notified on safe arrival." },
-  { icon: Radio, title: "Auto Check-In", body: "Periodic safety check-ins confirm you're okay. No response? It auto-escalates into an alert." },
-  { icon: Mic, title: "Auto Recording", body: "On an SOS, a 60-second audio clip is captured and shared with family automatically — hands-free." },
+// AutoCare Vercel Deployment Link (Configurable via REACT_APP_AUTOCARE_URL or edit here)
+const AUTOCARE_VERCEL_URL =
+  process.env.REACT_APP_AUTOCARE_URL || "https://autocare.vercel.app";
+
+// ========================================================
+// REFINED MINIMAL DATA DEFINITIONS (Single-Line, Simple)
+// ========================================================
+const WHY_POINTS = [
+  {
+    icon: Clock,
+    title: "Instant Rescue",
+    tagline: "Autonomous dispatch when reaching for a phone is impossible.",
+    tags: ["15s Check-In", "Crash Sensing"],
+  },
+  {
+    icon: Users,
+    title: "Family Peace of Mind",
+    tagline: "Live WhatsApp route link with zero app installation.",
+    tags: ["Zero Install", "Auto Arrival"],
+  },
+  {
+    icon: Heart,
+    title: "Emergency Context",
+    tagline: "Critical medical data and ambient audio sent to 112 ERSS.",
+    tags: ["Blood Group", "60s Audio"],
+  },
+];
+
+const CORE_FEATURES = [
+  {
+    icon: Navigation,
+    category: "riding",
+    title: "Live Cockpit",
+    tagline: "Turn-by-turn routing with real-time speed and battery telemetry.",
+    points: ["Live GPS", "Route Progress"],
+  },
+  {
+    icon: Users,
+    category: "riding",
+    title: "Family Link",
+    tagline: "One-tap live tracking shared directly to WhatsApp and SMS.",
+    points: ["Zero Install", "Arrival Ping"],
+  },
+  {
+    icon: Radio,
+    category: "emergency",
+    title: "Route Guard",
+    tagline: "Automated 15-second safety prompt on unexpected path stops.",
+    points: ["Deviation Alert", "False-Alarm Proof"],
+  },
+  {
+    icon: Mic,
+    category: "emergency",
+    title: "Silent Audio SOS",
+    tagline: "Automatic 60-second microphone capture during incidents.",
+    points: ["Hands-Free", "Family Shared"],
+  },
+  {
+    icon: Phone,
+    category: "emergency",
+    title: "112 ERSS Dispatch",
+    tagline: "Direct coordinates and caller-ID link to national emergency services.",
+    points: ["Exact GPS", "Rapid Response"],
+  },
+  {
+    icon: FileText,
+    category: "riding",
+    title: "One-Tap Claim",
+    tagline: "Fast Notice of Loss auto-filled with crash impact telemetry.",
+    points: ["Instant FNOL", "Top Insurers"],
+  },
+];
+
+const WORKFLOW_STEPS = [
+  {
+    num: "01",
+    title: "Plan & Share",
+    desc: "Set route and share private tracking link with family.",
+    badge: "Instant Share",
+  },
+  {
+    num: "02",
+    title: "Ride Monitored",
+    desc: "Live cockpit tracks path, speed, and vehicle telemetry.",
+    badge: "Real-Time GPS",
+  },
+  {
+    num: "03",
+    title: "Arrive Protected",
+    desc: "Family is auto-notified; emergency net on standby.",
+    badge: "Auto Safe Arrival",
+  },
+];
+
+const FAQS = [
+  {
+    question: "Does my family need to install an app to track my journey?",
+    answer:
+      "No. TripShield generates a secure, token-gated web tracking link that works instantly on WhatsApp, SMS, and any browser without installing an app.",
+  },
+  {
+    question: "How does the emergency audio recording work?",
+    answer:
+      "When an incident is triggered or a check-in goes unanswered, TripShield records up to 60 seconds of ambient audio and attaches it to the incident link for family.",
+  },
+  {
+    question: "What happens if I make an unplanned stop or change my route?",
+    answer:
+      "A calm 15-second check-in appears on your screen. Confirming you are safe closes it immediately without alerting anyone.",
+  },
+  {
+    question: "Can I use TripShield for both two-wheelers and four-wheelers?",
+    answer:
+      "Yes. TripShield supports major Indian motorcycles, scooters, electric vehicles, and cars with adaptive vehicle telematics.",
+  },
+  {
+    question: "How is my medical data and personal information secured?",
+    answer:
+      "Your medical details and contacts are encrypted and only surfaced in the emergency broadcast when an active SOS incident is initiated.",
+  },
+  {
+    question: "What is the role of the Service Center / Dealer Command Center?",
+    answer:
+      "Authorized service centers monitor active fleet journeys in their operating region, triaging incidents to dispatch rapid roadside recovery.",
+  },
 ];
 
 // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
@@ -33,164 +166,675 @@ function startLogin(role) {
 export default function Landing() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("home");
+  const [featureCategory, setFeatureCategory] = useState("all");
+  const [openFaq, setOpenFaq] = useState(0);
 
   useEffect(() => {
     if (!loading && user) navigate(user.role === "dealer" ? "/dealer" : "/app");
   }, [user, loading, navigate]);
 
+  const scrollToSection = (id, tabName) => {
+    setActiveTab(tabName);
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const toggleFaq = (idx) => {
+    setOpenFaq(openFaq === idx ? null : idx);
+  };
+
+  const filteredFeatures =
+    featureCategory === "all"
+      ? CORE_FEATURES
+      : CORE_FEATURES.filter((f) => f.category === featureCategory);
+
   return (
-    <div className="min-h-screen bg-background hsj-grid-bg">
-      {/* Nav */}
-      <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-3 text-[#e60012]">
-          <TripShieldMark size={40} />
-          <div>
-            <p className="font-display font-extrabold text-white text-lg leading-none tracking-tight">
-              SAFE JOURNEY
-            </p>
-            <p className="font-mono text-[10px] tracking-widest text-slate-500 mt-1">
-              CONNECTED MOBILITY · INDIA
-            </p>
-          </div>
-        </div>
-        <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-emerald-400">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-          </span>
-          SAFETY NETWORK ONLINE
+    <div className="min-h-screen bg-[#07090e] text-white selection:bg-[#e60012]/30 selection:text-white">
+      {/* ======================================================== */}
+      {/* 1. PROFESSIONAL TOP BAR (Floating Capsule)               */}
+      {/* ======================================================== */}
+      <header className="fixed top-0 left-0 right-0 z-50 pt-4 px-4 sm:px-6 pointer-events-none">
+        <div className="max-w-5xl mx-auto pointer-events-auto rounded-full bg-[#0a0f1b]/85 backdrop-blur-xl border border-white/10 px-4 sm:px-6 py-2.5 shadow-2xl flex items-center justify-between">
+          {/* Brand Logo & Wordmark */}
+          <button
+            onClick={() => scrollToSection("hero", "home")}
+            className="flex items-center gap-2.5 cursor-pointer group"
+          >
+            <TripShieldMark size={28} glow />
+            <span className="font-display font-extrabold text-white text-lg tracking-wide">
+              TRIP<span className="text-[#e60012]">SHIELD</span>
+            </span>
+          </button>
+
+          {/* Clean Navigation Links */}
+          <nav className="flex items-center gap-1">
+            {[
+              { id: "hero", label: "Home", tab: "home" },
+              { id: "story-journey", label: "Journey", tab: "journey" },
+              { id: "why-tripshield", label: "Overview", tab: "why" },
+              { id: "features-section", label: "Features", tab: "features" },
+              { id: "how-it-works", label: "Workflow", tab: "workflow" },
+              { id: "faq-section", label: "FAQ", tab: "faq" },
+            ].map((n) => (
+              <button
+                key={n.id}
+                onClick={() => scrollToSection(n.id, n.tab)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer font-medium ${activeTab === n.tab
+                    ? "text-white font-semibold bg-white/10 shadow-sm"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                  }`}
+              >
+                {n.label}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center pt-6 lg:pt-16 pb-20">
-        {/* Left */}
-        <div className="hsj-fade-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#e60012]/40 bg-[#e60012]/10 px-4 py-1.5 mb-6">
-            <span className="font-mono text-xs tracking-widest text-red-400 uppercase">
-              Demo · Prepare · Protect · Recover
-            </span>
-          </div>
-          <h1 className="font-display font-extrabold text-white text-4xl sm:text-5xl lg:text-6xl uppercase tracking-tight leading-[0.95]">
-            Every ride,
-            <br />
-            <span className="text-[#e60012]">fully guarded.</span>
-          </h1>
-          <p className="font-body text-slate-400 text-base sm:text-lg mt-6 max-w-lg leading-relaxed">
-            Live journey tracking, instant sharing with family, automatic safety
-            check-ins, and auto-recording &amp; reporting of incidents — for every
-            two &amp; four-wheeler.
-          </p>
+      {/* ======================================================== */}
+      {/* 2. HERO SECTION (Dark Highway Aesthetic, Simple)         */}
+      {/* ======================================================== */}
+      <section
+        id="hero"
+        className="relative min-h-screen flex flex-col justify-between overflow-hidden pt-28 pb-12 sm:pb-16"
+      >
+        {/* Background Image: Red Curves Highway (Enhanced Visibility) */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none z-0 opacity-90 sm:opacity-95"
+          style={{
+            backgroundImage: "url('/hero-bg.png')",
+          }}
+        />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-8 max-w-2xl">
-            {[
-              { icon: ShieldCheck, label: "Safe Journey" },
-              { icon: Navigation, label: "Live Tracking" },
-              { icon: Users, label: "Family Sharing" },
-              { icon: Radio, label: "Auto Check-In" },
-              { icon: Mic, label: "Auto Recording" },
-            ].map((f) => (
-              <div
-                key={f.label}
-                className="rounded-xl border border-white/10 bg-[#0f141f] p-3 flex flex-col items-center gap-2 text-center"
-              >
-                <f.icon className="text-[#e60012]" size={20} />
-                <span className="font-mono text-[10px] text-slate-400 tracking-wide">
-                  {f.label}
+        {/* Refined Ambient Overlays (Preserves background art while keeping text crisp) */}
+        {/* Soft bottom blend into the next section */}
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#07090e] via-[#07090e]/60 to-transparent pointer-events-none z-0" />
+        {/* Soft top blend behind floating navigation capsule */}
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#07090e]/60 to-transparent pointer-events-none z-0" />
+        {/* Subtle left-side wash for optimal headline and button readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#07090e]/70 via-[#07090e]/25 to-transparent pointer-events-none z-0" />
+
+        {/* Main Hero Grid */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-10 lg:py-16">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+            {/* Left Column: Heading, Subhead & Actions (Clean, No Button Chips) */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="lg:col-span-7 flex flex-col items-start justify-center max-w-2xl pr-0 lg:pr-6"
+            >
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 mb-5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="text-xs font-semibold tracking-wide text-slate-200">
+                  Connected Mobility Safety Network
                 </span>
               </div>
+
+              <h1 className="font-display font-extrabold text-white text-5xl sm:text-6xl lg:text-7xl tracking-tight uppercase leading-[0.95]">
+                GUARDED<span className="text-[#e60012]">.</span>
+              </h1>
+
+              <p className="font-body text-slate-300 text-base sm:text-lg mt-5 max-w-lg font-normal leading-relaxed">
+                Next-generation safety network for two-wheelers and passenger vehicles. Live navigation, autonomous incident detection, and hands-free family protection on every ride.
+              </p>
+
+              {/* Streamlined Direct Portal Access Buttons */}
+              <div className="w-full mt-8 space-y-3 max-w-lg">
+                {/* Rider Portal Button */}
+                <motion.button
+                  whileHover={{ y: -2, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                  whileTap={{ scale: 0.98 }}
+                  data-testid="login-google-user-button"
+                  onClick={() => startLogin("user")}
+                  className="group w-full rounded-xl sm:rounded-2xl border border-white/10 bg-[#0c111d]/90 backdrop-blur-sm hover:border-[#e60012]/70 hover:bg-[#121929] transition-all px-4 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between gap-3 shadow-lg cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#e60012]/15 flex items-center justify-center text-[#e60012] shrink-0 group-hover:scale-105 transition-transform">
+                      <Bike size={20} />
+                    </div>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-display font-bold text-white text-sm sm:text-base truncate">
+                        Vehicle Owner / Rider
+                      </span>
+                      <span className="hidden sm:inline-block text-[10px] font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-md tracking-wide shrink-0">
+                        Rider App
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <GoogleGlyph />
+                    <ArrowRight
+                      className="text-slate-500 group-hover:text-[#e60012] group-hover:translate-x-0.5 transition-all"
+                      size={16}
+                    />
+                  </div>
+                </motion.button>
+
+                {/* Dealer Portal Button */}
+                <motion.button
+                  whileHover={{ y: -2, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                  whileTap={{ scale: 0.98 }}
+                  data-testid="login-dealer-portal-button"
+                  onClick={() => startLogin("dealer")}
+                  className="group w-full rounded-xl sm:rounded-2xl border border-white/10 bg-[#0c111d]/90 backdrop-blur-sm hover:border-[#3b82f6]/70 hover:bg-[#121929] transition-all px-4 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between gap-3 shadow-lg cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#3b82f6]/15 flex items-center justify-center text-[#3b82f6] shrink-0 group-hover:scale-105 transition-transform">
+                      <Building2 size={20} />
+                    </div>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-display font-bold text-white text-sm sm:text-base truncate">
+                        TripShield Service Center
+                      </span>
+                      <span className="hidden sm:inline-block text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-md tracking-wide shrink-0">
+                        Dealer Portal
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <GoogleGlyph />
+                    <ArrowRight
+                      className="text-slate-500 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-all"
+                      size={16}
+                    />
+                  </div>
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Right Column: Hero Video Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+              className="lg:col-span-5 flex justify-end items-center w-full lg:translate-x-4 xl:translate-x-8"
+            >
+              <HeroVideoCard />
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Hero Bottom: Scroll Cue */}
+        <div className="relative z-10 flex flex-col items-center justify-center gap-2 text-slate-400 mt-2">
+          <button
+            onClick={() => scrollToSection("story-journey", "journey")}
+            className="flex flex-col items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer group"
+          >
+            <span className="text-xs font-semibold tracking-wider text-slate-400 group-hover:text-white uppercase">
+              Begin The Journey
+            </span>
+            <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1 group-hover:border-[#e60012] transition-colors">
+              <div className="w-1 h-2 rounded-full bg-[#e60012] animate-bounce" />
+            </div>
+          </button>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 2.5 CONTINUOUS SCROLL-DRIVEN CAR JOURNEY & STORY        */}
+      {/* ======================================================== */}
+      <ScrollStoryCar />
+
+      {/* ======================================================== */}
+      {/* 3. WHY TRIPSHIELD (Simple, Single-Line Points)           */}
+      {/* ======================================================== */}
+      <section
+        id="why-tripshield"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 border-t border-white/5"
+      >
+        <div className="max-w-2xl mb-12">
+          <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+            Why TripShield
+          </p>
+          <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
+            Built for everyday roads
+          </h2>
+          <p className="text-slate-400 mt-2 font-body text-sm sm:text-base leading-relaxed">
+            Three critical safety gaps resolved in one connected platform.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {WHY_POINTS.map((item, idx) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.4, delay: idx * 0.1 }}
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+              whileTap={{ scale: 0.98 }}
+              className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-7 flex flex-col justify-between hover:border-white/20 transition-all shadow-xl"
+            >
+              <div>
+                <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#e60012] mb-5">
+                  <item.icon size={22} />
+                </div>
+                <h3 className="font-display font-bold text-white text-xl">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-slate-400 mt-2 font-body leading-relaxed">
+                  {item.tagline}
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center gap-2">
+                {item.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5"
+                  >
+                    <CheckCircle2 size={13} className="text-[#e60012]" />
+                    <span>{tag}</span>
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 4. CORE FEATURES (React-Native Segmented Filter + Cards) */}
+      {/* ======================================================== */}
+      <section
+        id="features-section"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 border-t border-white/5"
+      >
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+              Platform Features
+            </p>
+            <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
+              Six pillars of connected safety
+            </h2>
+            <p className="text-slate-400 mt-2 font-body text-sm sm:text-base">
+              Autonomous protection from key ignition to safe arrival.
+            </p>
+          </div>
+
+          {/* React Native Web Style Segmented Tab Control */}
+          <div className="inline-flex p-1 rounded-xl bg-[#090d16] border border-white/10 self-start md:self-auto">
+            {[
+              { id: "all", label: "All Features" },
+              { id: "riding", label: "Active Riding" },
+              { id: "emergency", label: "Emergency Net" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setFeatureCategory(tab.id)}
+                className={`relative px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${featureCategory === tab.id
+                    ? "text-white"
+                    : "text-slate-400 hover:text-white"
+                  }`}
+              >
+                {featureCategory === tab.id && (
+                  <motion.div
+                    layoutId="activeFeatureTab"
+                    className="absolute inset-0 rounded-lg bg-[#e60012] shadow-sm"
+                    transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  />
+                )}
+                <span className="relative z-10">{tab.label}</span>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Right: login cards */}
-        <div className="hsj-fade-up" style={{ animationDelay: "0.15s" }}>
-          <TrackPreview />
+        {/* Feature Cards Grid (Single-Line, Simple) */}
+        <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence>
+            {filteredFeatures.map((f) => {
+              const Icon = f.icon;
+              return (
+                <motion.div
+                  layout
+                  key={f.title}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.25 }}
+                  whileHover={{ y: -4, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+                  whileTap={{ scale: 0.98 }}
+                  className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 hover:border-white/20 transition-all flex flex-col justify-between shadow-xl"
+                >
+                  <div>
+                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#e60012] mb-4">
+                      <Icon size={22} />
+                    </div>
+                    <h3 className="font-display font-bold text-white text-lg">
+                      {f.title}
+                    </h3>
+                    <p className="text-sm text-slate-400 mt-1.5 font-body leading-relaxed">
+                      {f.tagline}
+                    </p>
+                  </div>
 
-          <h2 className="font-display font-bold text-white text-xl uppercase tracking-wide mb-4">
-            Choose your portal
-          </h2>
+                  <div className="mt-5 pt-4 border-t border-white/5 flex items-center gap-3">
+                    {f.points.map((p) => (
+                      <span key={p} className="text-xs text-slate-300 font-medium">
+                        • {p}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
+      </section>
 
-          <button
-            data-testid="login-google-user-button"
-            onClick={() => startLogin("user")}
-            className="group w-full text-left rounded-xl border border-white/10 bg-[#0f141f] hover:border-[#e60012]/60 hover:bg-[#161d2c] transition-all p-5 flex items-center gap-4 mb-4"
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#e60012]/15 flex items-center justify-center text-[#e60012] shrink-0">
-              <Bike size={24} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-bold text-white text-lg">Vehicle Owner / Rider</p>
-              <p className="text-sm text-slate-400">Set up your vehicle &amp; travel safe</p>
-            </div>
-            <GoogleGlyph />
-            <ArrowRight className="text-slate-500 group-hover:text-[#e60012] transition-colors" size={20} />
-          </button>
-
-          <button
-            data-testid="login-dealer-portal-button"
-            onClick={() => startLogin("dealer")}
-            className="group w-full text-left rounded-xl border border-white/10 bg-[#0f141f] hover:border-[#3b82f6]/60 hover:bg-[#161d2c] transition-all p-5 flex items-center gap-4"
-          >
-            <div className="w-12 h-12 rounded-xl bg-[#3b82f6]/15 flex items-center justify-center text-[#3b82f6] shrink-0">
-              <Building2 size={24} />
-            </div>
-            <div className="flex-1">
-              <p className="font-display font-bold text-white text-lg">TripShield Service Center</p>
-              <p className="text-sm text-slate-400">Dealer command &amp; incident center</p>
-            </div>
-            <GoogleGlyph />
-            <ArrowRight className="text-slate-500 group-hover:text-[#3b82f6] transition-colors" size={20} />
-          </button>
-
-          <p className="flex items-center gap-2 text-xs text-slate-500 mt-5 font-mono">
-            <ShieldCheck size={14} className="text-emerald-400" />
-            Secured with Google · Data shared only on your consent
+      {/* ======================================================== */}
+      {/* 5. HOW IT WORKS (Simple 3 Steps, No Essay Paragraphs)    */}
+      {/* ======================================================== */}
+      <section
+        id="how-it-works"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 border-t border-white/5"
+      >
+        <div className="max-w-2xl mb-12">
+          <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-2">
+            Workflow
           </p>
-          <p data-testid="demo-disclaimer" className="text-[11px] text-slate-600 mt-3 font-mono leading-relaxed">
-            Demo &amp; simulation only. Not affiliated with, endorsed by, or connected to any real
-            vehicle brand, insurer, or emergency service. All locations, alerts and
-            notifications shown are simulated for demonstration.
+          <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl uppercase tracking-tight">
+            How a TripShield ride works
+          </h2>
+          <p className="text-slate-400 mt-2 font-body text-sm sm:text-base">
+            Three simple steps from start to arrival.
           </p>
         </div>
-      </main>
 
-      {/* How it protects you */}
-      <section data-testid="how-it-protects" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-        <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-2">
-          How it protects you
-        </p>
-        <h2 className="font-display font-extrabold text-white text-2xl sm:text-3xl uppercase tracking-tight">
-          Five layers of safety, one ride
-        </h2>
-        <p className="text-slate-400 mt-2 font-body max-w-xl">
-          Swipe through everything TripShield does the moment you hit the road.
-        </p>
-        <div className="mt-8 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory hsj-scroll">
-          {PROTECT.map((f, i) => (
-            <div
-              key={f.title}
-              data-testid={`protect-card-${i}`}
-              className="snap-start shrink-0 w-72 rounded-2xl border border-white/10 bg-[#0f141f] p-6 hover:border-[#e60012]/50 hover:bg-[#161d2c] transition-colors"
+        <div className="grid md:grid-cols-3 gap-6">
+          {WORKFLOW_STEPS.map((step, idx) => (
+            <motion.div
+              key={step.num}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.4, delay: idx * 0.1 }}
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+              whileTap={{ scale: 0.98 }}
+              className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 sm:p-7 flex flex-col justify-between hover:border-white/20 transition-all shadow-xl"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#e60012]/15 flex items-center justify-center text-[#e60012]">
-                <f.icon size={24} />
+              <div>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-[#e60012]/10 border border-[#e60012]/20 text-xs text-[#ff3b47] font-mono font-bold">
+                  Step {step.num}
+                </span>
+                <h3 className="font-display font-bold text-white text-xl mt-4">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-slate-400 mt-2 font-body leading-relaxed">
+                  {step.desc}
+                </p>
               </div>
-              <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mt-5">
-                Step {i + 1}
-              </p>
-              <h3 className="font-display font-bold text-white text-lg mt-1">{f.title}</h3>
-              <p className="text-sm text-slate-400 mt-2 leading-relaxed">{f.body}</p>
-            </div>
+
+              <div className="mt-6 pt-4 border-t border-white/5 text-xs font-semibold text-slate-300 flex items-center gap-2">
+                <CheckCircle2 size={14} className="text-[#e60012]" />
+                <span>{step.badge}</span>
+              </div>
+            </motion.div>
           ))}
         </div>
+
+        {/* Live Route Track Simulator in Workflow context */}
+        <div data-testid="how-it-protects" id="telemetry-cockpit" className="mt-10">
+          <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-5 sm:p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-display font-bold uppercase tracking-wider text-white">
+                  Real-Time Journey Cockpit &amp; Telemetry
+                </span>
+              </div>
+              <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+                Zero-App Family Web Tracking
+              </span>
+            </div>
+            <TrackPreview />
+          </div>
+        </div>
       </section>
+
+      {/* ======================================================== */}
+      {/* 7. FREQUENTLY ASKED QUESTIONS (Simple, Clean, Modern)     */}
+      {/* ======================================================== */}
+      <section
+        id="faq-section"
+        className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20 border-t border-white/5"
+      >
+        <div className="text-center mb-8">
+          <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-1.5">
+            Questions &amp; Clarity
+          </p>
+          <h2 className="font-display font-extrabold text-white text-2xl sm:text-3xl uppercase tracking-tight">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-slate-400 mt-2 font-body text-xs sm:text-sm max-w-md mx-auto">
+            Everything you need to know about using TripShield on your rides.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {FAQS.map((faq, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div
+                key={idx}
+                className={`rounded-xl border transition-all duration-200 overflow-hidden ${isOpen
+                    ? "border-[#e60012]/40 bg-[#0c111d] shadow-lg shadow-[#e60012]/5"
+                    : "border-white/10 bg-[#0c111d] hover:border-white/20"
+                  }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+                >
+                  <span className="font-display font-semibold text-white text-sm sm:text-base leading-snug">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    className={`shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 text-[#e60012]" : "text-slate-400"
+                      }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-5 pb-4 pt-1 text-sm text-slate-300 font-body leading-relaxed border-t border-white/5">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 8. ANOTHER MONAFA PRODUCT (AutoCare Ecosystem Link)      */}
+      {/* ======================================================== */}
+      <section
+        id="autocare-ecosystem"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 border-t border-white/5"
+      >
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-[#0c111d] to-[#07090e] p-8 sm:p-12 lg:p-14 shadow-2xl">
+          {/* Subtle Diagnostic Blue Ambient Lighting */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#1d4ed8]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#2563eb]/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-4">
+                <span className="w-2 h-2 rounded-full bg-[#3b82f6] animate-pulse" />
+                <span className="text-[11px] font-mono font-semibold tracking-wider text-blue-400 uppercase">
+                  Another Monafa Product
+                </span>
+              </div>
+
+              <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight leading-tight">
+                DISCOVER <span className="text-[#3b82f6]">AUTOCARE</span>.
+              </h2>
+
+              <p className="font-body text-slate-300 text-sm sm:text-base mt-4 leading-relaxed max-w-xl">
+                Complement your safety network with intelligent vehicle health diagnostics. Predictive maintenance alerts, automated workshop scheduling, and live mechanical telemetry for passenger and fleet vehicles.
+              </p>
+
+              <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> Predictive Health
+                </span>
+                <span>·</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> Workshop Telematics
+                </span>
+                <span>·</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> Automated Servicing
+                </span>
+              </div>
+            </div>
+
+            {/* AutoCare Navigation Button */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
+              <a
+                href={AUTOCARE_VERCEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-xl font-display font-bold text-white text-sm sm:text-base tracking-wide bg-[#1d4ed8] hover:bg-[#2563eb] border border-[#3b82f6]/40 transition-all shadow-lg shadow-blue-950/40 hover:shadow-blue-600/25 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              >
+                <Wrench size={18} className="text-blue-200 group-hover:rotate-12 transition-transform" />
+                <span>AutoCare</span>
+                <ArrowRight size={16} className="text-blue-200 group-hover:translate-x-1 transition-transform" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ======================================================== */}
+      {/* 9. CLEAN REASSURING FOOTER                                */}
+      {/* ======================================================== */}
+      <footer className="border-t border-white/5 py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6 text-xs text-slate-400 font-medium">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <TripShieldMark size={22} glow />
+            <div>
+              <span className="text-white font-bold tracking-wide">TRIPSHIELD</span>
+              <span className="text-slate-500 ml-2">© 2026 · Connected Mobility &amp; Safety Platform</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 text-slate-400">
+            <span>Zero-Install Tracking</span>
+            <span>·</span>
+            <span>112 ERSS Ready</span>
+            <span>·</span>
+            <span>Encrypted Dossier</span>
+            <span>·</span>
+            <span className="text-emerald-400 font-semibold">All Systems Normal</span>
+          </div>
+        </div>
+        <p
+          data-testid="demo-disclaimer"
+          className="text-center md:text-left text-[11px] text-slate-500 font-normal leading-relaxed border-t border-white/5 pt-4"
+        >
+          Demo &amp; simulation only. Not affiliated with, endorsed by, or connected to any real vehicle brand, insurer, or emergency service. All locations, alerts and notifications shown are simulated for demonstration.
+        </p>
+      </footer>
     </div>
   );
 }
 
+// ========================================================
+// HERO VIDEO CARD COMPONENT (Plays on Hover / Mouse Move)
+// ========================================================
+function HeroVideoCard() {
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => { });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
+
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    const nextMuted = !videoRef.current.muted;
+    videoRef.current.muted = nextMuted;
+    setIsMuted(nextMuted);
+  };
+
+  return (
+    <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="w-full max-w-md sm:max-w-lg lg:max-w-lg xl:max-w-xl ml-auto relative group cursor-pointer"
+    >
+      {/* Subtle ambient automotive red glow on hover */}
+      <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#e60012]/20 to-red-600/20 blur-xl opacity-40 group-hover:opacity-90 transition-opacity duration-500" />
+
+      {/* Main Clean Video Frame */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/15 group-hover:border-white/30 bg-[#090d16] shadow-2xl transition-all duration-300">
+        <div className="relative aspect-video w-full bg-black overflow-hidden">
+          <video
+            ref={videoRef}
+            src="/tripshield-preview.mp4"
+            poster="/video-poster.jpg"
+            playsInline
+            loop
+            muted={isMuted}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+          />
+
+          {/* Sound / Mute Toggle Button (Visible on Hover) */}
+          <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+              className="flex items-center gap-1.5 rounded-lg bg-black/80 hover:bg-black/95 backdrop-blur-md border border-white/20 hover:border-white/40 px-2.5 py-1.5 text-xs text-white shadow-xl cursor-pointer transition-all hover:scale-105 active:scale-95"
+            >
+              {isMuted ? (
+                <>
+                  <VolumeX size={14} className="text-slate-300" />
+                  <span className="text-xs text-slate-200 font-medium">Unmute</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 size={14} className="text-[#e60012]" />
+                  <span className="text-xs text-white font-medium">Mute</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================================================
+// TRACK PREVIEW COMPONENT
+// ========================================================
 function TrackPreview() {
   return (
-    <div data-testid="landing-track-preview" className="relative rounded-2xl overflow-hidden border border-white/10 mb-6 h-44 sm:h-56 bg-[#0b1120]">
+    <div
+      data-testid="landing-track-preview"
+      className="relative rounded-2xl overflow-hidden border border-white/10 h-60 sm:h-72 bg-[#0b1120] shadow-xl"
+    >
       <div
         className="absolute inset-0 opacity-40"
         style={{
@@ -199,20 +843,30 @@ function TrackPreview() {
           backgroundSize: "28px 28px",
         }}
       />
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/50 border border-white/10 px-2.5 py-1">
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 px-2.5 py-1">
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
           <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
         </span>
-        <span className="font-mono text-[10px] tracking-widest text-red-300 uppercase">Live</span>
+        <span className="text-[11px] font-semibold tracking-wider text-red-300 uppercase">Live GPS</span>
       </div>
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/50 border border-white/10 px-2.5 py-1">
-        <Users size={11} className="text-emerald-400" />
-        <span className="font-mono text-[10px] tracking-widest text-emerald-300 uppercase">Sharing</span>
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 px-2.5 py-1">
+        <Users size={12} className="text-emerald-400" />
+        <span className="text-[11px] font-semibold tracking-wider text-emerald-300 uppercase">
+          Zero-App Link
+        </span>
       </div>
 
-      <svg viewBox="0 0 400 200" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
-        <path d="M0,150 H400 M0,70 H400 M120,0 V200 M280,0 V200" stroke="rgba(255,255,255,.05)" strokeWidth="1" />
+      <svg
+        viewBox="0 0 400 200"
+        className="absolute inset-0 w-full h-full"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <path
+          d="M0,150 H400 M0,70 H400 M120,0 V200 M280,0 V200"
+          stroke="rgba(255,255,255,.05)"
+          strokeWidth="1"
+        />
         <path
           id="landing-route"
           d="M30,165 C90,60 170,185 240,105 S350,45 378,82"
@@ -223,14 +877,25 @@ function TrackPreview() {
           strokeDasharray="2 8"
           opacity="0.85"
         >
-          <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="2.5s" repeatCount="indefinite" />
+          <animate
+            attributeName="stroke-dashoffset"
+            from="0"
+            to="-100"
+            dur="2.5s"
+            repeatCount="indefinite"
+          />
         </path>
         <circle cx="30" cy="165" r="5" fill="#10b981" stroke="#0b1120" strokeWidth="2" />
         <circle cx="378" cy="82" r="5" fill="#3b82f6" stroke="#0b1120" strokeWidth="2" />
         <g>
           <circle r="10" fill="#e60012" opacity="0.3">
             <animate attributeName="r" values="6;13;6" dur="1.6s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.35;0;0.35" dur="1.6s" repeatCount="indefinite" />
+            <animate
+              attributeName="opacity"
+              values="0.35;0;0.35"
+              dur="1.6s"
+              repeatCount="indefinite"
+            />
             <animateMotion dur="6s" repeatCount="indefinite">
               <mpath href="#landing-route" />
             </animateMotion>
@@ -244,21 +909,37 @@ function TrackPreview() {
       </svg>
 
       <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent pointer-events-none" />
-      <p className="absolute bottom-3 left-3 z-10 font-mono text-[10px] text-slate-400">
-        Delhi → Jaipur · tracking live
-      </p>
+      <div className="absolute bottom-3 left-3 right-3 z-10 flex items-center justify-between text-xs text-slate-300 font-medium">
+        <span>Delhi → Jaipur · 268 km</span>
+        <span className="text-emerald-400 font-semibold">On Track · ETA 4h 12m</span>
+      </div>
     </div>
   );
 }
 
+// ========================================================
+// GOOGLE GLYPH COMPONENT
+// ========================================================
 function GoogleGlyph() {
   return (
-    <span className="hidden sm:flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800">
+    <span className="flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800 shadow-sm transition-all group-hover:bg-slate-100">
       <svg width="14" height="14" viewBox="0 0 48 48">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+        <path
+          fill="#EA4335"
+          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+        />
+        <path
+          fill="#4285F4"
+          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+        />
+        <path
+          fill="#FBBC05"
+          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+        />
+        <path
+          fill="#34A853"
+          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+        />
       </svg>
       Google
     </span>

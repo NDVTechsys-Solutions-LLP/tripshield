@@ -11,7 +11,7 @@ import {
   Gauge, Clock, Route as RouteIcon, Zap, Siren, GitBranch, TrafficCone,
   Car, ShieldCheck, ShieldAlert, Phone, MapPin, X, CheckCircle2, Radio,
   Activity, FileText, Home, Play, Pause, Mic, MicOff, Share2, Copy, Square,
-  MessageSquare, Send, Mail, Heart, ShieldPlus, AudioLines, Bot, PhoneCall,
+  MessageSquare, Send, Mail, Heart, ShieldPlus, AudioLines, PhoneCall,
 } from "lucide-react";
 
 export default function LiveJourney() {
@@ -138,7 +138,7 @@ export default function LiveJourney() {
     return () => { r.onend = null; try { r.stop(); } catch {} };
   }, [voiceOn, sos]); // eslint-disable-line
 
-  // Spoken narration (deep/male voice)
+  // Spoken narration
   useEffect(() => {
     if (journey && !startSpokenRef.current) {
       startSpokenRef.current = true;
@@ -164,7 +164,7 @@ export default function LiveJourney() {
 
   useEffect(() => () => stopSpeaking(), []);
 
-  // Request mic access once when the live journey starts (for silent SOS recording)
+  // Request mic access once when the live journey starts
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -195,7 +195,7 @@ export default function LiveJourney() {
       fd.append("file", blob, `sos.${ext}`);
       await api.post(`/journeys/${jid}/sos-audio`, fd, { headers: { "Content-Type": "multipart/form-data" } });
       pushEvent("sos", "Emergency audio clip shared with family", "danger");
-    } catch { /* silent — SOS already dispatched */ }
+    } catch { /* silent */ }
   }, [pushEvent]);
 
   const stopEmergencyRecording = useCallback(() => {
@@ -236,7 +236,7 @@ export default function LiveJourney() {
   const energy = vehicle?.energy_level || 72;
   const shareUrl = journey ? `${window.location.origin}/track/${journey.share_token}` : "";
 
-  // Broadcast live position to public tracking link
+  // Broadcast live position
   useEffect(() => {
     if (!journey || !position) return;
     api.post(`/journeys/${journey.journey_id}/position`, { position, progress: frac }).catch(() => {});
@@ -323,21 +323,23 @@ export default function LiveJourney() {
   };
 
   if (!journey) {
-    return <div className="min-h-[60vh] flex items-center justify-center text-slate-400 font-mono">Loading journey…</div>;
+    return <div className="min-h-[60vh] flex items-center justify-center text-slate-400 font-medium">Loading cockpit…</div>;
   }
 
   return (
-    <div className="hsj-fade-up">
-      <div className="flex items-start justify-between flex-wrap gap-3">
+    <div className="hsj-fade-up max-w-6xl space-y-8">
+      {/* Top Cockpit Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <p className="font-mono text-xs tracking-widest text-red-400/90 uppercase mb-1">
-            {sos ? "Emergency Active" : arrived ? "Journey Complete" : "Live Cockpit"}
+          <p className="text-xs font-bold tracking-wider text-[#e60012] uppercase mb-1">
+            {sos ? "Emergency Broadcast Active" : arrived ? "Journey Complete" : "Live Safety Cockpit"}
           </p>
           <h1 className="font-display font-extrabold text-white text-2xl sm:text-3xl uppercase tracking-tight">
             {journey.from_name.split(",")[0]} → {journey.to_name.split(",")[0]}
           </h1>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-3">
           <button
             data-testid="voice-sos-toggle"
             onClick={() => setVoiceOn((v) => {
@@ -347,37 +349,39 @@ export default function LiveJourney() {
             })}
             disabled={!!sos}
             title="Hands-free voice SOS"
-            className={`px-4 py-3 rounded-lg font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2 border ${
+            className={`px-5 py-2.5 rounded-xl font-display font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 border cursor-pointer ${
               voiceOn
-                ? "bg-[#e60012]/15 border-[#e60012]/50 text-red-300"
-                : "bg-[#0f141f] border-white/10 text-slate-400 hover:text-white"
+                ? "bg-[#e60012]/15 border-[#e60012]/50 text-red-200 ring-1 ring-[#e60012]/40"
+                : "bg-white/5 border-white/10 text-slate-300 hover:text-white hover:border-white/20"
             }`}
           >
-            {voiceOn ? <Mic size={18} /> : <MicOff size={18} />}
-            <span className="hidden sm:inline">{voiceOn ? "Listening" : "Voice SOS"}</span>
+            {voiceOn ? <Mic size={16} className="text-[#e60012]" /> : <MicOff size={16} />}
+            <span>{voiceOn ? "Voice Armed" : "Voice SOS"}</span>
           </button>
+
           <button
             data-testid="emergency-sos-trigger-button"
             onClick={manualSOS}
             disabled={!!sos}
-            className="px-5 py-3 rounded-lg bg-[#ef4444] hover:bg-red-600 disabled:opacity-40 text-white font-display font-bold uppercase tracking-wide text-sm transition-colors flex items-center gap-2 shadow-lg shadow-red-500/25"
+            className="px-6 py-2.5 rounded-xl bg-[#e60012] hover:bg-[#ff1a2e] disabled:opacity-40 text-white font-display font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(230,0,18,0.4)] cursor-pointer"
           >
-            <Siren size={18} /> SOS
+            <Siren size={16} />
+            <span>SOS</span>
           </button>
         </div>
       </div>
 
-      {/* Live cluster */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+      {/* Live cluster tiles */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Tele icon={Gauge} label="Speed" value={sos || arrived ? "0" : speed} unit="km/h" color="#e60012" />
-        <Tele icon={Zap} label="Energy" value={energy} unit="%" color={energy > 30 ? "#10b981" : "#ef4444"} />
-        <Tele icon={RouteIcon} label="Remaining" value={distanceRemaining} unit="km" color="#3b82f6" />
-        <Tele icon={Clock} label="ETA" value={etaRemaining} unit="min" color={delayMin ? "#f59e0b" : "#94a3b8"} />
+        <Tele icon={Zap} label="Vehicle Energy" value={energy} unit="%" color={energy > 30 ? "#10b981" : "#ef4444"} />
+        <Tele icon={RouteIcon} label="Distance Left" value={distanceRemaining} unit="km" color="#3b82f6" />
+        <Tele icon={Clock} label="Estimated Arrival" value={etaRemaining} unit="min" color={delayMin ? "#f59e0b" : "#94a3b8"} />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 mt-6">
-        {/* Map */}
-        <div className="lg:col-span-2 rounded-xl border border-white/10 overflow-hidden h-[420px]">
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* Map Container */}
+        <div className="lg:col-span-8 rounded-2xl border border-white/10 bg-[#0c111d] overflow-hidden shadow-2xl h-[460px] lg:h-[600px]">
           <LeafletMap
             className="w-full h-full"
             route={route}
@@ -389,32 +393,33 @@ export default function LiveJourney() {
           />
         </div>
 
-        {/* Side: controls + feed */}
-        <div className="space-y-4">
-          {/* progress */}
-          <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono text-xs text-slate-500 uppercase tracking-wide">Progress</span>
-              <span className="font-mono text-sm text-white">{Math.round(frac * 100)}%</span>
+        {/* Side Panel: Progress, Sharing, Scenarios & Event Feed */}
+        <div className="lg:col-span-4 space-y-5">
+          {/* Progress Card */}
+          <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Route Progress</span>
+              <span className="font-display text-sm text-white font-bold">{Math.round(frac * 100)}%</span>
             </div>
-            <div className="h-2 rounded-full bg-[#0b0f17] overflow-hidden">
-              <div className="h-full bg-[#e60012] transition-all duration-500" style={{ width: `${frac * 100}%` }} />
+            <div className="h-2 rounded-full bg-[#090d16] border border-white/5 overflow-hidden">
+              <div className="h-full bg-[#e60012] transition-all duration-500 rounded-full" style={{ width: `${frac * 100}%` }} />
             </div>
+
             {!sos && !arrived && (
-              <div className="flex gap-2 mt-4">
+              <div className="grid grid-cols-2 gap-2 mt-5">
                 <button
                   data-testid="journey-pause-toggle"
                   onClick={() => setRunning((r) => !r)}
-                  className="flex-1 py-2.5 rounded-lg border border-white/10 hover:border-white/25 text-slate-300 text-sm font-body flex items-center justify-center gap-2"
+                  className="py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-display font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  {running ? <><Pause size={15} /> Pause</> : <><Play size={15} /> Resume</>}
+                  {running ? <><Pause size={14} /> Pause</> : <><Play size={14} /> Resume</>}
                 </button>
                 <button
                   data-testid="end-journey-button"
                   onClick={handleArrive}
-                  className="flex-1 py-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-sm font-body flex items-center justify-center gap-2"
+                  className="py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-display font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Square size={14} /> End Journey
+                  <Square size={13} /> End Ride
                 </button>
               </div>
             )}
@@ -422,54 +427,60 @@ export default function LiveJourney() {
 
           {/* Share live tracking link */}
           {journey?.share_token && (
-            <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5" data-testid="share-panel">
-              <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-3 flex items-center gap-2">
-                <Share2 size={12} /> Live Tracking Link
+            <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl" data-testid="share-panel">
+              <p className="text-xs text-slate-300 uppercase mb-3 flex items-center gap-2 font-bold tracking-wider">
+                <Share2 size={14} className="text-[#e60012]" /> Zero-App Family Link
               </p>
-              <div className="flex items-center gap-2 rounded-lg bg-[#0b0f17] border border-white/10 px-3 py-2 mb-3">
-                <span className="font-mono text-[11px] text-slate-400 truncate flex-1">{shareUrl}</span>
-                <button data-testid="copy-share-link" onClick={() => { navigator.clipboard?.writeText(shareUrl); toast.success("Link copied"); }} className="text-slate-500 hover:text-white shrink-0">
-                  <Copy size={14} />
+              <div className="flex items-center gap-2 rounded-xl bg-[#090d16] border border-white/10 px-3.5 py-2.5 mb-3">
+                <span className="text-xs text-slate-300 truncate flex-1 font-medium">{shareUrl}</span>
+                <button
+                  data-testid="copy-share-link"
+                  onClick={() => { navigator.clipboard?.writeText(shareUrl); toast.success("Live link copied"); }}
+                  className="text-slate-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+                >
+                  <Copy size={15} />
                 </button>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <ShareBtn testid="share-whatsapp" icon={Send} label="WhatsApp"
-                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Track my TripShield live: " + shareUrl)}`, "_blank")} />
+                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent("Track my TripShield ride live: " + shareUrl)}`, "_blank")} />
                 <ShareBtn testid="share-sms" icon={MessageSquare} label="SMS"
-                  onClick={() => { window.location.href = `sms:?body=${encodeURIComponent("Track my TripShield live: " + shareUrl)}`; }} />
+                  onClick={() => { window.location.href = `sms:?body=${encodeURIComponent("Track my TripShield ride live: " + shareUrl)}`; }} />
                 <ShareBtn testid="share-email" icon={Mail} label="Email"
-                  onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent("My Safe Journey - Live location")}&body=${encodeURIComponent("Track my TripShield live: " + shareUrl)}`; }} />
+                  onClick={() => { window.location.href = `mailto:?subject=${encodeURIComponent("TripShield Safe Journey Live Tracking")}&body=${encodeURIComponent("Track my ride live: " + shareUrl)}`; }} />
               </div>
             </div>
           )}
 
           {/* Simulation controls */}
           {!sos && !arrived && (
-            <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5">
-              <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-3">
-                Scenario Simulation
+            <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl space-y-3">
+              <p className="text-xs text-slate-300 uppercase font-bold tracking-wider">
+                Safety Scenario Simulation
               </p>
               <div className="space-y-2">
-                <SimBtn testid="simulate-deviation-button" icon={GitBranch} label="Route Deviation" color="#f59e0b" onClick={simDeviation} />
-                <SimBtn testid="simulate-delay-button" icon={TrafficCone} label="Traffic / ETA Delay" color="#f59e0b" onClick={simDelay} />
-                <SimBtn testid="simulate-accident-button" icon={Car} label="Sudden Impact / Crash" color="#ef4444" onClick={simAccident} />
+                <SimBtn testid="simulate-deviation-button" icon={GitBranch} label="Route Deviation Trigger" color="#f59e0b" onClick={simDeviation} />
+                <SimBtn testid="simulate-delay-button" icon={TrafficCone} label="Traffic / ETA Delay Trigger" color="#f59e0b" onClick={simDelay} />
+                <SimBtn testid="simulate-accident-button" icon={Car} label="Impact / Crash Detection" color="#ef4444" onClick={simAccident} />
               </div>
             </div>
           )}
 
           {/* Event feed */}
-          <div className="rounded-xl border border-white/10 bg-[#0f141f] p-5">
-            <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-3 flex items-center gap-2">
-              <Activity size={12} /> Event Feed
+          <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-6 shadow-xl">
+            <p className="text-xs text-slate-300 uppercase mb-3 flex items-center gap-2 font-bold tracking-wider">
+              <Activity size={14} className="text-[#e60012]" /> Cockpit Telemetry Log
             </p>
-            <div className="space-y-2 max-h-52 overflow-y-auto" data-testid="event-feed">
-              {events.length === 0 && <p className="text-xs text-slate-600 font-mono">Journey nominal…</p>}
+            <div className="space-y-2.5 max-h-52 overflow-y-auto hsj-scroll" data-testid="event-feed">
+              {events.length === 0 && (
+                <p className="text-xs text-slate-400 py-2 font-medium">All telemetry channels nominal…</p>
+              )}
               {events.map((e, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs">
-                  <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: sevColor(e.severity) }} />
-                  <div>
-                    <p className="text-slate-300">{e.message}</p>
-                    <p className="font-mono text-[10px] text-slate-600">{e.at.toLocaleTimeString()}</p>
+                <div key={i} className="flex items-start gap-2.5 text-xs">
+                  <span className="w-2 h-2 rounded-full mt-1 shrink-0" style={{ background: sevColor(e.severity) }} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-slate-200 font-body">{e.message}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5 font-medium">{e.at.toLocaleTimeString()}</p>
                   </div>
                 </div>
               ))}
@@ -480,101 +491,98 @@ export default function LiveJourney() {
 
       {/* Check-in modal */}
       <Dialog open={!!checkin} onOpenChange={() => {}}>
-        <DialogContent className="bg-[#0f141f] border-amber-500/40 text-white backdrop-blur-md [&>button]:hidden max-w-md">
+        <DialogContent className="bg-[#0c111d]/95 border-amber-500/30 text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 max-w-md shadow-2xl [&>button]:hidden">
           <div className="text-center py-2">
             <div className="relative w-24 h-24 mx-auto mb-4">
               <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="44" fill="none" stroke="#26304a" strokeWidth="6" />
+                <circle cx="50" cy="50" r="44" fill="none" stroke="#161d2c" strokeWidth="6" />
                 <circle cx="50" cy="50" r="44" fill="none" stroke="#f59e0b" strokeWidth="6"
                   strokeDasharray={276} strokeDashoffset={276 - (276 * countdown) / 15}
                   strokeLinecap="round" style={{ transition: "stroke-dashoffset 1s linear" }} />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center font-mono font-bold text-2xl text-amber-400">
+              <span className="absolute inset-0 flex items-center justify-center font-display font-extrabold text-3xl text-amber-400">
                 {countdown}
               </span>
             </div>
             <ShieldAlert className="text-amber-400 mx-auto mb-2" size={28} />
             <h3 className="font-display font-bold text-xl uppercase tracking-wide">{checkin?.title}</h3>
-            <p className="text-sm text-slate-400 mt-2">{checkin?.body}</p>
+            <p className="text-sm text-slate-400 mt-2 font-body">{checkin?.body}</p>
             <div className="flex gap-3 mt-6">
               <button
                 data-testid="safety-checkin-yes-safe-button"
                 onClick={confirmSafe}
-                className="flex-1 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
-                <CheckCircle2 size={17} /> I'm Safe
+                <CheckCircle2 size={16} /> I'm Safe
               </button>
               <button
                 data-testid="safety-checkin-sos-button"
                 onClick={() => escalateSOS(checkin?.reason === "delay" ? "delay" : "deviation", "Rider requested assistance during check-in")}
-                className="flex-1 py-3 rounded-lg bg-[#ef4444] hover:bg-red-600 text-white font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 rounded-xl bg-[#e60012] hover:bg-[#ff1a2e] text-white font-display font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_0_20px_rgba(230,0,18,0.35)]"
               >
-                <Siren size={17} /> Need Help
+                <Siren size={16} /> Need Help
               </button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* SOS panel */}
+      {/* SOS Dialog */}
       <Dialog open={!!sos} onOpenChange={() => {}}>
-        <DialogContent className="bg-[#12060a] border-[#ef4444]/50 text-white backdrop-blur-md [&>button]:hidden max-w-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="relative w-11 h-11 rounded-full bg-[#ef4444]/20 flex items-center justify-center hsj-pulse">
-              <Siren className="text-[#ef4444]" size={22} />
+        <DialogContent className="bg-[#0c111d]/95 border-[#ef4444]/40 text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 max-w-lg shadow-2xl [&>button]:hidden">
+          <div className="flex items-center gap-3.5 mb-5">
+            <div className="w-12 h-12 rounded-2xl bg-[#ef4444]/20 border border-[#ef4444]/40 flex items-center justify-center text-[#ef4444] shrink-0">
+              <Siren size={24} />
             </div>
             <div>
-              <p className="font-display font-extrabold text-xl uppercase tracking-wide text-white">SOS Active</p>
-              <p className="font-mono text-xs text-red-300 capitalize">{sos?.type} · {sos?.route_name}</p>
+              <p className="font-display font-extrabold text-xl uppercase tracking-wide text-white">Emergency Broadcast Active</p>
+              <p className="text-xs text-red-300 capitalize mt-0.5 font-medium">{sos?.type} incident · {sos?.route_name}</p>
             </div>
           </div>
 
-          <div className="rounded-lg bg-black/40 border border-white/10 p-4 space-y-2">
-            <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">Dispatched To</p>
+          <div className="rounded-2xl bg-[#090d16] border border-white/10 p-5 space-y-2.5">
+            <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Dispatched To</p>
             {(sos?.shared_with || []).map((s) => (
-              <div key={s} className="flex items-center gap-2 text-sm text-emerald-300">
+              <div key={s} className="flex items-center gap-2 text-sm text-emerald-400 font-medium">
                 <CheckCircle2 size={15} /> {s}
               </div>
             ))}
           </div>
 
-          <div className="rounded-lg bg-black/40 border border-white/10 p-4 mt-3 space-y-2">
-            <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">Broadcast Payload</p>
-            <PayRow icon={Phone} label="Rider Phone" value={sos?.shared_data?.phone || "Set in Settings"} />
+          <div className="rounded-2xl bg-[#090d16] border border-white/10 p-5 mt-3 space-y-2.5">
+            <p className="text-xs text-slate-400 uppercase font-bold tracking-wider">Emergency Payload</p>
+            <PayRow icon={Phone} label="Rider Phone" value={sos?.shared_data?.phone || "Set in Preferences"} />
             <PayRow icon={Heart} label="Blood Group" value={sos?.shared_data?.blood_group || "Not set"} />
             <PayRow icon={ShieldPlus} label="Allergies" value={sos?.shared_data?.allergies || "None noted"} />
             <PayRow icon={MapPin} label="Location" value={position ? `${position[0].toFixed(4)}, ${position[1].toFixed(4)}` : "—"} />
             <PayRow icon={Phone} label="Contacts" value={`${sos?.shared_data?.contacts?.length || 0} family notified`} />
           </div>
 
-          {/* Silent emergency audio recording — all SOS scenarios */}
+          {/* Emergency Audio Recording */}
           {sos && (
-            <div data-testid="sos-audio-recorder" className="rounded-lg bg-black/40 border border-[#ef4444]/30 p-4 mt-3">
+            <div data-testid="sos-audio-recorder" className="rounded-2xl bg-[#090d16] border border-[#ef4444]/30 p-4 mt-3">
               {recording ? (
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="relative flex h-3 w-3 shrink-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-                    </span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0 animate-ping" />
                     <AudioLines size={16} className="text-red-300 shrink-0" />
-                    <span className="text-sm text-red-200 font-body truncate">
-                      Recording audio for family… <span className="font-mono">{recSecs}s / 60s</span>
+                    <span className="text-xs text-red-200 font-body truncate">
+                      Recording audio for family… <span className="font-semibold text-white">{recSecs}s / 60s</span>
                     </span>
                   </div>
                   <button
                     data-testid="sos-audio-stop-button"
                     onClick={stopEmergencyRecording}
-                    className="shrink-0 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white font-mono text-xs uppercase tracking-wide flex items-center gap-1.5"
+                    className="shrink-0 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Square size={12} /> Stop & Send
+                    <Square size={11} /> Stop &amp; Send
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-xs">
                   {micReady ? (
                     <><CheckCircle2 size={15} className="text-emerald-400 shrink-0" />
-                    <span className="text-emerald-300 font-body">Emergency audio captured & shared with family</span></>
+                    <span className="text-emerald-300 font-body">Emergency audio captured &amp; shared with family</span></>
                   ) : (
                     <><MicOff size={15} className="text-slate-500 shrink-0" />
                     <span className="text-slate-400 font-body">Microphone unavailable — audio capture skipped</span></>
@@ -584,22 +592,22 @@ export default function LiveJourney() {
             </div>
           )}
 
-          {/* AI dispatcher auto-report to 112 / ERSS */}
+          {/* Dispatcher report to 112 / ERSS */}
           {sos?.erss_report && (
-            <div data-testid="sos-erss-report" className="rounded-lg bg-black/40 border border-[#3b82f6]/30 p-4 mt-3 space-y-2">
-              <p className="font-mono text-[10px] tracking-widest text-blue-300 uppercase flex items-center gap-2">
-                <Bot size={13} /> AI Dispatcher · 112 / ERSS
+            <div data-testid="sos-erss-report" className="rounded-2xl bg-[#090d16] border border-[#3b82f6]/30 p-4 mt-3 space-y-2">
+              <p className="text-xs text-blue-400 uppercase flex items-center gap-2 font-bold tracking-wider">
+                <ShieldCheck size={14} className="text-blue-400" /> Emergency Dispatcher · 112 / ERSS
               </p>
-              <div className="flex items-start gap-2 text-sm text-slate-300">
+              <div className="flex items-start gap-2 text-xs text-slate-300">
                 <PhoneCall size={14} className="text-blue-400 mt-0.5 shrink-0" />
                 <span>{sos.erss_report.call_status}</span>
               </div>
-              <div className="flex items-start gap-2 text-sm text-slate-300">
+              <div className="flex items-start gap-2 text-xs text-slate-300">
                 <Mail size={14} className="text-blue-400 mt-0.5 shrink-0" />
                 <span>{sos.erss_report.email_status}</span>
               </div>
               {sos.erss_report.ai_narrative && (
-                <p className="text-xs text-slate-400 italic leading-relaxed border-l-2 border-blue-500/40 pl-2.5 mt-1">
+                <p className="text-xs text-slate-400 italic leading-relaxed border-l-2 border-blue-500/40 pl-2.5 mt-1 font-body">
                   "{sos.erss_report.ai_narrative}"
                 </p>
               )}
@@ -611,7 +619,7 @@ export default function LiveJourney() {
               <button
                 data-testid="sos-file-claim-button"
                 onClick={() => navigate("/app/claim")}
-                className="flex-1 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-display font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
                 <FileText size={16} /> File Claim
               </button>
@@ -619,7 +627,7 @@ export default function LiveJourney() {
             <button
               data-testid="sos-cancel-button"
               onClick={cancelSOS}
-              className="flex-1 py-3 rounded-lg border border-white/20 hover:bg-white/5 text-slate-300 font-display font-bold uppercase tracking-wide text-sm flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl border border-white/20 hover:bg-white/5 text-slate-300 font-display font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
               <X size={16} /> Cancel SOS
             </button>
@@ -627,15 +635,15 @@ export default function LiveJourney() {
         </DialogContent>
       </Dialog>
 
-      {/* Arrival */}
+      {/* Arrival Dialog */}
       <Dialog open={!!arrived} onOpenChange={() => {}}>
-        <DialogContent className="bg-[#0f141f] border-emerald-500/40 text-white backdrop-blur-md [&>button]:hidden max-w-md">
+        <DialogContent className="bg-[#0c111d]/95 border-emerald-500/30 text-white backdrop-blur-2xl rounded-3xl p-6 sm:p-8 max-w-md shadow-2xl [&>button]:hidden">
           <div className="text-center py-2">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="text-emerald-400" size={36} />
+            <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 text-emerald-400">
+              <CheckCircle2 size={36} />
             </div>
             <h3 className="font-display font-extrabold text-2xl uppercase tracking-wide">Safely Arrived</h3>
-            <p className="text-sm text-slate-400 mt-2">{journey.to_name}</p>
+            <p className="text-sm text-slate-400 mt-2 font-body">{journey.to_name}</p>
 
             <div className="grid grid-cols-3 gap-3 mt-5">
               <TripStat label="Distance" value={`${journey.distance_km}km`} />
@@ -643,13 +651,13 @@ export default function LiveJourney() {
               <TripStat label="Alerts" value={events.filter((e) => e.severity === "danger").length} />
             </div>
 
-            <div className="rounded-lg bg-[#0b0f17] border border-white/10 p-4 mt-4 text-left">
-              <p className="font-mono text-[10px] tracking-widest text-slate-500 uppercase mb-2 flex items-center gap-2">
-                <Radio size={12} /> Auto-Notified Family
+            <div className="rounded-2xl bg-[#090d16] border border-white/10 p-4 mt-4 text-left">
+              <p className="text-xs text-slate-300 uppercase mb-2.5 flex items-center gap-2 font-bold tracking-wider">
+                <Radio size={12} className="text-emerald-400" /> Auto-Notified Family
               </p>
-              {(arrived?.notified || []).length === 0 && <p className="text-xs text-slate-600 font-mono">No contacts configured</p>}
+              {(arrived?.notified || []).length === 0 && <p className="text-xs text-slate-400">No contacts configured</p>}
               {(arrived?.notified || []).map((c, ci) => (
-                <div key={`${c.phone}-${ci}`} className="flex items-center gap-2 text-sm text-emerald-300">
+                <div key={`${c.phone}-${ci}`} className="flex items-center gap-2 text-xs text-emerald-300 font-medium">
                   <CheckCircle2 size={14} /> {c.name} · {c.phone}
                 </div>
               ))}
@@ -658,9 +666,9 @@ export default function LiveJourney() {
             <button
               data-testid="close-journey-button"
               onClick={() => navigate("/app")}
-              className="mt-5 w-full py-3 rounded-lg bg-[#e60012] hover:bg-[#cc0010] text-white font-display font-bold uppercase tracking-wide flex items-center justify-center gap-2"
+              className="mt-5 w-full py-3.5 rounded-xl bg-[#e60012] hover:bg-[#ff1a2e] text-white font-display font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(230,0,18,0.35)] cursor-pointer"
             >
-              <Home size={17} /> Close Safe Journey
+              <Home size={16} /> Close Safe Journey
             </button>
           </div>
         </DialogContent>
@@ -675,12 +683,14 @@ function sevColor(s) {
 
 function Tele({ icon: Icon, label, value, unit, color }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0f141f] p-4">
-      <Icon size={16} style={{ color }} />
-      <p className="font-mono font-bold text-2xl text-white mt-2">
-        {value}<span className="text-sm text-slate-500 ml-1">{unit}</span>
+    <div className="rounded-2xl border border-white/10 bg-[#0c111d] p-5 shadow-xl">
+      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center" style={{ color }}>
+        <Icon size={16} />
+      </div>
+      <p className="font-display font-bold text-2xl text-white mt-3">
+        {value}<span className="text-xs text-slate-400 ml-1.5 font-normal">{unit}</span>
       </p>
-      <p className="font-mono text-[10px] text-slate-600 uppercase tracking-wide">{label}</p>
+      <p className="text-xs text-slate-400 uppercase tracking-wide mt-0.5 font-semibold">{label}</p>
     </div>
   );
 }
@@ -690,10 +700,10 @@ function SimBtn({ icon: Icon, label, color, onClick, testid }) {
     <button
       data-testid={testid}
       onClick={onClick}
-      className="w-full flex items-center gap-3 rounded-lg border border-white/10 bg-[#0b0f17] hover:bg-[#161d2c] px-4 py-3 text-left transition-colors"
+      className="w-full flex items-center gap-3 rounded-xl border border-white/10 bg-[#090d16] hover:bg-[#121929] hover:border-white/20 px-4 py-3 text-left transition-all cursor-pointer"
     >
-      <Icon size={18} style={{ color }} />
-      <span className="text-sm text-white flex-1">{label}</span>
+      <Icon size={16} style={{ color }} className="shrink-0" />
+      <span className="text-xs text-white font-medium flex-1">{label}</span>
     </button>
   );
 }
@@ -703,29 +713,29 @@ function ShareBtn({ icon: Icon, label, onClick, testid }) {
     <button
       data-testid={testid}
       onClick={onClick}
-      className="flex flex-col items-center gap-1 rounded-lg border border-white/10 bg-[#0b0f17] hover:bg-[#161d2c] hover:border-[#e60012]/40 py-2.5 transition-colors"
+      className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-[#090d16] hover:bg-[#121929] hover:border-[#e60012]/40 py-3 transition-all cursor-pointer"
     >
       <Icon size={16} className="text-slate-300" />
-      <span className="font-mono text-[10px] text-slate-400">{label}</span>
+      <span className="text-xs text-slate-300 font-medium">{label}</span>
     </button>
   );
 }
 
 function PayRow({ icon: Icon, label, value }) {
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <Icon size={14} className="text-slate-500" />
-      <span className="text-slate-500 font-mono text-xs w-20">{label}</span>
-      <span className="text-white font-mono text-xs truncate">{value}</span>
+    <div className="flex items-center gap-2 text-xs">
+      <Icon size={14} className="text-slate-500 shrink-0" />
+      <span className="text-slate-400 text-xs w-24 font-medium">{label}</span>
+      <span className="text-white text-xs truncate flex-1 font-semibold">{value}</span>
     </div>
   );
 }
 
 function TripStat({ label, value }) {
   return (
-    <div className="rounded-lg bg-[#0b0f17] border border-white/10 p-3">
-      <p className="font-mono font-bold text-lg text-white">{value}</p>
-      <p className="font-mono text-[9px] text-slate-600 uppercase tracking-wide">{label}</p>
+    <div className="rounded-xl bg-[#090d16] border border-white/10 p-3">
+      <p className="font-display font-bold text-base text-white">{value}</p>
+      <p className="text-[10px] text-slate-400 uppercase tracking-wide mt-0.5 font-semibold">{label}</p>
     </div>
   );
 }
