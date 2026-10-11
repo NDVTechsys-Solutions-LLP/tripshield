@@ -27,9 +27,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-// AutoCare Vercel Deployment Link (Configurable via REACT_APP_AUTOCARE_URL or edit here)
-const AUTOCARE_VERCEL_URL =
-  process.env.REACT_APP_AUTOCARE_URL || "https://autocare.tripshield.org";
+// AutoCare Pulse Frontend Website Link
+const AUTOCARE_PULSE_URL = "https://autocare.tripshield.org/";
 
 // ========================================================
 // REFINED MINIMAL DATA DEFINITIONS (Single-Line, Simple)
@@ -703,7 +702,7 @@ export default function Landing() {
             {/* AutoCare Navigation Button */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
               <a
-                href={AUTOCARE_VERCEL_URL}
+                href={AUTOCARE_PULSE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-xl font-display font-bold text-white text-sm sm:text-base tracking-wide bg-[#1d4ed8] hover:bg-[#2563eb] border border-[#3b82f6]/40 transition-all shadow-lg shadow-blue-950/40 hover:shadow-blue-600/25 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
