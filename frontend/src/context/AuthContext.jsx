@@ -39,8 +39,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, role = "dealer") => {
     const emailClean = (email || "").trim().toLowerCase();
+    const passClean = (password || "").trim();
     try {
-      const res = await api.post("/auth/login", { email: emailClean, password, role });
+      const res = await api.post("/auth/login", { email: emailClean, password: passClean, role });
       if (res.data?.session_token) {
         localStorage.setItem("ts_session_token", res.data.session_token);
       }
@@ -51,7 +52,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       // Hardcoded credentials verification for Service Center
-      if (emailClean === "ndvtechsys.solutions@gmail.com" && password === "DealerPass123!") {
+      if (emailClean === "ndvtechsys.solutions@gmail.com" && passClean === "DealerPass123!") {
         const dealerUser = {
           user_id: "user_dealer_ndv",
           email: "ndvtechsys.solutions@gmail.com",
