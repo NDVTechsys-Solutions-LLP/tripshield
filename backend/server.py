@@ -229,6 +229,61 @@ async def get_current_user(request: Request):
     return user
 
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+    role: Optional[str] = "dealer"
+
+
+@api_router.post("/auth/login")
+async def auth_login(payload: LoginRequest, response: Response):
+    email_clean = payload.email.strip().lower()
+
+    # Check credentials for Service Center
+    if email_clean == "ndvtechsys.solutions@gmail.com" and payload.password == "DealerPass123!":
+        role = "dealer"
+        name = "TripShield Service Center"
+    elif payload.role == "user" or "rider" in email_clean or "owner" in email_clean:
+        role = "user"
+        name = "Vehicle Owner"
+    else:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    existing = await db.users.find_one({"email": email_clean}, {"_id": 0})
+    if existing:
+        user_id = existing["user_id"]
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {"role": role, "name": name}},
+        )
+    else:
+        user_id = new_id(role)
+        await db.users.insert_one({
+            "user_id": user_id,
+            "email": email_clean,
+            "name": name,
+            "role": role,
+            "created_at": iso(now_utc()),
+        })
+
+    session_token = new_id("st")
+    expires = now_utc() + timedelta(days=7)
+    await db.user_sessions.delete_many({"user_id": user_id})
+    await db.user_sessions.insert_one({
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": iso(expires),
+        "created_at": iso(now_utc()),
+    })
+
+    response.set_cookie(
+        key="session_token", value=session_token, httponly=True, secure=True,
+        samesite="none", path="/", max_age=7 * 24 * 60 * 60,
+    )
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    return {"user": user, "session_token": session_token}
+
+
 class SessionRequest(BaseModel):
     session_id: str
     role: str = "user"

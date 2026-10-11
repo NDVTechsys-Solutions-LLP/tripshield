@@ -25,6 +25,7 @@ import {
   VolumeX,
   Wrench,
   ExternalLink,
+  X,
 } from "lucide-react";
 
 // AutoCare Pulse Frontend Website Link
@@ -153,25 +154,47 @@ const FAQS = [
   },
 ];
 
-// REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-function startLogin(role) {
-  localStorage.setItem("hsj_role", role);
-  const redirectUrl = window.location.origin + "/app";
-  window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(
-    redirectUrl
-  )}`;
-}
-
 export default function Landing() {
-  const { user, loading } = useAuth();
+  const { user, loading, login } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("home");
   const [featureCategory, setFeatureCategory] = useState("all");
   const [openFaq, setOpenFaq] = useState(0);
 
+  // Minimalist Login Modal State
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [loginRole, setLoginRole] = useState("dealer");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+
   useEffect(() => {
     if (!loading && user) navigate(user.role === "dealer" ? "/dealer" : "/app");
   }, [user, loading, navigate]);
+
+  const openLoginModal = (role) => {
+    setLoginRole(role);
+    setLoginEmail(role === "dealer" ? "ndvtechsys.solutions@gmail.com" : "");
+    setLoginPassword("");
+    setLoginError("");
+    setLoginModalOpen(true);
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError("");
+    try {
+      const loggedUser = await login(loginEmail, loginPassword, loginRole);
+      setLoginModalOpen(false);
+      navigate(loggedUser.role === "dealer" ? "/dealer" : "/app");
+    } catch (err) {
+      setLoginError(err.message || "Invalid email or password");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   const scrollToSection = (id, tabName) => {
     setActiveTab(tabName);
@@ -281,8 +304,8 @@ export default function Landing() {
                 <motion.button
                   whileHover={{ y: -2, transition: { type: "spring", stiffness: 400, damping: 25 } }}
                   whileTap={{ scale: 0.98 }}
-                  data-testid="login-google-user-button"
-                  onClick={() => startLogin("user")}
+                  data-testid="login-user-button"
+                  onClick={() => openLoginModal("user")}
                   className="group w-full rounded-xl sm:rounded-2xl border border-white/10 bg-[#0c111d]/90 backdrop-blur-sm hover:border-[#e60012]/70 hover:bg-[#121929] transition-all px-4 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between gap-3 shadow-lg cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -297,7 +320,9 @@ export default function Landing() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <GoogleGlyph />
+                    <span className="px-3.5 py-1.5 rounded-lg bg-white/10 group-hover:bg-[#e60012] text-xs font-semibold text-white tracking-wide transition-colors">
+                      Login
+                    </span>
                     <ArrowRight
                       className="text-slate-500 group-hover:text-[#e60012] group-hover:translate-x-0.5 transition-all"
                       size={16}
@@ -310,7 +335,7 @@ export default function Landing() {
                   whileHover={{ y: -2, transition: { type: "spring", stiffness: 400, damping: 25 } }}
                   whileTap={{ scale: 0.98 }}
                   data-testid="login-dealer-portal-button"
-                  onClick={() => startLogin("dealer")}
+                  onClick={() => openLoginModal("dealer")}
                   className="group w-full rounded-xl sm:rounded-2xl border border-white/10 bg-[#0c111d]/90 backdrop-blur-sm hover:border-[#3b82f6]/70 hover:bg-[#121929] transition-all px-4 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between gap-3 shadow-lg cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -325,7 +350,9 @@ export default function Landing() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <GoogleGlyph />
+                    <span className="px-3.5 py-1.5 rounded-lg bg-white/10 group-hover:bg-[#3b82f6] text-xs font-semibold text-white tracking-wide transition-colors">
+                      Login
+                    </span>
                     <ArrowRight
                       className="text-slate-500 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-all"
                       size={16}
@@ -723,6 +750,84 @@ export default function Landing() {
           Powered by NDV Texas Solutions.
         </p>
       </footer>
+
+      {/* ======================================================== */}
+      {/* MINIMALIST LOGIN POPUP                                    */}
+      {/* ======================================================== */}
+      {loginModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl bg-[#0c111d] border border-white/10 p-6 sm:p-8 shadow-2xl">
+            {/* Close button */}
+            <button
+              onClick={() => {
+                setLoginModalOpen(false);
+                setLoginError("");
+              }}
+              className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Login Heading */}
+            <h2 className="font-display font-bold text-white text-xl sm:text-2xl uppercase tracking-tight">
+              {loginRole === "dealer" ? "Service Center Login" : "Vehicle Owner Login"}
+            </h2>
+
+            {/* Form */}
+            <form onSubmit={handleLoginSubmit} className="mt-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => {
+                    setLoginEmail(e.target.value);
+                    setLoginError("");
+                  }}
+                  placeholder={loginRole === "dealer" ? "ndvtechsys.solutions@gmail.com" : "owner@tripshield.org"}
+                  required
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-xl bg-[#07090e] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-[#e60012] focus:ring-1 focus:ring-[#e60012] text-sm transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => {
+                    setLoginPassword(e.target.value);
+                    setLoginError("");
+                  }}
+                  placeholder="••••••••••••"
+                  required
+                  className="w-full px-4 py-3 rounded-xl bg-[#07090e] border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-[#e60012] focus:ring-1 focus:ring-[#e60012] text-sm transition-colors"
+                />
+              </div>
+
+              {loginError && (
+                <p className="text-xs text-red-500 font-medium">
+                  {loginError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-[#e60012] hover:bg-[#c90812] text-white font-semibold text-sm transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {loginLoading ? "Signing in..." : "Login"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -894,31 +999,4 @@ function TrackPreview() {
   );
 }
 
-// ========================================================
-// GOOGLE GLYPH COMPONENT
-// ========================================================
-function GoogleGlyph() {
-  return (
-    <span className="flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-xs font-bold text-slate-800 shadow-sm transition-all group-hover:bg-slate-100">
-      <svg width="14" height="14" viewBox="0 0 48 48">
-        <path
-          fill="#EA4335"
-          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-        />
-        <path
-          fill="#4285F4"
-          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-        />
-        <path
-          fill="#FBBC05"
-          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-        />
-        <path
-          fill="#34A853"
-          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-        />
-      </svg>
-      Google
-    </span>
-  );
-}
+

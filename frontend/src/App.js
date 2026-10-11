@@ -16,6 +16,7 @@ import Settings from "@/pages/user/Settings";
 import History from "@/pages/user/History";
 import TrackView from "@/pages/TrackView";
 import DealerDashboard from "@/pages/dealer/DealerDashboard";
+import Login from "@/pages/Login";
 
 function AppRouter() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/track/:token" element={<TrackView />} />
       <Route
         path="/app"
