@@ -93,7 +93,7 @@ export default function AppShell() {
         <div className="flex items-center gap-3 px-6 h-20 border-b border-white/10 bg-black/20">
           <TripShieldMark size={32} glow />
           <div>
-            <p className="font-brand font-black text-[#e60012] text-base leading-none tracking-wider">
+            <p className="font-display font-extrabold text-[#e60012] text-base leading-none tracking-tight">
               TRIPSHIELD
             </p>
             <p className="text-[10px] font-semibold tracking-wider text-slate-400 mt-1 uppercase">
@@ -117,7 +117,7 @@ export default function AppShell() {
       <div className="lg:hidden fixed top-3 inset-x-3 z-40 h-14 rounded-full border border-white/10 bg-[#0a0f1b]/95 backdrop-blur-xl px-5 flex items-center justify-between shadow-2xl">
         <div className="flex items-center gap-2.5">
           <TripShieldMark size={26} glow />
-          <span className="font-brand font-black text-[#e60012] text-base tracking-wider">
+          <span className="font-display font-extrabold text-[#e60012] text-base tracking-wide">
             TRIPSHIELD
           </span>
         </div>
@@ -139,7 +139,7 @@ export default function AppShell() {
             <div className="flex items-center justify-between px-5 h-16 border-b border-white/10 bg-black/20">
               <div className="flex items-center gap-2">
                 <TripShieldMark size={24} glow />
-                <span className="font-brand font-black text-[#e60012] text-sm tracking-wider">TRIPSHIELD</span>
+                <span className="font-display font-bold text-[#e60012] text-sm">TRIPSHIELD</span>
               </div>
               <button
                 data-testid="mobile-menu-close"

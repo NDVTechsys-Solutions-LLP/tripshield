@@ -203,7 +203,7 @@ export default function Landing() {
             className="flex items-center gap-2.5 cursor-pointer group"
           >
             <TripShieldMark size={28} glow />
-            <span className="font-brand font-black text-[#e60012] text-xl tracking-wider">
+            <span className="font-display font-extrabold text-[#e60012] text-lg tracking-wide">
               TRIPSHIELD
             </span>
           </button>
@@ -724,7 +724,7 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <TripShieldMark size={22} glow />
             <div>
-              <span className="font-brand font-black text-[#e60012] tracking-wider text-sm">TRIPSHIELD</span>
+              <span className="font-display font-extrabold text-[#e60012] tracking-wide text-sm">TRIPSHIELD</span>
               <span className="text-slate-500 ml-2">© 2026 · Powered by NDV Texas Solutions</span>
             </div>
           </div>

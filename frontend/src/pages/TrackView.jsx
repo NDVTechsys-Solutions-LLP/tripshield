@@ -66,7 +66,7 @@ export default function TrackView() {
         <div className="max-w-5xl mx-auto pointer-events-auto rounded-full bg-[#0a0f1b]/90 backdrop-blur-xl border border-white/10 px-5 sm:px-7 py-3 shadow-2xl flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <TripShieldMark size={28} glow />
-            <span className="font-brand font-black text-[#e60012] text-sm tracking-wider">
+            <span className="font-display font-extrabold text-[#e60012] text-sm tracking-wide">
               TRIPSHIELD
             </span>
             <span className="text-slate-400 font-display font-semibold text-xs ml-1.5">· LIVE</span>
