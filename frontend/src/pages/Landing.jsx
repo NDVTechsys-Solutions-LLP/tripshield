@@ -678,7 +678,7 @@ export default function Landing() {
               </div>
 
               <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight leading-tight">
-                DISCOVER <span className="text-[#3b82f6]">AUTOCARE</span>.
+                DISCOVER <span className="text-[#3b82f6]">AUTOCARE PULSE</span>.
               </h2>
 
               <p className="font-body text-slate-300 text-sm sm:text-base mt-4 leading-relaxed max-w-xl">
@@ -709,7 +709,7 @@ export default function Landing() {
                 className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-xl font-display font-bold text-white text-sm sm:text-base tracking-wide bg-[#1d4ed8] hover:bg-[#2563eb] border border-[#3b82f6]/40 transition-all shadow-lg shadow-blue-950/40 hover:shadow-blue-600/25 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 <Wrench size={18} className="text-blue-200 group-hover:rotate-12 transition-transform" />
-                <span>AutoCare</span>
+                <span>AutoCare Pulse</span>
                 <ArrowRight size={16} className="text-blue-200 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
@@ -726,7 +726,7 @@ export default function Landing() {
             <TripShieldMark size={22} glow />
             <div>
               <span className="text-white font-bold tracking-wide">TRIPSHIELD</span>
-              <span className="text-slate-500 ml-2">© 2026 · Connected Mobility &amp; Safety Platform</span>
+              <span className="text-slate-500 ml-2">© 2026 · Powered by NDV Texas Solutions</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-slate-400">
@@ -743,7 +743,7 @@ export default function Landing() {
           data-testid="demo-disclaimer"
           className="text-center md:text-left text-[11px] text-slate-500 font-normal leading-relaxed border-t border-white/5 pt-4"
         >
-          Demo &amp; simulation only. Not affiliated with, endorsed by, or connected to any real vehicle brand, insurer, or emergency service. All locations, alerts and notifications shown are simulated for demonstration.
+          Powered by NDV Texas Solutions.
         </p>
       </footer>
     </div>
