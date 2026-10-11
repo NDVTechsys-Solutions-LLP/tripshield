@@ -29,7 +29,7 @@ import {
 
 // AutoCare Vercel Deployment Link (Configurable via REACT_APP_AUTOCARE_URL or edit here)
 const AUTOCARE_VERCEL_URL =
-  process.env.REACT_APP_AUTOCARE_URL || "https://autocare.vercel.app";
+  process.env.REACT_APP_AUTOCARE_URL || "https://autocare.tripshield.org";
 
 // ========================================================
 // REFINED MINIMAL DATA DEFINITIONS (Single-Line, Simple)
