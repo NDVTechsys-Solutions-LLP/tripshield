@@ -9,302 +9,224 @@ import {
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
-// Aggressive, Athletic Top-Down Hyper-Sport Superbike Vector (Large, Sleek, Aerodynamic)
-function HyperSportBike() {
+// Clean, Bold Cartoon Scooty with Rider on Top (Matching User Reference in Black & Red)
+function RiderScooty() {
   return (
     <svg
-      viewBox="0 0 76 168"
-      className="w-14 sm:w-16 md:w-18 lg:w-20 h-auto drop-shadow-[0_22px_42px_rgba(0,0,0,0.98)]"
+      viewBox="0 0 90 144"
+      className="w-16 sm:w-20 md:w-24 lg:w-28 h-auto drop-shadow-[0_18px_36px_rgba(0,0,0,0.85)]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {/* Dynamic Hyper-Red Glossy Fairing Gradient */}
-        <linearGradient id="hsb-red" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#8A000A" />
-          <stop offset="22%" stopColor="#C90812" />
-          <stop offset="50%" stopColor="#FF1E28" />
-          <stop offset="78%" stopColor="#C90812" />
-          <stop offset="100%" stopColor="#8A000A" />
+        {/* Vibrant Red Paint Gradient */}
+        <linearGradient id="scooty-red" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#9E000B" />
+          <stop offset="20%" stopColor="#C90812" />
+          <stop offset="50%" stopColor="#E50914" />
+          <stop offset="80%" stopColor="#C90812" />
+          <stop offset="100%" stopColor="#9E000B" />
         </linearGradient>
 
-        {/* Deep Carbon Fiber Accent Gradient */}
-        <linearGradient id="hsb-carbon" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1f242d" />
-          <stop offset="50%" stopColor="#11141a" />
-          <stop offset="100%" stopColor="#080a0e" />
-        </linearGradient>
-
-        {/* Titanium Gold Inverted Fork Gradient */}
-        <linearGradient id="hsb-gold-fork" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#b45309" />
-          <stop offset="40%" stopColor="#f59e0b" />
-          <stop offset="70%" stopColor="#fef08a" />
-          <stop offset="100%" stopColor="#b45309" />
-        </linearGradient>
-
-        {/* Billet Aluminum / Alloy Gradient */}
-        <linearGradient id="hsb-alloy" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#cbd5e1" />
-          <stop offset="50%" stopColor="#64748b" />
-          <stop offset="100%" stopColor="#94a3b8" />
-        </linearGradient>
-
-        {/* Burning Titanium Exhaust Pipe Gradient */}
-        <linearGradient id="hsb-exhaust" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#1e293b" />
-          <stop offset="30%" stopColor="#3b82f6" />
-          <stop offset="60%" stopColor="#a855f7" />
-          <stop offset="85%" stopColor="#eab308" />
-          <stop offset="100%" stopColor="#64748b" />
-        </linearGradient>
-
-        {/* Alcantara Racing Seat Texture */}
-        <linearGradient id="hsb-seat" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#181c24" />
-          <stop offset="50%" stopColor="#222834" />
-          <stop offset="100%" stopColor="#101318" />
-        </linearGradient>
-
-        {/* Twin Projector Headlight Road Illumination Cones */}
-        <linearGradient id="hsb-beam-left" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-          <stop offset="25%" stopColor="#67e8f9" stopOpacity="0.4" />
-          <stop offset="75%" stopColor="#ff2a38" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#ff1f2d" stopOpacity="0" />
-        </linearGradient>
-
-        <linearGradient id="hsb-beam-right" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-          <stop offset="25%" stopColor="#67e8f9" stopOpacity="0.4" />
-          <stop offset="75%" stopColor="#ff2a38" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#ff1f2d" stopOpacity="0" />
+        {/* Headlight Forward Beam Cone */}
+        <linearGradient id="scooty-headlight-cone" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+          <stop offset="40%" stopColor="#ffe4e6" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#ff2330" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      {/* ======================================================== */}
-      {/* 1. AERODYNAMIC ROAD LIGHT BEAMS (Forward Down Tarmac)     */}
-      {/* ======================================================== */}
-      <polygon points="32,142 8,168 36,168" fill="url(#hsb-beam-left)" />
-      <polygon points="44,142 40,168 68,168" fill="url(#hsb-beam-right)" />
+      {/* 1. Soft Ground Shadow */}
+      <ellipse cx="45" cy="74" rx="26" ry="52" fill="#000000" opacity="0.6" filter="blur(6px)" />
 
-      {/* ======================================================== */}
-      {/* 2. GROUND CONTACT SHADOW (Tight, Athletic, Floating)     */}
-      {/* ======================================================== */}
-      <ellipse cx="38" cy="88" rx="19" ry="72" fill="#000000" opacity="0.75" filter="blur(6px)" />
+      {/* 2. Radiant Forward Headlight Cone (Illuminating the Road) */}
+      <polygon points="45,130 16,144 74,144" fill="url(#scooty-headlight-cone)" />
 
-      {/* ======================================================== */}
-      {/* 3. EXPOSED REAR TIRE (Wide 200-Section Superbike Slick)   */}
-      {/* ======================================================== */}
-      {/* Tire Body */}
-      <rect x="32" y="8" width="12" height="38" rx="6" fill="#080a0f" stroke="#1e2430" strokeWidth="1" />
-      {/* Tread Grooves (Sport Sipes) */}
-      <line x1="33" y1="14" x2="37" y2="18" stroke="#1e2533" strokeWidth="1" strokeLinecap="round" />
-      <line x1="43" y1="14" x2="39" y2="18" stroke="#1e2533" strokeWidth="1" strokeLinecap="round" />
-      <line x1="33" y1="24" x2="37" y2="28" stroke="#1e2533" strokeWidth="1" strokeLinecap="round" />
-      <line x1="43" y1="24" x2="39" y2="28" stroke="#1e2533" strokeWidth="1" strokeLinecap="round" />
-      <line x1="33" y1="34" x2="37" y2="38" stroke="#1e2533" strokeWidth="1" strokeLinecap="round" />
-      <line x1="43" y1="34" x2="39" y2="38" stroke="#1e2533" strokeWidth="1" strokeLinecap="round" />
+      {/* 3. Rear Wheel (Trailing at Top) */}
+      <rect x="40.5" y="8" width="9" height="20" rx="4.5" fill="#10131a" stroke="#222834" strokeWidth="1" />
 
-      {/* Rear Hugger Fender (Carbon Minimalist) */}
-      <path d="M 33 28 C 33 22, 43 22, 43 28 L 42 36 L 34 36 Z" fill="url(#hsb-carbon)" stroke="#334155" strokeWidth="0.6" />
+      {/* 4. Rear Mudguard Tip & Reflector */}
+      <path d="M 38 18 C 38 14, 52 14, 52 18 L 51 28 L 39 28 Z" fill="#e50914" stroke="#ff3845" strokeWidth="0.8" />
+      <rect x="42" y="15" width="6" height="3" rx="1" fill="#f59e0b" />
 
-      {/* Aluminum Swingarm Struts */}
-      <line x1="28" y1="26" x2="32" y2="44" stroke="url(#hsb-alloy)" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="48" y1="26" x2="44" y2="44" stroke="url(#hsb-alloy)" strokeWidth="2.5" strokeLinecap="round" />
-
-      {/* Titanium Race Exhaust Muffler (Right Flank) */}
+      {/* 5. Scooty Rear Body (Smooth Rounded Cartoon Flanks, matching Reference) */}
       <path
-        d="M 46 36 L 51 34 L 52 56 L 47 58 Z"
-        fill="url(#hsb-exhaust)"
-        stroke="#475569"
-        strokeWidth="0.8"
-      />
-      {/* Carbon Exhaust End-Cap */}
-      <polygon points="46,36 51,34 50,31 45,33" fill="#0f172a" stroke="#cbd5e1" strokeWidth="0.6" />
-
-      {/* ======================================================== */}
-      {/* 4. RAZOR-SHARP AERODYNAMIC TAIL COWL (Wasp Tail)          */}
-      {/* ======================================================== */}
-      {/* Tail Fairing Body (Sharply Tapered, NOT round or fat) */}
-      <path
-        d="M 38 22 
-           L 44 38 
-           L 46 54 
-           L 44 64 
-           L 32 64 
-           L 30 54 
-           L 32 38 Z"
-        fill="url(#hsb-red)"
-        stroke="#ff3845"
+        d="M 29 28 
+           C 25 44, 25 60, 28 76 
+           L 62 76 
+           C 65 60, 65 44, 61 28 
+           C 55 22, 35 22, 29 28 Z"
+        fill="url(#scooty-red)"
+        stroke="#ff4d55"
         strokeWidth="1.2"
       />
-      {/* Center Pearl Racing Stripe on Tail */}
-      <polygon points="37,24 39,24 39.5,60 36.5,60" fill="#ffffff" opacity="0.9" />
+      {/* Glossy Curved Body Highlights */}
+      <path d="M 31 38 C 28 48, 28 62, 30 70" stroke="#ff858c" strokeWidth="1.2" strokeLinecap="round" opacity="0.75" />
+      <path d="M 59 38 C 62 48, 62 62, 60 70" stroke="#ff858c" strokeWidth="1.2" strokeLinecap="round" opacity="0.75" />
 
-      {/* Dual Aerodynamic Air Flow Tunnels (Panigale-Style Aero Ducts) */}
-      <path d="M 33 42 L 35 50 L 33 54 Z" fill="#090d14" stroke="#ff4d55" strokeWidth="0.6" />
-      <path d="M 43 42 L 41 50 L 43 54 Z" fill="#090d14" stroke="#ff4d55" strokeWidth="0.6" />
-
-      {/* Dual Blade Neon-Red LED Taillights on Tail Fins */}
-      <line x1="31" y1="34" x2="36" y2="24" stroke="#ff1f2d" strokeWidth="1.8" strokeLinecap="round" filter="drop-shadow(0 0 3px #ff1f2d)" />
-      <line x1="45" y1="34" x2="40" y2="24" stroke="#ff1f2d" strokeWidth="1.8" strokeLinecap="round" filter="drop-shadow(0 0 3px #ff1f2d)" />
-
-      {/* ======================================================== */}
-      {/* 5. TUCKED-IN ATHLETIC RIDER SEAT (Slim Waistline)        */}
-      {/* ======================================================== */}
+      {/* 6. Chrome / Silver Rear Tubular Grab Bar (like Reference) */}
       <path
-        d="M 32 64 
-           L 44 64 
-           L 45 84 
-           L 38 88 
-           L 31 84 Z"
-        fill="url(#hsb-seat)"
-        stroke="#272e3d"
+        d="M 33 26 C 37 18, 53 18, 57 26"
+        fill="none"
+        stroke="#e2e8f0"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+
+      {/* 7. Bright Red LED Taillight */}
+      <path
+        d="M 37 24 C 41 21, 49 21, 53 24 L 51 28 C 48 26, 42 26, 39 28 Z"
+        fill="#ff1f2d"
+        stroke="#ffffff"
+        strokeWidth="0.8"
+      />
+
+      {/* 8. Scooty Seat (Rounded Oval Cushion) */}
+      <path
+        d="M 33 30 
+           C 30 40, 30 56, 33 66 
+           C 38 69, 52 69, 57 66 
+           C 60 56, 60 40, 57 30 
+           C 52 26, 38 26, 33 30 Z"
+        fill="#151922"
+        stroke="#e50914"
         strokeWidth="1"
       />
-      {/* Red Contrast Race Stitching */}
-      <line x1="33" y1="66" x2="32.5" y2="82" stroke="#ff3845" strokeWidth="0.7" strokeDasharray="2 1.5" />
-      <line x1="43" y1="66" x2="43.5" y2="82" stroke="#ff3845" strokeWidth="0.7" strokeDasharray="2 1.5" />
 
-      {/* ======================================================== */}
-      {/* 6. SCULPTED MUSCULAR FUEL TANK & ERGONOMIC KNEE RECESSES */}
-      {/* ======================================================== */}
-      {/* Main Tank Body (Hourglass: Narrow at knees, athletic shoulders) */}
+      {/* 9. Floorboard / Footdeck */}
+      <rect x="28" y="70" width="34" height="32" rx="4" fill="#0d1017" stroke="#222a38" strokeWidth="1" />
+      <line x1="32" y1="76" x2="58" y2="76" stroke="#222a38" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="82" x2="58" y2="82" stroke="#222a38" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="88" x2="58" y2="88" stroke="#222a38" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="94" x2="58" y2="94" stroke="#222a38" strokeWidth="1.2" strokeLinecap="round" />
+
+      {/* 10. Rider Legs & Knees (Resting on Floorboard, Black & Red) */}
+      {/* Left Leg */}
       <path
-        d="M 31 84 
-           C 27 88, 26 96, 28 104 
-           L 24 114 
-           L 52 114 
-           L 48 104 
-           C 50 96, 49 88, 45 84 Z"
-        fill="url(#hsb-red)"
-        stroke="#ff4d55"
-        strokeWidth="1.2"
-      />
-      {/* Matte Black Rubber Knee Grip Pads (Left & Right Flanks) */}
-      <path d="M 27 90 C 26 96, 27 102, 29 104 L 28 104 C 25 101, 25 95, 27 90 Z" fill="#090d15" />
-      <path d="M 49 90 C 50 96, 49 102, 47 104 L 48 104 C 51 101, 51 95, 49 90 Z" fill="#090d15" />
-
-      {/* Carbon Fiber Spine Tank Protector */}
-      <polygon points="36,86 40,86 41,108 35,108" fill="url(#hsb-carbon)" stroke="#334155" strokeWidth="0.5" />
-
-      {/* Aircraft Aluminum Fuel Cap */}
-      <circle cx="38" cy="100" r="3.2" fill="url(#hsb-alloy)" stroke="#1e293b" strokeWidth="0.7" />
-      <circle cx="38" cy="100" r="1.4" fill="#0f172a" />
-
-      {/* High-Gloss Light Flare along Tank Shoulders */}
-      <path d="M 27 108 L 32 94" stroke="#ff858c" strokeWidth="1" strokeLinecap="round" opacity="0.8" />
-      <path d="M 49 108 L 44 94" stroke="#ff858c" strokeWidth="1" strokeLinecap="round" opacity="0.8" />
-
-      {/* ======================================================== */}
-      {/* 7. COCKPIT, TRIPLE CLAMP & CLIP-ON RACING BARS           */}
-      {/* ======================================================== */}
-      {/* CNC Billet Top Triple Tree */}
-      <path d="M 25 116 L 51 116 L 47 122 L 29 122 Z" fill="url(#hsb-alloy)" stroke="#334155" strokeWidth="0.8" />
-      <circle cx="38" cy="119" r="2.2" fill="#090d15" stroke="url(#hsb-alloy)" strokeWidth="0.6" />
-
-      {/* Digital Full-Color Racing TFT Instrument Cluster */}
-      <rect x="32" y="112" width="12" height="7" rx="1.5" fill="#020617" stroke="#38bdf8" strokeWidth="0.8" />
-      <rect x="33.5" y="113.5" width="9" height="4" rx="0.5" fill="#082f49" />
-      {/* Cyan Speedo Arc & RPM Redline Bar */}
-      <line x1="34" y1="114.5" x2="41" y2="114.5" stroke="#38bdf8" strokeWidth="0.8" />
-      <line x1="39.5" y1="114.5" x2="41.5" y2="114.5" stroke="#ef4444" strokeWidth="0.8" />
-
-      {/* Wide Clip-on Handlebars */}
-      <line x1="14" y1="120" x2="62" y2="120" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
-      {/* Diamond-Grip Left Handle */}
-      <rect x="12" y="117.5" width="10" height="5" rx="2" fill="#030712" stroke="#334155" strokeWidth="0.7" />
-      {/* Diamond-Grip Right Handle */}
-      <rect x="54" y="117.5" width="10" height="5" rx="2" fill="#030712" stroke="#334155" strokeWidth="0.7" />
-
-      {/* CNC Alloy Racing Brake & Clutch Levers */}
-      <line x1="10" y1="122" x2="19" y2="122" stroke="url(#hsb-alloy)" strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="66" y1="122" x2="57" y2="122" stroke="url(#hsb-alloy)" strokeWidth="1.4" strokeLinecap="round" />
-
-      {/* Aerodynamic Stealth Winglet Mirrors (Bar-End) */}
-      <polygon points="9,116 13,119 10,121" fill="url(#hsb-carbon)" stroke="#94a3b8" strokeWidth="0.5" />
-      <polygon points="67,116 63,119 66,121" fill="url(#hsb-carbon)" stroke="#94a3b8" strokeWidth="0.5" />
-
-      {/* ======================================================== */}
-      {/* 8. MOTOGP-STYLE AERODYNAMIC DOWNFORCE WINGLETS           */}
-      {/* ======================================================== */}
-      {/* Left Carbon Downforce Winglet */}
-      <polygon points="12,126 24,124 23,130 11,131" fill="url(#hsb-carbon)" stroke="#ff3845" strokeWidth="0.8" />
-      <line x1="11" y1="128" x2="11" y2="133" stroke="#ff1f2d" strokeWidth="1.5" strokeLinecap="round" />
-
-      {/* Right Carbon Downforce Winglet */}
-      <polygon points="64,126 52,124 53,130 65,131" fill="url(#hsb-carbon)" stroke="#ff3845" strokeWidth="0.8" />
-      <line x1="65" y1="128" x2="65" y2="133" stroke="#ff1f2d" strokeWidth="1.5" strokeLinecap="round" />
-
-      {/* ======================================================== */}
-      {/* 9. SHARK-NOSE FRONT COWL & TWIN PROJECTOR LED HEADLIGHTS */}
-      {/* ======================================================== */}
-      {/* Aerodynamic Front Fairing Nose */}
-      <path
-        d="M 23 124 
-           L 53 124 
-           L 48 142 
-           L 38 147 
-           L 28 142 Z"
-        fill="url(#hsb-red)"
-        stroke="#ff4d55"
-        strokeWidth="1.2"
-      />
-
-      {/* Tinted Polycarbonate Windscreen / Bubble Screen */}
-      <path
-        d="M 32 120 
-           L 44 120 
-           L 42 133 
-           L 38 135 
-           L 34 133 Z"
-        fill="#0284c7"
-        opacity="0.45"
-        stroke="#38bdf8"
+        d="M 33 52 C 28 62, 27 74, 30 86 L 36 86 C 34 76, 36 65, 39 56 Z"
+        fill="#161b26"
+        stroke="#2a3445"
         strokeWidth="0.8"
       />
-
-      {/* Central Ram-Air Intake Snorkel (Between Headlights) */}
-      <polygon points="36,140 40,140 39,144 37,144" fill="#000000" stroke="#334155" strokeWidth="0.6" />
-
-      {/* Predatory Left Projector LED Eye */}
-      <polygon points="29,136 35,138 33,142 28,139" fill="#ffffff" filter="drop-shadow(0 0 5px #67e8f9)" stroke="#67e8f9" strokeWidth="0.6" />
-      <circle cx="31.5" cy="139" r="1.3" fill="#ffffff" />
-
-      {/* Predatory Right Projector LED Eye */}
-      <polygon points="47,136 41,138 43,142 48,139" fill="#ffffff" filter="drop-shadow(0 0 5px #67e8f9)" stroke="#67e8f9" strokeWidth="0.6" />
-      <circle cx="44.5" cy="139" r="1.3" fill="#ffffff" />
-
-      {/* ======================================================== */}
-      {/* 10. INVERTED GOLD FORKS & DUAL BREMBO BRAKE ROTORS       */}
-      {/* ======================================================== */}
-      {/* Inverted Gold Front Forks (USD Öhlins style) */}
-      <rect x="27.5" y="130" width="3.5" height="24" rx="1.5" fill="url(#hsb-gold-fork)" stroke="#78350f" strokeWidth="0.6" />
-      <rect x="45" y="130" width="3.5" height="24" rx="1.5" fill="url(#hsb-gold-fork)" stroke="#78350f" strokeWidth="0.6" />
-
-      {/* Dual Drilled Performance Brake Discs */}
-      <rect x="31" y="138" width="1.8" height="20" rx="0.9" fill="url(#hsb-alloy)" stroke="#334155" strokeWidth="0.5" />
-      <rect x="43.2" y="138" width="1.8" height="20" rx="0.9" fill="url(#hsb-alloy)" stroke="#334155" strokeWidth="0.5" />
-
-      {/* Red Brembo Radial Racing Brake Calipers */}
-      <rect x="29.5" y="144" width="2.5" height="7" rx="1" fill="#dc2626" stroke="#f87171" strokeWidth="0.5" />
-      <rect x="44" y="144" width="2.5" height="7" rx="1" fill="#dc2626" stroke="#f87171" strokeWidth="0.5" />
-
-      {/* Front Tire (Leading, Gripping the Asphalt) */}
-      <rect x="33.5" y="132" width="9" height="32" rx="4.5" fill="#080a0f" stroke="#1e2430" strokeWidth="1" />
-      <line x1="38" y1="135" x2="38" y2="161" stroke="#1e2533" strokeWidth="1" strokeDasharray="3 2" />
-
-      {/* Aerodynamic Front Carbon Wheel Hugger / Mudguard */}
+      <rect x="29" y="84" width="7" height="6" rx="2.5" fill="#e50914" />
+      {/* Right Leg */}
       <path
-        d="M 33 135 
-           C 33 129, 43 129, 43 135 
-           L 42 148 
-           L 34 148 Z"
-        fill="url(#hsb-carbon)"
-        stroke="#ff4d55"
-        strokeWidth="0.7"
+        d="M 57 52 C 62 62, 63 74, 60 86 L 54 86 C 56 76, 54 65, 51 56 Z"
+        fill="#161b26"
+        stroke="#2a3445"
+        strokeWidth="0.8"
       />
+      <rect x="54" y="84" width="7" height="6" rx="2.5" fill="#e50914" />
+
+      {/* 11. Rider Torso & Shoulders (Black Jacket with Red Sports Accents) */}
+      <path
+        d="M 28 78 
+           C 26 66, 32 58, 45 58 
+           C 58 58, 64 66, 62 78 
+           C 56 83, 34 83, 28 78 Z"
+        fill="#181d27"
+        stroke="#2a3344"
+        strokeWidth="1"
+      />
+      {/* Red Center Sports Stripe */}
+      <path d="M 43 60 L 47 60 L 48 78 L 42 78 Z" fill="#e50914" />
+
+      {/* 12. Rider Arms (Reaching Forward to Handlebars, like Reference) */}
+      {/* Left Arm */}
+      <path
+        d="M 29 76 C 21 86, 18 97, 21 110 L 26 110 C 24 99, 27 89, 34 80 Z"
+        fill="#181d27"
+        stroke="#2a3344"
+        strokeWidth="1"
+      />
+      <rect x="20" y="106" width="6" height="2" rx="1" fill="#e50914" />
+      {/* Left Hand Gripping Bar */}
+      <ellipse cx="23" cy="111" rx="4" ry="4" fill="#e0a98b" stroke="#333333" strokeWidth="0.8" />
+
+      {/* Right Arm */}
+      <path
+        d="M 61 76 C 69 86, 72 97, 69 110 L 64 110 C 66 99, 63 89, 56 80 Z"
+        fill="#181d27"
+        stroke="#2a3344"
+        strokeWidth="1"
+      />
+      <rect x="64" y="106" width="6" height="2" rx="1" fill="#e50914" />
+      {/* Right Hand Gripping Bar */}
+      <ellipse cx="67" cy="111" rx="4" ry="4" fill="#e0a98b" stroke="#333333" strokeWidth="0.8" />
+
+      {/* 13. Rider Head / Helmet (Viewed from Top, Round & Stylized like Reference) */}
+      <circle cx="45" cy="70" r="13" fill="#10141d" stroke="#2a3344" strokeWidth="1.2" />
+      {/* Red Racing Stripe on Helmet */}
+      <path d="M 42 58 C 44 57, 46 57, 48 58 L 48 82 C 46 83, 44 83, 42 82 Z" fill="#e50914" />
+      {/* Forward Visor Rim */}
+      <path d="M 36 78 C 40 82, 50 82, 54 78" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.9" />
+      {/* Glossy Crown Highlight */}
+      <ellipse cx="41" cy="65" rx="3.5" ry="2" fill="#ffffff" opacity="0.3" />
+
+      {/* 14. Front Apron / Shield (Red) */}
+      <path
+        d="M 29 96 
+           C 22 104, 21 116, 28 126 
+           C 34 132, 56 132, 62 126 
+           C 69 116, 68 104, 61 96 Z"
+        fill="url(#scooty-red)"
+        stroke="#ff4d55"
+        strokeWidth="1.2"
+      />
+      <line x1="45" y1="104" x2="45" y2="124" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+
+      {/* 15. Handlebars & Cowl Headpiece (Red) */}
+      <path
+        d="M 31 106 
+           C 31 101, 59 101, 59 106 
+           L 56 115 
+           C 50 117, 40 117, 34 115 Z"
+        fill="url(#scooty-red)"
+        stroke="#ff4d55"
+        strokeWidth="1"
+      />
+      {/* Speedometer Instrument Display */}
+      <ellipse cx="45" cy="108" rx="7" ry="3.5" fill="#080c14" stroke="#38bdf8" strokeWidth="0.8" />
+      <ellipse cx="45" cy="108" rx="4.5" ry="2" fill="#0284c7" opacity="0.85" />
+
+      {/* Handlebar Grips & Levers */}
+      <line x1="15" y1="111" x2="75" y2="111" stroke="#111620" strokeWidth="4.5" strokeLinecap="round" />
+      <rect x="14" y="108.5" width="9" height="5" rx="2" fill="#000000" stroke="#333d4e" strokeWidth="0.8" />
+      <rect x="67" y="108.5" width="9" height="5" rx="2" fill="#000000" stroke="#333d4e" strokeWidth="0.8" />
+      <line x1="12" y1="113" x2="19" y2="114" stroke="#e2e8f0" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="78" y1="113" x2="71" y2="114" stroke="#e2e8f0" strokeWidth="1.5" strokeLinecap="round" />
+
+      {/* 16. Prominent Oval Rear-View Mirrors (Direct from Reference Image) */}
+      {/* Left Mirror */}
+      <line x1="25" y1="108" x2="14" y2="97" stroke="#e2e8f0" strokeWidth="2.4" strokeLinecap="round" />
+      <ellipse cx="12" cy="95" rx="6.5" ry="4.5" fill="#141a24" stroke="#e2e8f0" strokeWidth="1.2" />
+      <ellipse cx="12" cy="95" rx="4.8" ry="3.2" fill="#38bdf8" opacity="0.9" />
+
+      {/* Right Mirror */}
+      <line x1="65" y1="108" x2="76" y2="97" stroke="#e2e8f0" strokeWidth="2.4" strokeLinecap="round" />
+      <ellipse cx="78" cy="95" rx="6.5" ry="4.5" fill="#141a24" stroke="#e2e8f0" strokeWidth="1.2" />
+      <ellipse cx="78" cy="95" rx="4.8" ry="3.2" fill="#38bdf8" opacity="0.9" />
+
+      {/* 17. Front Fender & Wheel (Leading Forward) */}
+      <path
+        d="M 37 124 C 37 118, 53 118, 53 124 L 51 133 L 39 133 Z"
+        fill="url(#scooty-red)"
+        stroke="#ff4d55"
+        strokeWidth="0.8"
+      />
+      <rect x="41" y="127" width="8" height="15" rx="4" fill="#12161f" stroke="#252d3d" strokeWidth="1" />
+
+      {/* 18. Big Friendly Cartoon Front Headlight */}
+      <circle
+        cx="45"
+        cy="129"
+        r="5.5"
+        fill="#ffffff"
+        stroke="#cbd5e1"
+        strokeWidth="1.4"
+        filter="drop-shadow(0 0 5px #ffffff)"
+      />
+      <circle cx="43.5" cy="127.5" r="1.8" fill="#ffffff" />
     </svg>
   );
 }
@@ -503,13 +425,13 @@ export default function ScrollStoryCar() {
           </div>
 
           {/* ======================================================== */}
-          {/* HYPER-SPORT PERFORMANCE BIKE (Scrolls Top to Bottom)     */}
+          {/* CARTOON SCOOTY WITH RIDER (Scrolls Top to Bottom)        */}
           {/* ======================================================== */}
           <motion.div
             style={{ y: carY }}
             className="absolute top-0 left-1/2 -translate-x-1/2 z-20 will-change-transform flex flex-col items-center pointer-events-none"
           >
-            <HyperSportBike />
+            <RiderScooty />
           </motion.div>
         </div>
 
