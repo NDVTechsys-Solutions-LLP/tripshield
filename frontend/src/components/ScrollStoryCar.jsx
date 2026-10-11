@@ -9,146 +9,186 @@ import {
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
-// Sleek, High-Tech Top-Down Performance Scooty / 2-Wheeler Vector
+// Stylized, Bold Top-Down Cartoon Scooty Vector (Full-Size & Highly Recognizable)
 function SleekRedScooty() {
   return (
     <svg
-      viewBox="0 0 56 120"
-      className="w-10 sm:w-12 md:w-13 h-auto drop-shadow-[0_12px_24px_rgba(0,0,0,0.95)]"
+      viewBox="0 0 84 130"
+      className="w-14 sm:w-16 md:w-20 lg:w-22 h-auto drop-shadow-[0_16px_32px_rgba(0,0,0,0.95)]"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {/* Rich Crimson Metallic Paint Gradient */}
-        <linearGradient id="scooty-crimson" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#99000D" />
-          <stop offset="20%" stopColor="#C90812" />
-          <stop offset="50%" stopColor="#E50914" />
-          <stop offset="80%" stopColor="#FF2E3B" />
-          <stop offset="100%" stopColor="#99000D" />
+        {/* Vibrant Glossy Red Paint Gradient */}
+        <linearGradient id="scooty-body-red" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#9E000B" />
+          <stop offset="18%" stopColor="#C90812" />
+          <stop offset="48%" stopColor="#E50914" />
+          <stop offset="78%" stopColor="#FF3845" />
+          <stop offset="100%" stopColor="#9E000B" />
         </linearGradient>
 
-        {/* Premium Dark Seat Gradient */}
-        <linearGradient id="scooty-seat" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#12161f" />
-          <stop offset="50%" stopColor="#1a212d" />
-          <stop offset="100%" stopColor="#0e1219" />
+        {/* Chrome / Metallic Trim Gradient */}
+        <linearGradient id="scooty-chrome" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#e2e8f0" />
+          <stop offset="50%" stopColor="#94a3b8" />
+          <stop offset="100%" stopColor="#cbd5e1" />
         </linearGradient>
 
-        {/* Headlight Beam Forward Glow */}
-        <linearGradient id="scooty-beam" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.75" />
-          <stop offset="40%" stopColor="#ff4d55" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#ff4d55" stopOpacity="0" />
+        {/* Deep Leather Seat Gradient */}
+        <linearGradient id="scooty-seat-leather" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1a1e27" />
+          <stop offset="45%" stopColor="#252c39" />
+          <stop offset="100%" stopColor="#12161f" />
+        </linearGradient>
+
+        {/* Bright Headlight Forward Beam */}
+        <linearGradient id="scooty-headlight-cone" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+          <stop offset="35%" stopColor="#ffe6e7" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#ff1f2d" stopOpacity="0" />
         </linearGradient>
       </defs>
 
-      {/* Realistic Ground Shadow */}
-      <ellipse cx="28" cy="62" rx="15" ry="52" fill="#000000" opacity="0.65" filter="blur(5px)" />
+      {/* 1. Deep Soft Ground Shadow */}
+      <ellipse cx="42" cy="68" rx="26" ry="54" fill="#000000" opacity="0.7" filter="blur(6px)" />
 
-      {/* Headlight Light Cone Casting Downwards onto Road */}
-      <polygon points="28,98 12,120 44,120" fill="url(#scooty-beam)" />
+      {/* 2. Radiant Headlight Light Cone (Beaming forward down the road) */}
+      <polygon points="42,108 14,130 70,130" fill="url(#scooty-headlight-cone)" />
 
-      {/* Rear Wheel (Top, Trailing) */}
-      <rect x="24.5" y="10" width="7" height="22" rx="3.5" fill="#0b0d13" stroke="#1f2430" strokeWidth="0.8" />
-      <rect x="26.5" y="14" width="3" height="14" rx="1.5" fill="#323b4c" opacity="0.6" />
+      {/* 3. Chunky Rear Wheel (Top, Trailing) */}
+      <rect x="37" y="6" width="10" height="24" rx="5" fill="#0b0d13" stroke="#222836" strokeWidth="1" />
+      <rect x="40" y="10" width="4" height="16" rx="2" fill="#3b465c" opacity="0.6" />
 
-      {/* Rear Tire Hugger / Mudguard */}
-      <path d="M 22 26 C 22 18, 34 18, 34 26 L 33 32 L 23 32 Z" fill="#141822" stroke="#232938" strokeWidth="0.5" />
+      {/* 4. Rear Mudguard Hugger */}
+      <path d="M 34 22 C 34 14, 50 14, 50 22 L 48 30 L 36 30 Z" fill="#141822" stroke="#2a3344" strokeWidth="0.8" />
 
-      {/* Rear Taillight / Tail Cowl (Sleek upswept red LED bar) */}
+      {/* 5. Bulbous Sculpted Scooter Rear Body (The Classic Curved Flanks / Side Engine Panels) */}
       <path
-        d="M 21 34 C 24 31, 32 31, 35 34 L 33 42 C 30 40, 26 40, 23 42 Z"
-        fill="url(#scooty-crimson)"
+        d="M 28 30 
+           C 16 38, 14 54, 18 68 
+           L 25 74 
+           L 59 74 
+           L 66 68 
+           C 70 54, 68 38, 56 30 
+           C 50 25, 34 25, 28 30 Z"
+        fill="url(#scooty-body-red)"
         stroke="#ff4d55"
-        strokeWidth="0.6"
-      />
-      {/* Crisp Red LED Taillight Strip */}
-      <line x1="23" y1="33" x2="33" y2="33" stroke="#ff1f2d" strokeWidth="2.2" strokeLinecap="round" filter="drop-shadow(0 0 3px #ff1f2d)" />
-
-      {/* Split Sport Pillion Grab Rails */}
-      <path d="M 18 38 Q 20 44 21 50" stroke="#717a8a" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M 38 38 Q 36 44 35 50" stroke="#717a8a" strokeWidth="1.2" strokeLinecap="round" />
-
-      {/* Main Scooter Body Panels (Flank Fenders) */}
-      <path
-        d="M 20 42 
-           C 16 48, 15 58, 17 72 
-           L 21 75 
-           L 35 75 
-           L 39 72 
-           C 41 58, 40 48, 36 42 Z"
-        fill="url(#scooty-crimson)"
-        stroke="#ff4d55"
-        strokeWidth="0.7"
+        strokeWidth="1.2"
       />
 
-      {/* Contoured Two-Tone Sport Seat */}
+      {/* Glossy Highlights on Scooty Body Curves */}
+      <path d="M 20 44 C 18 52, 19 62, 23 68" stroke="#ff858c" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+      <path d="M 64 44 C 66 52, 65 62, 61 68" stroke="#ff858c" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+
+      {/* 6. Bold Chrome Tubular Rear Grab Rail */}
       <path
-        d="M 23 41 
-           C 21 46, 21 54, 22 66 
-           C 24 67, 32 67, 34 66 
-           C 35 54, 35 46, 33 41 
-           C 31 39, 25 39, 23 41 Z"
-        fill="url(#scooty-seat)"
-        stroke="#273142"
-        strokeWidth="0.7"
+        d="M 26 34 C 28 26, 56 26, 58 34"
+        stroke="url(#scooty-chrome)"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
       />
-      {/* Seat Center Stitching Accent */}
-      <line x1="28" y1="43" x2="28" y2="64" stroke="#ff4d55" strokeWidth="0.6" strokeDasharray="1.5 1.5" opacity="0.7" />
 
-      {/* Floorboard / Foot Deck with Rubber Grip Ribs */}
-      <rect x="20" y="73" width="16" height="10" rx="2" fill="#0d1017" stroke="#1f2533" strokeWidth="0.6" />
-      <line x1="22" y1="76" x2="34" y2="76" stroke="#252d3d" strokeWidth="0.8" />
-      <line x1="22" y1="78" x2="34" y2="78" stroke="#252d3d" strokeWidth="0.8" />
-      <line x1="22" y1="80" x2="34" y2="80" stroke="#252d3d" strokeWidth="0.8" />
-
-      {/* Front Wheel (Bottom, Leading forward) */}
-      <rect x="25" y="88" width="6" height="19" rx="3" fill="#0b0d13" stroke="#1f2430" strokeWidth="0.8" />
-      <rect x="26.8" y="91" width="2.4" height="13" rx="1.2" fill="#323b4c" opacity="0.6" />
-
-      {/* Front Fender / Mudguard */}
-      <path d="M 23 90 C 23 85, 33 85, 33 90 L 32 96 C 29 95, 27 95, 24 96 Z" fill="url(#scooty-crimson)" stroke="#ff4d55" strokeWidth="0.5" />
-
-      {/* Front Aerodynamic Apron / Cowl */}
+      {/* 7. Rear Taillight (Bright Red LED Wrap) */}
       <path
-        d="M 22 78 
-           C 18 82, 17 89, 21 96 
-           C 25 99, 31 99, 35 96 
-           C 39 89, 38 82, 34 78 Z"
-        fill="url(#scooty-crimson)"
+        d="M 33 27 C 38 24, 46 24, 51 27 L 49 32 C 45 30, 39 30, 35 32 Z"
+        fill="#ff1f2d"
+        stroke="#ff6670"
+        strokeWidth="0.8"
+      />
+      <line x1="35" y1="26" x2="49" y2="26" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" filter="drop-shadow(0 0 3px #ff1f2d)" />
+
+      {/* 8. Large Contoured Scooter Seat (Dual-Tone with Red Piping Trim) */}
+      <path
+        d="M 31 32 
+           C 26 40, 26 52, 29 68 
+           C 33 70, 51 70, 55 68 
+           C 58 52, 58 40, 53 32 
+           C 49 28, 35 28, 31 32 Z"
+        fill="url(#scooty-seat-leather)"
+        stroke="#ff3845"
+        strokeWidth="1"
+      />
+      {/* Seat Piping Accent Lines & Texture */}
+      <line x1="42" y1="34" x2="42" y2="65" stroke="#ff4d55" strokeWidth="0.8" strokeDasharray="2 2" opacity="0.6" />
+      <path d="M 33 50 Q 42 52 51 50" stroke="#12161f" strokeWidth="1.2" />
+
+      {/* 9. Wide Floorboard / Foot Deck (With Anti-Slip Rubber Grip Ribs) */}
+      <rect x="25" y="70" width="34" height="15" rx="3" fill="#0d1118" stroke="#252d3d" strokeWidth="1" />
+      <line x1="28" y1="74" x2="56" y2="74" stroke="#273144" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="28" y1="78" x2="56" y2="78" stroke="#273144" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="28" y1="82" x2="56" y2="82" stroke="#273144" strokeWidth="1.2" strokeLinecap="round" />
+
+      {/* 10. Chunky Front Wheel (Bottom, Leading forward) */}
+      <rect x="37.5" y="98" width="9" height="23" rx="4.5" fill="#0b0d13" stroke="#222836" strokeWidth="1" />
+      <rect x="40.5" y="102" width="3" height="15" rx="1.5" fill="#3b465c" opacity="0.6" />
+
+      {/* 11. Curved Front Mudguard / Wheel Fender */}
+      <path
+        d="M 33 100 C 33 93, 51 93, 51 100 L 49 108 C 45 106, 39 106, 35 108 Z"
+        fill="url(#scooty-body-red)"
         stroke="#ff4d55"
         strokeWidth="0.8"
       />
 
-      {/* Sporty Handlebars & Cockpit (x = 8 to 48) */}
-      <line x1="12" y1="81" x2="44" y2="81" stroke="#181e29" strokeWidth="2.5" strokeLinecap="round" />
-      {/* Rubber Handgrips */}
-      <rect x="10" y="79" width="7" height="4" rx="1.5" fill="#080a0e" stroke="#2a3242" strokeWidth="0.6" />
-      <rect x="39" y="79" width="7" height="4" rx="1.5" fill="#080a0e" stroke="#2a3242" strokeWidth="0.6" />
-      {/* Brake Levers (Silver) */}
-      <line x1="9" y1="82" x2="15" y2="83" stroke="#c0c7d4" strokeWidth="1" strokeLinecap="round" />
-      <line x1="47" y1="82" x2="41" y2="83" stroke="#c0c7d4" strokeWidth="1" strokeLinecap="round" />
-
-      {/* Aerodynamic Bar-End Rear-View Mirrors */}
-      <rect x="6" y="75" width="4.5" height="2.5" rx="1" fill="#0e1219" stroke="#3a4457" strokeWidth="0.6" />
-      <line x1="8.5" y1="77.5" x2="11" y2="80" stroke="#5a657c" strokeWidth="0.8" />
-      <rect x="45.5" y="75" width="4.5" height="2.5" rx="1" fill="#0e1219" stroke="#3a4457" strokeWidth="0.6" />
-      <line x1="47.5" y1="77.5" x2="45" y2="80" stroke="#5a657c" strokeWidth="0.8" />
-
-      {/* Digital Dashboard / Cockpit Screen (Center of Handlebar) */}
-      <rect x="24" y="78" width="8" height="5.5" rx="1.5" fill="#040609" stroke="#38bdf8" strokeWidth="0.5" />
-      <rect x="25.2" y="79.2" width="5.6" height="3" rx="0.5" fill="#0284c7" opacity="0.8" />
-
-      {/* Sharp Dual LED Headlight Signature at Front Nose (Pointing Downwards) */}
+      {/* 12. Iconic Broad Curved Front Apron / Shield */}
       <path
-        d="M 23 96 Q 28 99 33 96"
-        stroke="#ffffff"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        filter="drop-shadow(0 0 4px #ffffff)"
+        d="M 28 80 
+           C 18 86, 17 96, 26 106 
+           C 33 111, 51 111, 58 106 
+           C 67 96, 66 86, 56 80 Z"
+        fill="url(#scooty-body-red)"
+        stroke="#ff4d55"
+        strokeWidth="1.2"
       />
-      <circle cx="28" cy="97" r="1.5" fill="#ffffff" filter="drop-shadow(0 0 5px #ff4d55)" />
+      {/* Chrome Center V-Rib on Front Shield (Classic Scooter Detail) */}
+      <path d="M 42 85 L 42 104" stroke="url(#scooty-chrome)" strokeWidth="1.5" strokeLinecap="round" />
+
+      {/* 13. Sporty Handlebar Assembly & Handgrips */}
+      <line x1="15" y1="88" x2="69" y2="88" stroke="#161b24" strokeWidth="4" strokeLinecap="round" />
+      {/* Left Grip */}
+      <rect x="12" y="85" width="10" height="6" rx="2.5" fill="#06080b" stroke="#333d52" strokeWidth="0.8" />
+      {/* Right Grip */}
+      <rect x="62" y="85" width="10" height="6" rx="2.5" fill="#06080b" stroke="#333d52" strokeWidth="0.8" />
+      {/* Silver Brake Levers */}
+      <line x1="11" y1="89" x2="19" y2="91" stroke="#e2e8f0" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="73" y1="89" x2="65" y2="91" stroke="#e2e8f0" strokeWidth="1.5" strokeLinecap="round" />
+
+      {/* 14. Prominent Round Rear-View Mirrors (Classic & Cool Scooty Feature) */}
+      <line x1="20" y1="87" x2="13" y2="78" stroke="url(#scooty-chrome)" strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="11" cy="76" r="5" fill="#141a24" stroke="url(#scooty-chrome)" strokeWidth="1.2" />
+      <circle cx="11" cy="76" r="3.5" fill="#2d3748" />
+      <line x1="64" y1="87" x2="71" y2="78" stroke="url(#scooty-chrome)" strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="73" cy="76" r="5" fill="#141a24" stroke="url(#scooty-chrome)" strokeWidth="1.2" />
+      <circle cx="73" cy="76" r="3.5" fill="#2d3748" />
+
+      {/* 15. Handlebar Cowl Headpiece & Digital Speedometer */}
+      <path
+        d="M 31 82 
+           C 31 77, 53 77, 53 82 
+           L 51 92 
+           C 48 94, 36 94, 33 92 Z"
+        fill="url(#scooty-body-red)"
+        stroke="#ff4d55"
+        strokeWidth="1"
+      />
+      {/* Digital TFT Screen Display */}
+      <rect x="36" y="81" width="12" height="6.5" rx="1.5" fill="#030712" stroke="#38bdf8" strokeWidth="0.7" />
+      <rect x="37.5" y="82.5" width="9" height="3.5" rx="0.5" fill="#0284c7" opacity="0.85" />
+
+      {/* 16. Big Cartoon Front Headlight (Prominent & Friendly like the classic car) */}
+      <circle
+        cx="42"
+        cy="104"
+        r="6"
+        fill="#ffffff"
+        stroke="#e2e8f0"
+        strokeWidth="1.5"
+        filter="drop-shadow(0 0 6px #ffffff)"
+      />
+      <circle cx="42" cy="104" r="3" fill="#ffffff" opacity="0.9" />
+      <circle cx="40" cy="102" r="1.5" fill="#ffffff" />
     </svg>
   );
 }
