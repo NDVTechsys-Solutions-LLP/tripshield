@@ -641,7 +641,7 @@ export default function Landing() {
       </section>
 
       {/* ======================================================== */}
-      {/* 8. ANOTHER MONAFA PRODUCT (AutoCare Ecosystem Link)      */}
+      {/* 8. AUTOCARE ECOSYSTEM LINK                                */}
       {/* ======================================================== */}
       <section
         id="autocare-ecosystem"
@@ -654,11 +654,6 @@ export default function Landing() {
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="max-w-2xl">
-              <div className="flex items-center gap-2 mb-3 text-xs font-mono font-semibold tracking-wider text-blue-400 uppercase">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
-                <span>Another Monafa Product</span>
-              </div>
-
               <h2 className="font-display font-extrabold text-white text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight leading-tight">
                 DISCOVER <span className="text-[#3b82f6]">AUTOCARE PULSE</span>.
               </h2>
