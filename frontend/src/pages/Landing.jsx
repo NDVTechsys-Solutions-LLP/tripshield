@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { TripShieldMark } from "@/components/BrandMark";
 import ScrollStoryCar from "@/components/ScrollStoryCar";
+import { warmupBackend } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldCheck,
@@ -170,10 +171,15 @@ export default function Landing() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   useEffect(() => {
+    warmupBackend();
+  }, []);
+
+  useEffect(() => {
     if (!loading && user) navigate(user.role === "dealer" ? "/dealer" : "/app");
   }, [user, loading, navigate]);
 
   const startGoogleLogin = () => {
+    warmupBackend();
     localStorage.setItem("hsj_role", "user");
     const redirectUrl = window.location.origin + "/app";
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(
@@ -182,6 +188,7 @@ export default function Landing() {
   };
 
   const openLoginModal = () => {
+    warmupBackend();
     setLoginRole("dealer");
     setLoginEmail("ndvtechsys.solutions@gmail.com");
     setLoginPassword("");

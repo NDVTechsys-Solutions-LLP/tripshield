@@ -4,24 +4,56 @@ import api from "@/lib/api";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Optimistically restore cached session immediately (0 ms UI delay)
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("ts_user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Only block full page if we have a token waiting to be verified and no cached user
+  const [loading, setLoading] = useState(() => {
+    try {
+      if (typeof window !== "undefined" && window.location.hash?.includes("session_id=")) {
+        return false;
+      }
+      const token = localStorage.getItem("ts_session_token");
+      const saved = localStorage.getItem("ts_user");
+      if (saved) return false;
+      return !!token;
+    } catch {
+      return false;
+    }
+  });
 
   const checkAuth = useCallback(async () => {
+    const token = localStorage.getItem("ts_session_token");
+    if (!token && !localStorage.getItem("ts_user")) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await api.get("/auth/me");
       setUser(res.data);
       localStorage.setItem("ts_user", JSON.stringify(res.data));
-    } catch {
-      const saved = localStorage.getItem("ts_user");
-      if (saved) {
-        try {
-          setUser(JSON.parse(saved));
-        } catch {
-          setUser(null);
-        }
-      } else {
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem("ts_user");
+        localStorage.removeItem("ts_session_token");
         setUser(null);
+      } else {
+        const saved = localStorage.getItem("ts_user");
+        if (saved) {
+          try {
+            setUser(JSON.parse(saved));
+          } catch {
+            setUser(null);
+          }
+        }
       }
     } finally {
       setLoading(false);
@@ -40,6 +72,22 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, role = "dealer") => {
     const emailClean = (email || "").trim().toLowerCase();
     const passClean = (password || "").trim();
+
+    // Instant local verification for Service Center credentials (avoids cold start wait)
+    if (emailClean === "ndvtechsys.solutions@gmail.com" && passClean === "DealerPass123!") {
+      const dealerUser = {
+        user_id: "user_dealer_ndv",
+        email: "ndvtechsys.solutions@gmail.com",
+        name: "TripShield Service Center",
+        role: "dealer",
+      };
+      setUser(dealerUser);
+      localStorage.setItem("ts_user", JSON.stringify(dealerUser));
+      localStorage.setItem("ts_session_token", "st_dealer_ndv");
+      api.post("/auth/login", { email: emailClean, password: passClean, role }).catch(() => {});
+      return dealerUser;
+    }
+
     try {
       const res = await api.post("/auth/login", { email: emailClean, password: passClean, role });
       if (res.data?.session_token) {
@@ -51,7 +99,7 @@ export const AuthProvider = ({ children }) => {
         return res.data.user;
       }
     } catch (err) {
-      // Hardcoded credentials verification for Service Center
+      // Hardcoded fallback for Service Center in case credentials check fails
       if (emailClean === "ndvtechsys.solutions@gmail.com" && passClean === "DealerPass123!") {
         const dealerUser = {
           user_id: "user_dealer_ndv",

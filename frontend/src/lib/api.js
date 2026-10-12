@@ -22,6 +22,7 @@ export const API = `${BACKEND_URL}/api`;
 export const api = axios.create({
   baseURL: API,
   withCredentials: true,
+  timeout: 10000, // 10s timeout to prevent requests from hanging indefinitely
 });
 
 api.interceptors.request.use((config) => {
@@ -32,6 +33,17 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+/**
+ * Pre-warms the backend container in the background to eliminate cold start wait times.
+ * Uses no-cors fetch so it won't throw console errors or block UI rendering.
+ */
+export const warmupBackend = () => {
+  try {
+    const url = `${getBackendUrl()}/api/`;
+    fetch(url, { method: "GET", mode: "no-cors", cache: "no-cache" }).catch(() => {});
+  } catch {}
+};
 
 export default api;
 
