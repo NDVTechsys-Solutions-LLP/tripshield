@@ -77,14 +77,12 @@ export default function DealerDashboard() {
 
           <div className="flex items-center gap-3 sm:gap-4">
             {openCount > 0 ? (
-              <span className="flex items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-400">
-                <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-                <span>{openCount} Open Incidents</span>
+              <span className="text-xs font-semibold text-red-400">
+                {openCount} Open {openCount === 1 ? "Incident" : "Incidents"}
               </span>
             ) : (
-              <span className="hidden sm:flex items-center gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 text-xs font-semibold text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span>All Routes Normal</span>
+              <span className="hidden sm:inline text-xs text-slate-400 font-medium">
+                All Routes Normal
               </span>
             )}
 

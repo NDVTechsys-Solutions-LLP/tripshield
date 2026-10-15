@@ -239,13 +239,13 @@ const STORY_STEPS = [
     range: [0.04, 0.15],
     step: "01 / 08",
     milestone: "Point A Departure",
-    title: "Starting the Late Night Commute",
+    title: "Starting the Night Commute",
     story:
-      "You pack up and leave your workplace at 9:30 PM for a 45 km drive back home. The route takes you across unlit highway bypasses.",
+      "You begin your commute across unlit highway stretches and bypass routes.",
     problem:
-      "In traditional driving, you travel alone with zero backup. If anything goes wrong, nobody at home knows where you are or when to worry.",
+      "In traditional riding, you travel alone with zero backup. If an accident occurs, nobody at home knows where you are or when to worry.",
     solution:
-      "One tap starts your trip. An encrypted live tracking link is automatically shared with your family via WhatsApp—no app install required for them.",
+      "One tap starts your trip. An encrypted live tracking link is automatically shared with your family via WhatsApp—accessible directly in any web browser.",
   },
   {
     id: 2,
@@ -255,7 +255,7 @@ const STORY_STEPS = [
     milestone: "Highway Commute",
     title: "No More Distracting Check-in Calls",
     story:
-      "Deep into the highway, rain starts falling and visibility drops. Your phone battery drops below 20%.",
+      "Rain starts falling and visibility drops while your vehicle navigates congested traffic.",
     problem:
       "Anxious family members call repeatedly asking 'Where have you reached?', forcing risky one-handed driving to answer.",
     solution:
@@ -269,9 +269,9 @@ const STORY_STEPS = [
     milestone: "The Incident",
     title: "Unmarked Hazard on a Dark Curve",
     story:
-      "At 10:20 PM, you hit hidden road debris on an unlit bypass curve. The tire blows out, forcing a sudden stop on the dark shoulder.",
+      "En route, you hit unexpected road debris on an unlit bypass curve, forcing a sudden emergency stop.",
     problem:
-      "The jolt knocks your phone under the seat. You are stranded in pitch darkness with heavy highway traffic rushing by, unable to reach help.",
+      "The sudden deceleration knocks the phone away. Stranded in darkness near high-speed traffic, reaching manual help is difficult.",
     solution:
       "Built-in vehicle telematics instantly detect the sudden impact, deceleration, and stationary position on the road.",
   },
@@ -285,9 +285,9 @@ const STORY_STEPS = [
     story:
       "TripShield automatically triggers a gentle 15-second audio prompt on your dashboard: 'Are you safe?'",
     problem:
-      "False-alarm prevention: If it was just a minor bump and you are fine, you simply tap dismiss and continue driving normally.",
+      "False-alarm prevention: If it was just a minor bump or pothole and you are fine, you tap dismiss and continue driving normally.",
     solution:
-      "If you are injured or cannot reach your phone, the 15-second timer runs out and TripShield immediately assumes an emergency.",
+      "If you are injured or cannot reach your phone, the 15-second timer runs out and TripShield immediately initiates emergency escalation.",
   },
   {
     id: 5,
@@ -299,7 +299,7 @@ const STORY_STEPS = [
     story:
       "When the timer expires without a response, TripShield shifts your family's tracking link into an active red SOS alert.",
     problem:
-      "Normally, families are left in silence and panic for hours when a driver doesn't arrive.",
+      "Normally, families are left in silence and panic for hours when a rider doesn't arrive.",
     solution:
       "Your family receives your exact pinned GPS location and a 60-second recorded audio snippet from the incident scene, giving them instant context.",
   },
@@ -309,13 +309,13 @@ const STORY_STEPS = [
     range: [0.64, 0.75],
     step: "06 / 08",
     milestone: "Multi-Agency Rescue",
-    title: "112 ERSS & Nearest Dealer Recovery",
+    title: "112 ERSS & Nearest Service Center Recovery",
     story:
       "TripShield coordinates assistance through emergency services and automotive networks simultaneously.",
     problem:
-      "Calling a tow truck at midnight usually means stranded drivers trying to guess mile markers and road names.",
+      "Calling for help on highways usually means stranded riders struggling to describe mile markers and exact road names.",
     solution:
-      "National 112 emergency services receive verified satellite coordinates, while the nearest TripShield Service Center dispatches roadside recovery straight to your scooty.",
+      "National 112 emergency services receive verified satellite coordinates, while the nearest TripShield Service Center dispatches roadside recovery straight to your vehicle.",
   },
   {
     id: 7,
@@ -325,11 +325,11 @@ const STORY_STEPS = [
     milestone: "Roadside Recovery",
     title: "Vehicle Secured & Instant Insurance FNOL",
     story:
-      "The certified recovery team arrives in 14 minutes. Your tire is replaced, the vehicle is inspected, and you're cleared to continue home.",
+      "The authorized recovery team arrives on site with roadside assistance tools, inspects the vehicle, and secures the scene.",
     problem:
       "Filing an insurance claim usually takes days of paperwork and arguing over impact details.",
     solution:
-      "A Notice of Loss (FNOL) is pre-filled automatically with recorded vehicle speed and crash telematics, ready for instant submission.",
+      "A Notice of Loss (FNOL) is pre-filled automatically with recorded vehicle speed and impact telematics, ready for instant submission.",
   },
   {
     id: 8,
@@ -337,13 +337,13 @@ const STORY_STEPS = [
     range: [0.88, 0.99],
     step: "08 / 08",
     milestone: "Point B Arrival",
-    title: "Safe Arrival Confirmed at Home",
+    title: "Safe Arrival Confirmed at Destination",
     story:
-      "You pull safely through your front gate and park at home at 11:15 PM.",
+      "You pull safely through your destination and conclude the trip.",
     problem:
-      "Without TripShield: A night of terror, uncertainty, and hours stranded alone in the dark.",
+      "Without automated tracking: hours of uncertainty and stress for loved ones waiting at home.",
     solution:
-      "TripShield automatically detects arrival at your destination and pings your family: 'Journey completed safely.' Complete peace of mind from start to finish.",
+      "TripShield automatically detects arrival at your destination and notifies your family: 'Journey completed safely.' Complete peace of mind from start to finish.",
   },
 ];
 

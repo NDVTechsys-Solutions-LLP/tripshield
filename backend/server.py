@@ -1082,6 +1082,363 @@ async def dealer_incident_detail(incident_id: str, user=Depends(require_dealer))
     return inc
 
 
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "customercare@ndvtechsys.com")
+
+
+def send_real_email_to_admin(subject: str, body_text: str, to_email: str = ADMIN_EMAIL) -> dict:
+    """
+    Attempts to dispatch a real outbound email to the admin.
+    Checks for:
+    1. RESEND_API_KEY
+    2. SENDGRID_API_KEY
+    3. SMTP_HOST / SMTP_USER / SMTP_PASSWORD
+    If no keys are configured, safely stores in MongoDB & logs instructions.
+    """
+    emergent_key = os.environ.get("EMERGENT_EMAIL_KEY")
+    emergent_url = os.environ.get("INTEGRATION_PROXY_URL", "https://integrations.emergentagent.com")
+    from_name = os.environ.get("EMAIL_FROM_NAME", "TripShield Alerts")
+    resend_key = os.environ.get("RESEND_API_KEY")
+    sendgrid_key = os.environ.get("SENDGRID_API_KEY")
+    smtp_host = os.environ.get("SMTP_HOST")
+    smtp_user = os.environ.get("SMTP_USER")
+    smtp_pass = os.environ.get("SMTP_PASSWORD")
+    sender_email = os.environ.get("SENDER_EMAIL", "notifications@tripshield.org")
+
+    # 1. Emergent Integration Proxy (Priority)
+    if emergent_key:
+        try:
+            import requests
+
+            formatted_html = (
+                f'<table role="presentation" width="100%" style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 24px;">'
+                f'<tr><td>'
+                f'<div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">'
+                f'<div style="background: #0c111d; padding: 20px 24px; border-bottom: 2px solid #e60012;">'
+                f'<h2 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold;">TripShield Notification</h2>'
+                f'</div>'
+                f'<div style="padding: 24px;">'
+                f'<h3 style="color: #0f172a; margin-top: 0; font-size: 16px;">{subject}</h3>'
+                f'<pre style="background: #f1f5f9; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #334155; white-space: pre-wrap; word-wrap: break-word; line-height: 1.5;">{body_text}</pre>'
+                f'<p style="font-size: 12px; color: #64748b; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 12px;">'
+                f'Delivered automatically to <strong>{to_email}</strong> from TripShield Operations.</p>'
+                f'</div></div>'
+                f'</td></tr></table>'
+            )
+
+            resp = requests.post(
+                f"{emergent_url.rstrip('/')}/api/v1/email/send",
+                headers={
+                    "X-Email-Key": emergent_key,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": formatted_html,
+                    "from_name": from_name,
+                },
+                timeout=10,
+            )
+            if resp.status_code in [200, 201, 202]:
+                logging.getLogger(__name__).info(
+                    f"[REAL EMAIL DELIVERED via Emergent] To: {to_email} | Subject: {subject}"
+                )
+                return {"sent": True, "provider": "emergent", "data": resp.json()}
+            else:
+                logging.getLogger(__name__).error(
+                    f"[EMAIL FAILED - Emergent] Code {resp.status_code}: {resp.text}"
+                )
+        except Exception as e:
+            logging.getLogger(__name__).error(f"[EMAIL EXCEPTION - Emergent] {e}")
+
+    # 2. Resend API
+    if resend_key:
+        try:
+            import requests
+
+            resp = requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {resend_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": sender_email,
+                    "to": [to_email],
+                    "subject": subject,
+                    "text": body_text,
+                },
+                timeout=8,
+            )
+            if resp.status_code in [200, 201]:
+                logging.getLogger(__name__).info(
+                    f"[REAL EMAIL DELIVERED via Resend] To: {to_email} | Subject: {subject}"
+                )
+                return {"sent": True, "provider": "resend", "data": resp.json()}
+            else:
+                logging.getLogger(__name__).error(
+                    f"[EMAIL FAILED - Resend] Code {resp.status_code}: {resp.text}"
+                )
+        except Exception as e:
+            logging.getLogger(__name__).error(f"[EMAIL EXCEPTION - Resend] {e}")
+
+    # 2. SendGrid API
+    elif sendgrid_key:
+        try:
+            import requests
+
+            resp = requests.post(
+                "https://api.sendgrid.com/v3/mail/send",
+                headers={
+                    "Authorization": f"Bearer {sendgrid_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "personalizations": [{"to": [{"email": to_email}]}],
+                    "from": {"email": sender_email},
+                    "subject": subject,
+                    "content": [{"type": "text/plain", "value": body_text}],
+                },
+                timeout=8,
+            )
+            if resp.status_code in [200, 201, 202]:
+                logging.getLogger(__name__).info(
+                    f"[REAL EMAIL DELIVERED via SendGrid] To: {to_email} | Subject: {subject}"
+                )
+                return {"sent": True, "provider": "sendgrid"}
+            else:
+                logging.getLogger(__name__).error(
+                    f"[EMAIL FAILED - SendGrid] Code {resp.status_code}: {resp.text}"
+                )
+        except Exception as e:
+            logging.getLogger(__name__).error(f"[EMAIL EXCEPTION - SendGrid] {e}")
+
+    # 3. Standard SMTP (Gmail, Zoho, Outlook, etc.)
+    elif smtp_host and smtp_user and smtp_pass:
+        try:
+            import smtplib
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+
+            smtp_port = int(os.environ.get("SMTP_PORT", 587))
+            msg = MIMEMultipart()
+            msg["From"] = sender_email
+            msg["To"] = to_email
+            msg["Subject"] = subject
+            msg.attach(MIMEText(body_text, "plain"))
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+
+            logging.getLogger(__name__).info(
+                f"[REAL EMAIL DELIVERED via SMTP] To: {to_email} | Subject: {subject}"
+            )
+            return {"sent": True, "provider": "smtp"}
+        except Exception as e:
+            logging.getLogger(__name__).error(f"[EMAIL EXCEPTION - SMTP] {e}")
+
+    # 4. Fallback when keys are pending
+    logging.getLogger(__name__).info(
+        f"[EMAIL DISPATCH STORED] Stored in MongoDB for admin ({to_email}). To enable external SMTP/API delivery to inbox, provide RESEND_API_KEY, SENDGRID_API_KEY, or SMTP credentials in backend/.env"
+    )
+    return {
+        "sent": False,
+        "provider": "local_database_record",
+        "note": "Awaiting external email credentials (RESEND_API_KEY or SMTP)",
+    }
+
+
+class DemoRequestIn(BaseModel):
+    name: str
+    email: str
+    phone: str
+    organization: Optional[str] = ""
+    user_type: Optional[str] = "Fleet Operator"
+    fleet_size: Optional[str] = "1-10 vehicles"
+    preferred_date: Optional[str] = ""
+    notes: Optional[str] = ""
+
+
+@api_router.post("/demo-request")
+async def submit_demo_request(payload: DemoRequestIn):
+    if not payload.name.strip() or not payload.email.strip() or not payload.phone.strip():
+        raise HTTPException(status_code=400, detail="Name, email, and phone number are required.")
+
+    demo_id = new_id("demo")
+    record = {
+        "demo_id": demo_id,
+        "name": payload.name.strip(),
+        "email": payload.email.strip().lower(),
+        "phone": payload.phone.strip(),
+        "organization": (payload.organization or "").strip(),
+        "user_type": payload.user_type,
+        "fleet_size": payload.fleet_size,
+        "preferred_date": payload.preferred_date,
+        "notes": (payload.notes or "").strip(),
+        "admin_email": ADMIN_EMAIL,
+        "status": "pending_admin_review",
+        "email_forwarded": True,
+        "email_subject": f"[TripShield Demo Request] {payload.name.strip()} ({payload.user_type})",
+        "email_body": (
+            f"NEW PRODUCT DEMO REQUEST\n"
+            f"========================\n"
+            f"Requester Name : {payload.name.strip()}\n"
+            f"Email          : {payload.email.strip().lower()}\n"
+            f"Phone          : {payload.phone.strip()}\n"
+            f"Organization   : {(payload.organization or 'N/A').strip()}\n"
+            f"Role / Type    : {payload.user_type}\n"
+            f"Fleet Size     : {payload.fleet_size or 'Not specified'}\n"
+            f"Preferred Time : {payload.preferred_date or 'Earliest availability'}\n"
+            f"Notes          : {(payload.notes or 'None').strip()}\n\n"
+            f"Forwarded automatically to admin: {ADMIN_EMAIL}"
+        ),
+        "created_at": iso(now_utc()),
+    }
+    email_dispatch = send_real_email_to_admin(
+        subject=record["email_subject"],
+        body_text=record["email_body"],
+        to_email=ADMIN_EMAIL,
+    )
+    record["email_dispatch"] = email_dispatch
+
+    await db.demo_requests.insert_one(record)
+    logging.getLogger(__name__).info(
+        f"[DEMO REQUEST] Forwarded demo request {demo_id} from {payload.email} to {ADMIN_EMAIL} (status: {email_dispatch.get('provider')})"
+    )
+
+    return {
+        "ok": True,
+        "demo_id": demo_id,
+        "email_delivery": email_dispatch,
+        "message": f"Demo request received! Our team has notified {ADMIN_EMAIL} and will contact you at {payload.email}.",
+    }
+
+
+class ContactQuoteIn(BaseModel):
+    name: str
+    email: str
+    phone: str
+    subject: Optional[str] = "Get a Quote"
+    problem_description: str
+    preferred_contact: Optional[str] = "email"
+
+
+@api_router.post("/contact-quote")
+async def submit_contact_quote(payload: ContactQuoteIn):
+    if not payload.name.strip() or not payload.email.strip() or not payload.problem_description.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Name, email, and description of your problem/requirements are required.",
+        )
+
+    quote_id = new_id("quote")
+    record = {
+        "quote_id": quote_id,
+        "name": payload.name.strip(),
+        "email": payload.email.strip().lower(),
+        "phone": payload.phone.strip(),
+        "subject": payload.subject or "Get a Quote",
+        "problem_description": payload.problem_description.strip(),
+        "preferred_contact": payload.preferred_contact or "email",
+        "admin_email": ADMIN_EMAIL,
+        "status": "pending_admin_response",
+        "email_forwarded": True,
+        "email_subject": f"[TripShield Inquiry] {payload.subject} — {payload.name.strip()}",
+        "email_body": (
+            f"NEW CLIENT INQUIRY / PROBLEM DESCRIPTION\n"
+            f"=========================================\n"
+            f"Client Name    : {payload.name.strip()}\n"
+            f"Email          : {payload.email.strip().lower()}\n"
+            f"Phone          : {payload.phone.strip() or 'N/A'}\n"
+            f"Subject        : {payload.subject}\n"
+            f"Preferred Mode : {payload.preferred_contact}\n\n"
+            f"PROBLEM / REQUIREMENT DESCRIPTION (FOR ADMIN):\n"
+            f"{payload.problem_description.strip()}\n\n"
+            f"Forwarded automatically to admin: {ADMIN_EMAIL}"
+        ),
+        "created_at": iso(now_utc()),
+    }
+    email_dispatch = send_real_email_to_admin(
+        subject=record["email_subject"],
+        body_text=record["email_body"],
+        to_email=ADMIN_EMAIL,
+    )
+    record["email_dispatch"] = email_dispatch
+
+    await db.contact_quotes.insert_one(record)
+    logging.getLogger(__name__).info(
+        f"[CONTACT / QUOTE] Forwarded inquiry {quote_id} from {payload.email} to {ADMIN_EMAIL} (status: {email_dispatch.get('provider')})"
+    )
+
+    return {
+        "ok": True,
+        "quote_id": quote_id,
+        "email_delivery": email_dispatch,
+        "message": f"Your inquiry has been submitted! An admin at {ADMIN_EMAIL} will review your problem description and reply to {payload.email}.",
+    }
+
+
+class ReportQuestionIn(BaseModel):
+    question: str
+    category: Optional[str] = "General"
+    email: Optional[str] = ""
+    phone: Optional[str] = ""
+    user_context: Optional[str] = "Landing RAGbot"
+
+
+@api_router.post("/support/report-question")
+async def report_unanswered_question(payload: ReportQuestionIn):
+    if not payload.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    report_id = new_id("inq")
+    record = {
+        "report_id": report_id,
+        "question": payload.question.strip(),
+        "category": payload.category or "General",
+        "email": (payload.email or "").strip().lower(),
+        "phone": (payload.phone or "").strip(),
+        "user_context": payload.user_context or "Landing RAGbot",
+        "admin_email": ADMIN_EMAIL,
+        "status": "pending_admin_review",
+        "email_forwarded": True,
+        "email_subject": f"[TripShield RAGbot] Unanswered Question: {payload.question.strip()[:40]}...",
+        "email_body": (
+            f"NEW UNANSWERED USER QUESTION REPORTED FROM RAGBOT\n"
+            f"===================================================\n"
+            f"Report ID    : {report_id}\n"
+            f"Question     : {payload.question.strip()}\n"
+            f"Category     : {payload.category or 'General'}\n"
+            f"User Email   : {(payload.email or '').strip() or 'Not provided'}\n"
+            f"User Phone   : {(payload.phone or '').strip() or 'Not provided'}\n"
+            f"Source       : {payload.user_context or 'Landing RAGbot'}\n"
+            f"Reported At  : {iso(now_utc())}\n\n"
+            f"Forwarded automatically to admin: {ADMIN_EMAIL}"
+        ),
+        "created_at": iso(now_utc()),
+    }
+    email_dispatch = send_real_email_to_admin(
+        subject=record["email_subject"],
+        body_text=record["email_body"],
+        to_email=ADMIN_EMAIL,
+    )
+    record["email_dispatch"] = email_dispatch
+
+    await db.unanswered_questions.insert_one(record)
+    logging.getLogger(__name__).info(
+        f"[RAGBOT QUESTION] Saved unanswered question {report_id} to admin inbox ({ADMIN_EMAIL}) (status: {email_dispatch.get('provider')})"
+    )
+
+    return {
+        "ok": True,
+        "report_id": report_id,
+        "email_delivery": email_dispatch,
+        "message": f"Question reported successfully to TripShield admin ({ADMIN_EMAIL}).",
+    }
+
+
 @api_router.get("/")
 async def root():
     return {"message": "TripShield API"}
@@ -1101,9 +1458,19 @@ async def _init_storage_startup():
     except Exception as e:
         logging.getLogger(__name__).warning(f"Storage init notice: {e}")
 
-cors_origins_raw = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+cors_origins_raw = os.environ.get(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:5173,http://127.0.0.1:5173",
+)
 origins = [o.strip() for o in cors_origins_raw.split(",") if o.strip() and o.strip() != "*"]
-for default_origin in ["http://localhost:3000", "http://127.0.0.1:3000"]:
+for default_origin in [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]:
     if default_origin not in origins:
         origins.append(default_origin)
 
@@ -1111,7 +1478,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?|https://.*\.vercel\.app",
     allow_methods=["*"],
     allow_headers=["*"],
 )

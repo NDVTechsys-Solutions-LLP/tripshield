@@ -71,15 +71,14 @@ export default function TrackView() {
             </span>
             <span className="text-slate-400 font-display font-semibold text-xs ml-1.5">· LIVE</span>
           </div>
-          <span className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ${
+          <span className={`text-xs font-semibold uppercase tracking-wider ${
             emergency
-              ? "bg-red-500/15 border border-red-500/30 text-red-300"
+              ? "text-red-400 font-bold"
               : done
-              ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
-              : "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+              ? "text-emerald-400"
+              : "text-slate-300"
           }`}>
-            <span className={`w-2 h-2 rounded-full ${emergency ? "bg-red-400 animate-pulse" : "bg-emerald-400"}`} />
-            <span>{emergency ? "Emergency" : done ? "Safely Arrived" : "Tracking Active"}</span>
+            {emergency ? "Emergency Reported" : done ? "Safely Arrived" : "Tracking Active"}
           </span>
         </div>
       </header>

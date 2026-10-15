@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-fe = Path("/app/frontend/.env").read_text()
+fe_path = Path("/app/frontend/.env") if Path("/app/frontend/.env").exists() else Path(__file__).resolve().parents[2] / "frontend" / ".env"
+fe = fe_path.read_text() if fe_path.exists() else "REACT_APP_BACKEND_URL=http://localhost:8000"
 BASE_URL = None
 for line in fe.splitlines():
     if line.startswith("REACT_APP_BACKEND_URL"):
