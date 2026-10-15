@@ -18,3 +18,7 @@ services:
         value: "narendra.macherla@ndvtechsys.com"
       - key: INTEGRATION_PROXY_URL
         value: "https://integrations.emergentagent.com"
+      - key: ADMIN_EMAIL
+        value: "customercare@ndvtechsys.com"
+      - key: EMERGENT_EMAIL_KEY
+        sync: false
